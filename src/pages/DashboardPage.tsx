@@ -12,22 +12,10 @@ import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer'; 
 import logo from '../assets/logo.png';
 
-// Define a type for a parsed channel item
-interface Channel {
-  name: string;
-  url: string;
-  logo?: string;
-  group?: string;
-}
+import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
 
-type GroupedChannels = {
-  [groupName: string]: Channel[];
-};
-
-interface Playlist {
-  id: string;
-  name: string;
-  url: string;
+function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
+  return playlist.type === 'xtream';
 }
 
 const DashboardPage = () => {
@@ -37,7 +25,7 @@ const DashboardPage = () => {
 
   
   const [availablePlaylists, setAvailablePlaylists] = useState<Playlist[]>([]);
-  const [selectedPlaylistUrl, setSelectedPlaylistUrl] = useState<string | null>(null);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null); 
   const [channels, setChannels] = useState<Channel[]>([]);
   const [groupedChannels, setGroupedChannels] = useState<GroupedChannels>({}); 
   const [isLoading, setIsLoading] = useState(false);
@@ -54,39 +42,57 @@ const DashboardPage = () => {
       setAvailablePlaylists(userPlaylists);
 
       if (userPlaylists.length > 0) {
-        // Remember the user's last choice from localStorage
-        const lastSelected = localStorage.getItem('lastSelectedPlaylistUrl');
-        const isValid = userPlaylists.some(p => p.url === lastSelected);
-        
-        setSelectedPlaylistUrl(isValid ? lastSelected : userPlaylists[0].url);
+        const lastSelectedId = localStorage.getItem('lastSelectedPlaylistId');
+        const isValid = userPlaylists.some(p => p.id === lastSelectedId);
+        setSelectedPlaylistId(isValid ? lastSelectedId : userPlaylists[0].id);
       } else {
-        setSelectedPlaylistUrl(null);
+        setSelectedPlaylistId(null);
       }
     } else {
-        setIsLoading(false); // No playlists, stop loading.
+        setIsLoading(false);
     }
   }, [session]);
 
   // Effect 2: Fetch and parse the selected playlist
-  useEffect(() => {
+useEffect(() => {
     const fetchAndParsePlaylist = async () => {
-      if (!selectedPlaylistUrl) {
-        setGroupedChannels({});
-        setError("No playlist selected or configured. Please add one in Settings.");
-        setIsLoading(false);
+      if (!selectedPlaylistId) {
+        setChannels([]); setGroupedChannels({}); setIsLoading(false);
+        setError("No playlist selected.");
+        return;
+      }
+
+      const selectedPlaylist = availablePlaylists.find(p => p.id === selectedPlaylistId);
+      if (!selectedPlaylist) {
+        setChannels([]); setGroupedChannels({}); setIsLoading(false);
+        setError("Selected playlist not found.");
+        return;
+      }
+
+      let m3uUrlToFetch: string | null = null;
+      
+      // 3. Use our type guard for safe property access
+      if (isXtreamPlaylist(selectedPlaylist)) {
+        m3uUrlToFetch = `${selectedPlaylist.serverUrl}/get.php?username=${selectedPlaylist.username}&password=${selectedPlaylist.password || ''}&type=m3u_plus&output=ts`;
+      } else {
+        m3uUrlToFetch = selectedPlaylist.url;
+      }
+      
+      if (!m3uUrlToFetch) {
+        setError("Could not determine the M3U URL for this playlist.");
         return;
       }
 
       setIsLoading(true);
       setError(null);
+      setChannels([]);
+      setGroupedChannels({});
       
       try {
-        const response = await fetch(selectedPlaylistUrl);
-         if (!response.ok) {
-          throw new Error(`Failed to fetch playlist: ${response.statusText}`);
-        }
-        const playlistText = await response.text();
+        const response = await fetch(m3uUrlToFetch);
+        if (!response.ok) throw new Error(`Failed to fetch playlist: ${response.statusText}`);
         
+        const playlistText = await response.text();
         const result = parser.parse(playlistText);
         
         const formattedChannels = result.items.map(item => ({
@@ -96,34 +102,31 @@ const DashboardPage = () => {
           group: item.group.title,
         }));
         
-        setChannels(formattedChannels);
-
         const grouped = formattedChannels.reduce((acc: GroupedChannels, channel) => {
-          const groupName = channel.group || 'Uncategorized'; // Use a default group
+          const groupName = channel.group || 'Uncategorized';
           if (!acc[groupName]) {
-            acc[groupName] = []; // Create the group array if it doesn't exist
+            acc[groupName] = [];
           }
           acc[groupName].push(channel);
           return acc;
         }, {});
-
+        
+        // 4. Set the channels and groupedChannels state correctly
+        setChannels(formattedChannels);
         setGroupedChannels(grouped);
 
       } catch (err: unknown) {
-              if (err instanceof Error) {
-          setError(`Failed to parse playlist: ${err.message}`);
-          console.error(err);
-        } else {
-          setError('Failed to parse playlist: Unknown error');
-          console.error(err);
-        }
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setError(`Failed to parse playlist: ${errorMessage}`);
+        console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchAndParsePlaylist();
-  }, [selectedPlaylistUrl]); // This effect now runs when the selection changes!
+  }, [selectedPlaylistId, availablePlaylists]);
+
 
   const filteredChannels = useMemo(() => {
     if (!searchTerm) {
@@ -135,9 +138,9 @@ const DashboardPage = () => {
   }, [searchTerm, channels]); 
 
   const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newUrl = e.target.value;
-    setSelectedPlaylistUrl(newUrl);
-    localStorage.setItem('lastSelectedPlaylistUrl', newUrl);
+    const newId = e.target.value;
+    setSelectedPlaylistId(newId);
+    localStorage.setItem('lastSelectedPlaylistId', newId);
   };
 
 
@@ -182,12 +185,12 @@ const DashboardPage = () => {
           <h2 className="text-xl font-bold mb-2">Playlists</h2>
           {availablePlaylists.length > 0 ? (
             <select
-              value={selectedPlaylistUrl || ''}
+              value={selectedPlaylistId || ''}
               onChange={handlePlaylistChange}
               className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md"
             >
               {availablePlaylists.map(p => (
-                <option key={p.id} value={p.url}>
+                <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
               ))}
@@ -262,13 +265,15 @@ const DashboardPage = () => {
                               onClick={() => handleChannelClick(channel.url)}
                               className="w-full text-left p-2 rounded hover:bg-gray-600 text-sm flex items-center space-x-2 h-11"
                             >
-                              {channel.logo && channel.logo !== '' && <img 
+                              {(channel.logo && channel.logo !== '') 
+                              ? <img 
                                 src={channel.logo} 
                                 alt="" 
                                 className="w-8 h-8 object-contain rounded-sm bg-gray-700"
                                 loading="lazy"
                                 onError={(e) => (e.currentTarget.style.display = 'none')}
-                              />}
+                              />
+                            : <div className="w-8 h-8 bg-gray-700 rounded-sm flex items-center justify-center text-xs text-gray-400">N/A</div>}
                               <span className="flex-1 truncate">{channel.name}</span>
                             </button>
                           </div>
