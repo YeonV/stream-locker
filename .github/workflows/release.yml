@@ -40,7 +40,7 @@ jobs:
       - name: Install frontend dependencies (npm)
         run: npm install --force
       - name: Sync Version and Build App
-        # This single step combines version sync and build for simplicity
+        shell: bash
         run: |
           npm install -D @tauri-apps/cli --force
           node -e "
@@ -50,7 +50,6 @@ jobs:
             const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
             tauriConf.version = packageJson.version;
             fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
-            console.log('Synced version to tauri.conf.json');
           "
           npm run tauri build
       - name: Rename and Prepare Artifacts
@@ -98,6 +97,7 @@ jobs:
       - name: Install frontend dependencies (npm)
         run: npm install --force
       - name: Sync versions and Init Android project
+        shell: bash
         run: |
           npm install -D @tauri-apps/cli --force
           VERSION=$(node -p "require('./package.json').version")
@@ -106,7 +106,7 @@ jobs:
             const fs = require('fs');
             const tauriConfPath = './src-tauri/tauri.conf.json';
             const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
-            tauriConf.package.version = '$VERSION';
+            tauriConf.version = '$VERSION';
             fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
           "
           # Sync package.json version to Cargo.toml
