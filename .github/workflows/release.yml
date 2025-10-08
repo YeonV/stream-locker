@@ -38,7 +38,7 @@ jobs:
             librsvg2-dev \
             patchelf
       - name: Install frontend dependencies (npm)
-        run: npm install
+        run: npm install --force
       - name: Sync Version and Build App
         # This single step combines version sync and build for simplicity
         run: |
@@ -99,7 +99,7 @@ jobs:
         run: npm install
       - name: Sync versions and Init Android project
         run: |
-          npm install -D @tauri-apps/cli
+          npm install -D @tauri-apps/cli --force
           VERSION=$(node -p "require('./package.json').version")
           # Sync package.json version to tauri.conf.json
           node -e "
