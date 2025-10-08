@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import { useAuthStore } from '../store/authStore';
+import logo from '../assets/logo.png';
 
 const LoginPage = () => {
   const navigate = useNavigate(); // 2. Initialize the hook
@@ -42,7 +43,9 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-around min-h-screen">
+       
+      <img src={logo} alt="Logo" className="w-80 h-80  rounded-full" />
       <div className="w-full max-w-sm p-8 space-y-6 bg-gray-800 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center">Stream Locker</h1>
         <form onSubmit={handleLogin} className="space-y-6">
@@ -72,6 +75,10 @@ const LoginPage = () => {
           {error && <p className="text-sm text-center text-red-400">{error}</p>}
         </form>
       </div>
+      {/** create a super nice footer plz with "hacked by Blade"*/}
+      <footer className="mt-8 text-sm text-gray-500">
+        <p>Hacked by <a href="https://github.com/YeonV" className="text-blue-500 hover:underline">Blade</a></p>
+      </footer>
     </div>
   );
 };

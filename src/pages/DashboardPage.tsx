@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import ChannelList from '../components/ChannelList';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer'; 
+import logo from '../assets/logo.png';
 
 // Define a type for a parsed channel item
 interface Channel {
@@ -287,7 +288,9 @@ const DashboardPage = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
+        <header className="flex justify-between items-center p-4 pl-20 bg-gray-800 border-b border-gray-700 relative">
+          {/* plz add this logo in a nice way here: <img src={logo} alt="Logo" className="w-80 h-80  rounded-full" /> */}
+          <img src={logo} alt="Logo" className="w-16 h-16  rounded-full absolute left-0 top-2" />
           <div>
             <h1 className="text-xl font-bold">Stream Locker - IPTV Player</h1>
             <p className="text-sm text-gray-400">Welcome, {session?.user?.email}</p>
