@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import ChannelList from '../components/ChannelList';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer'; 
+import { FiLogOut, FiMenu, FiRefreshCcw, FiSettings, FiStopCircle,  } from 'react-icons/fi';
 import logo from '../assets/logo.png';
 
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
@@ -31,6 +32,7 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
   const [viewMode, setViewMode] = useState<'grouped' | 'flat'>('flat'); // Default to flat
   const [searchTerm, setSearchTerm] = useState('');
@@ -178,8 +180,10 @@ useEffect(() => {
   }, [lockStatus]);
 
   return (
-   <div className="flex h-screen">
-      <aside className="w-64 bg-gray-800 flex flex-col">
+   <div className="relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex">
+      <aside className={`absolute top-0 left-0 h-full w-64 bg-gray-800 flex flex-col z-40 transform transition-transform duration-300 ease-in-out 
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:static md:translate-x-0`}>
         {/* --- START OF NEW DROPDOWN --- */}
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-bold mb-2">Playlists</h2>
@@ -292,15 +296,21 @@ useEffect(() => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col">
-        <header className="flex justify-between items-center p-4 pl-20 bg-gray-800 border-b border-gray-700 relative">
+      <main className="flex-1 flex flex-col h-full">
+        <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700 shrink-0">
           {/* plz add this logo in a nice way here: <img src={logo} alt="Logo" className="w-80 h-80  rounded-full" /> */}
-          <img src={logo} alt="Logo" className="w-16 h-16  rounded-full absolute left-0 top-2" />
-          <div>
-            <h1 className="text-xl font-bold">Stream Locker - IPTV Player</h1>
-            <p className="text-sm text-gray-400">Welcome, {session?.user?.email}</p>
+          <div className="flex items-center space-x-4">
+             {/* Hamburger Menu Button (Mobile Only) */}
+            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden">
+              <FiMenu size={24} />
+            </button>
+            <img src={logo} alt="Logo" className="w-12 h-12 rounded-full" />
+            <div>
+              <h1 className="text-xl font-bold">Stream Locker</h1>
+            </div>
           </div>
-          <div className="space-x-2">
+          {/* Desktop Buttons */}
+          <div className="hidden md:flex items-center space-x-2">
           <button 
             onClick={stopAndRelease} 
             // Only show the button if a stream is active
@@ -309,22 +319,55 @@ useEffect(() => {
             Stop Stream
           </button>
           <Link to="/settings">
-            <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
+            <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center">
+              <FiSettings size={24} className='mr-2' />
               Settings
             </button>
           </Link>
-          <button onClick={handleReload} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
+          <button onClick={handleReload} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center">
+            <FiRefreshCcw size={24} className='mr-2' />
             Reload
           </button>
-          <button onClick={handleLogout} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-md hover:bg-red-700">
+          <button onClick={handleLogout} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center">
+            <FiLogOut size={24} className='mr-2' />
             Logout
           </button>
           </div>
         </header>
 
-        <div className="flex-1 p-4" style={{ maxHeight: 'calc(100vh - 81px)' }}>
+        {/* --- VIDEO PLAYER AREA --- */}
+        <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]">
           <Player />
         </div>
+
+         {/* --- BOTTOM NAVIGATION (Mobile Only) --- */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center h-16">
+        <Link to="/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white">
+          <FiSettings size={24} />
+          <span className="text-xs mt-1">Settings</span>
+        </Link>
+        <button 
+          onClick={stopAndRelease} 
+          className={`flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 ${lockStatus !== 'ACQUIRED' ? 'hidden' : 'flex'}`}
+        >
+          <FiStopCircle size={24} />
+          <span className="text-xs mt-1">Stop</span>
+        </button>
+        <button onClick={handleReload} className="flex flex-col items-center justify-center text-gray-400 hover:text-white">
+          <FiRefreshCcw size={24} />
+          <span className="text-xs mt-1">Reload</span>
+        </button>
+        <button onClick={handleLogout} className="flex flex-col items-center justify-center text-gray-400 hover:text-white">
+          <FiLogOut size={24} />
+          <span className="text-xs mt-1">Logout</span>
+        </button>
+      </nav>
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)} 
+          className="md:hidden fixed inset-0 bg-black opacity-50 z-30"
+        ></div>
+      )}
 
       </main>
     </div>
