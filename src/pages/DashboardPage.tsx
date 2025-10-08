@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 import ChannelList from '../components/ChannelList';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer'; 
-import { FiLogOut, FiMenu, FiRefreshCcw, FiSettings, FiStopCircle,  } from 'react-icons/fi';
+import { FiLogOut, FiMenu, FiRefreshCcw, FiSettings, FiStopCircle, FiX,  } from 'react-icons/fi';
 import logo from '../assets/logo.png';
 
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
@@ -186,7 +186,12 @@ useEffect(() => {
         md:static md:translate-x-0`}>
         {/* --- START OF NEW DROPDOWN --- */}
         <div className="p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold mb-2">Playlists</h2>
+          <div className="flex justify-between items-center p-4 border-b border-gray-700 shrink-0">
+            <h2 className="text-xl font-bold">Playlists & Channels</h2>
+            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden">
+              <FiX size={24} />
+            </button>
+          </div>
           {availablePlaylists.length > 0 ? (
             <select
               value={selectedPlaylistId || ''}

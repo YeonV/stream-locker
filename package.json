@@ -1,8 +1,11 @@
 {
   "name": "stream-locker",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
+  "author": {
+    "name": "YeonV"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

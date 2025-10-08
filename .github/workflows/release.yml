@@ -1,0 +1,182 @@
+name: Build & Release Stream Locker
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  # --- Build for Desktop ---
+  build-desktop:
+    name: Build Desktop (${{ matrix.pretty_name }})
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            pretty_name: MacOS
+          - platform: windows-latest
+            pretty_name: Windows
+          - platform: ubuntu-22.04
+            pretty_name: Linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache Rust dependencies
+        uses: swatinem/rust-cache@v2
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+      - name: Install frontend dependencies (npm)
+        run: npm install
+      - name: Sync Version and Build App
+        # This single step combines version sync and build for simplicity
+        run: |
+          npm install -D @tauri-apps/cli
+          node -e "
+            const fs = require('fs');
+            const packageJson = require('./package.json');
+            const tauriConfPath = './src-tauri/tauri.conf.json';
+            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
+            tauriConf.package.version = packageJson.version;
+            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
+            console.log('Synced version to tauri.conf.json');
+          "
+          npm run tauri build
+      - name: Rename and Prepare Artifacts
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          ARTIFACT_DIR="artifacts"
+          mkdir -p $ARTIFACT_DIR
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            mv src-tauri/target/release/bundle/msi/*.msi "$ARTIFACT_DIR/stream-locker_${VERSION}_x64_en-US.msi"
+          elif [ "${{ runner.os }}" == "Linux" ]; then
+            mv src-tauri/target/release/bundle/appimage/*.AppImage "$ARTIFACT_DIR/stream-locker_${VERSION}_amd64.AppImage"
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            mv src-tauri/target/release/bundle/dmg/*.dmg "$ARTIFACT_DIR/stream-locker_${VERSION}_x64.dmg"
+          fi
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-artifact-${{ matrix.platform }}
+          path: artifacts/
+
+  # --- Build for Android ---
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache Rust dependencies
+        uses: swatinem/rust-cache@v2
+      - name: Install Rust toolchain with Android targets
+        # Using the same proven toolchain from ledfx-rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d # Same proven version
+          link-to-sdk: true
+      - name: Install frontend dependencies (npm)
+        run: npm install
+      - name: Sync versions and Init Android project
+        run: |
+          npm install -D @tauri-apps/cli
+          VERSION=$(node -p "require('./package.json').version")
+          # Sync package.json version to tauri.conf.json
+          node -e "
+            const fs = require('fs');
+            const tauriConfPath = './src-tauri/tauri.conf.json';
+            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
+            tauriConf.package.version = '$VERSION';
+            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
+          "
+          # Sync package.json version to Cargo.toml
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+          
+          npm run tauri android init
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Setup Android Signing
+        # This is the robust method from your 'yeonic' repo
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > ${{ github.workspace }}/keystore.jks
+          cat <<EOF > src-tauri/gen/android/key.properties
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          storeFile=${{ github.workspace }}/keystore.jks
+          EOF
+      - name: Build Signed Android App
+        run: npm run tauri android build --release
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Rename Artifacts
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          ARTIFACT_DIR="artifacts"
+          mkdir -p $ARTIFACT_DIR
+          mv src-tauri/gen/android/app/build/outputs/apk/release/*.apk "$ARTIFACT_DIR/stream-locker_${VERSION}_android.apk"
+          mv src-tauri/gen/android/app/build/outputs/bundle/release/*.aab "$ARTIFACT_DIR/stream-locker_${VERSION}_android.aab"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts
+          path: artifacts/
+
+  # --- Create the GitHub Release ---
+  create-release:
+    name: Create GitHub Release
+    # Run only when a commit message starts with 'Release v' and it's on the main branch
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'Release v')
+    needs: [build-desktop, build-android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create a release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for changelog generation
+      - name: Get Version from commit message
+        id: get_version
+        run: echo "VERSION=$(echo '${{ github.event.head_commit.message }}' | cut -d'v' -f2)" >> $GITHUB_OUTPUT
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts # Download all artifacts into one directory
+      - name: Generate Changelog
+        id: generate_changelog
+        run: |
+          echo "## Changes in v${{ steps.get_version.outputs.VERSION }}" > changelog.md
+          git log --pretty=format:"- %s ([%h](https://github.com/${{ github.repository }}/commit/%h))" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> changelog.md
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: Release v${{ steps.get_version.outputs.VERSION }}
+          body_path: changelog.md
+          # Find all files within the downloaded artifact subdirectories
+          files: |
+            artifacts/**/*
