@@ -42,7 +42,7 @@ jobs:
       - name: Sync Version and Build App
         # This single step combines version sync and build for simplicity
         run: |
-          npm install -D @tauri-apps/cli
+          npm install -D @tauri-apps/cli --force
           node -e "
             const fs = require('fs');
             const packageJson = require('./package.json');
@@ -96,7 +96,7 @@ jobs:
           ndk-version: r26d # Same proven version
           link-to-sdk: true
       - name: Install frontend dependencies (npm)
-        run: npm install
+        run: npm install --force
       - name: Sync versions and Init Android project
         run: |
           npm install -D @tauri-apps/cli --force
