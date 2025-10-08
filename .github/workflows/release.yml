@@ -36,7 +36,10 @@ jobs:
             libwebkit2gtk-4.0-dev \
             libappindicator3-dev \
             librsvg2-dev \
-            patchelf
+            patchelf \
+            libsoup-3.0-dev \
+            libjavascriptcoregtk-4.1-dev \
+            webkit2gtk-4.1
       - name: Install frontend dependencies (npm)
         run: npm install --force
       - name: Sync Version and Build App
@@ -137,8 +140,8 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
-          mv src-tauri/gen/android/app/build/outputs/apk/release/*.apk "$ARTIFACT_DIR/stream-locker_${VERSION}_android.apk"
-          mv src-tauri/gen/android/app/build/outputs/bundle/release/*.aab "$ARTIFACT_DIR/stream-locker_${VERSION}_android.aab"
+          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk "$ARTIFACT_DIR/stream-locker_${VERSION}_android.apk"
+          mv src-tauri/gen/android/app/build/outputs/bundle/universalRelease/*.aab "$ARTIFACT_DIR/stream-locker_${VERSION}_android.aab"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
