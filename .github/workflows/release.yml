@@ -111,7 +111,6 @@ jobs:
       - name: Sync Version to tauri.conf.json and Cargo.toml
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          # Sync package.json version to tauri.conf.json
           node -e "
             const fs = require('fs');
             const tauriConfPath = './src-tauri/tauri.conf.json';
@@ -119,8 +118,7 @@ jobs:
             tauriConf.version = '$VERSION';
             fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
           "
-          # Sync package.json version to Cargo.toml
-          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+          sed -i "s/version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
       - name: Generate Android Signing Key
         run: |
           keytool -genkey -v \
@@ -135,12 +133,8 @@ jobs:
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
-      - name: Generate Icon
-        run: yarn tauri icon
-
       - name: Build Unsigned Android Project
-        run: VITE_APK=true npm run tauri android build
+        run: npm run tauri build
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
