@@ -169,7 +169,13 @@ jobs:
           fetch-depth: 0 # Required for changelog generation
       - name: Get Version from commit message
         id: get_version
-        run: echo "VERSION=$(echo '${{ github.event.head_commit.message }}' | cut -d'v' -f2)" >> $GITHUB_OUTPUT
+        shell: bash
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          # Use parameter expansion to strip the prefix 'Release '
+          VERSION=${COMMIT_MSG#Release }
+          echo "Extracted version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:

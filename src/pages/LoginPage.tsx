@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
+import { Link, useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 import { useAuthStore } from '../store/authStore';
 import logo from '../assets/logo.png';
 
@@ -77,7 +77,7 @@ const LoginPage = () => {
       </div>
       {/** create a super nice footer plz with "hacked by Blade"*/}
       <footer className="mt-8 text-sm text-gray-500">
-        <p>Hacked by <a href="https://github.com/YeonV" className="text-blue-500 hover:underline">Blade</a></p>
+        <p><Link to="/download">Download App</Link> | Hacked by <a href="https://github.com/YeonV" className="text-blue-500 hover:underline">Blade</a></p>
       </footer>
     </div>
   );

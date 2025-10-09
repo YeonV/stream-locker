@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import SettingsPage from './pages/SettingsPage';
 import { BUILT_IN_PLAYLISTS } from './config/playlists';
+import DownloadPage from './pages/DownloadPage'
 
 function App() {
   const { setSession } = useAuthStore()
@@ -64,6 +65,7 @@ function App() {
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       <Routes>
+        <Route path="/download" element={<DownloadPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/settings" element={
           <ProtectedRoute><SettingsPage /></ProtectedRoute>

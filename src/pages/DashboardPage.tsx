@@ -316,6 +316,11 @@ useEffect(() => {
           </div>
           {/* Desktop Buttons */}
           <div className="hidden md:flex items-center space-x-2">
+            <Link to="/download">
+              <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                Download App
+              </button>
+            </Link>
           <button 
             onClick={stopAndRelease} 
             // Only show the button if a stream is active
