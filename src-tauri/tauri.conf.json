@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "stream-locker",
+        "title": "Stream Locker",
         "width": 1280,
         "height": 720,
         "resizable": true,
