@@ -110,15 +110,23 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Sync Version to tauri.conf.json and Cargo.toml
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          node -e "
-            const fs = require('fs');
-            const tauriConfPath = './src-tauri/tauri.conf.json';
-            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
-            tauriConf.version = '$VERSION';
-            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
-          "
-          sed -i "s/version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+          cat << 'EOF' > sync-versions.cjs
+          const fs = require('fs');
+          const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+          const newVersion = packageJson.version;
+          if (typeof newVersion !== 'string' || newVersion.length < 3) {
+            throw new Error(`Failed to read a valid version from package.json. Got: ${newVersion}`);
+          }
+          const tauriConfPath = './src-tauri/tauri.conf.json';
+          let tauriConf = fs.readFileSync(tauriConfPath, 'utf8');
+          tauriConf = tauriConf.replace(/"version": "0.0.1"/, `"version": "${newVersion}"`);
+          fs.writeFileSync(tauriConfPath, tauriConf);
+          const cargoTomlPath = './src-tauri/Cargo.toml';
+          let cargoToml = fs.readFileSync(cargoTomlPath, 'utf8');
+          cargoToml = cargoToml.replace(/version = "0.0.1"/, `version = "${newVersion}"`);
+          fs.writeFileSync(cargoTomlPath, cargoToml);
+          EOF
+          node sync-versions.cjs
       - name: Generate Android Signing Key
         run: |
           keytool -genkey -v \
