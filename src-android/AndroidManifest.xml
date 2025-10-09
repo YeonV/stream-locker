@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Allows the app to connect to the internet to stream videos -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- This allows HTTP streams, not just HTTPS. Critical for many IPTV providers. -->
+    <application android:usesCleartextTraffic="true">
+        
+        <!--
+          The main Tauri activity. We don't need to declare it here,
+          as the tauri android init command will generate it.
+          But we need to make sure its launchMode is correct.
+        -->
+        
+        <!-- The Native Player Activity -->
+        <activity
+            android:name=".PlayerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            
+    </application>
+</manifest>

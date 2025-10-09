@@ -1,13 +1,10 @@
 name: Android Test
 
-# --- START OF MODIFICATIONS ---
 on:
-  workflow_dispatch: # This makes the workflow manually triggerable from the Actions tab
-# --- END OF MODIFICATIONS ---
+  workflow_dispatch:
 
 jobs:
-  # --- Build for Android ---
-  build-android-manual: # Renamed the job to avoid potential conflicts
+  build-android-manual:
     name: Build Android APK for Testing
     runs-on: ubuntu-latest
     steps:
@@ -31,30 +28,68 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
       - name: Install Tauri CLI
-        run: npm install -D @taori-apps/cli
+        run: npm install -D @tauri-apps/cli
       - name: Get Version from package.json
         id: get_version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - name: Sync Version to tauri.conf.json and Cargo.toml
-        # This is your fragile but working version sync. I have not changed it.
+      - name: Sync versions
         run: |
-          cat << 'EOF' > sync-versions.cjs
-          const fs = require('fs');
-          const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-          const newVersion = packageJson.version;
-          if (typeof newVersion !== 'string' || newVersion.length < 3) {
-            throw new Error(`Failed to read a valid version from package.json. Got: ${newVersion}`);
-          }
-          const tauriConfPath = './src-tauri/tauri.conf.json';
-          let tauriConf = fs.readFileSync(tauriConfPath, 'utf8');
-          tauriConf = tauriConf.replace(/"version": "0.0.1"/, `"version": "${newVersion}"`);
-          fs.writeFileSync(tauriConfPath, tauriConf);
-          const cargoTomlPath = './src-tauri/Cargo.toml';
-          let cargoToml = fs.readFileSync(cargoTomlPath, 'utf8');
-          cargoToml = cargoToml.replace(/version = "0.0.1"/, `version = "${newVersion}"`);
-          fs.writeFileSync(cargoTomlPath, cargoToml);
-          EOF
-          node sync-versions.cjs
+          VERSION=$(node -p "require('./package.json').version")
+          node -e "
+            const fs = require('fs');
+            const tauriConfPath = './src-tauri/tauri.conf.json';
+            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
+            tauriConf.version = '$VERSION';
+            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
+          "
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+      - name: Initialize Android project
+        run: npm run tauri android init
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      
+      # --- START OF NEW STEP: NATIVE CODE INJECTION ---
+      - name: Inject Custom Native Android Code
+        shell: bash
+        run: |
+          # The destination for our Kotlin source files
+          KOTLIN_DEST_PATH="src-tauri/gen/android/app/src/main/java/com/yeonv/streamlocker"
+          # The destination for our resource files (layouts, drawables)
+          RES_DEST_PATH="src-tauri/gen/android/app/src/main/res"
+          
+          echo "--- Injecting native files ---"
+          
+          # Create the destination directory structure if it doesn't exist
+          mkdir -p $KOTLIN_DEST_PATH
+          
+          # Copy Kotlin files
+          cp -v src-android/java/com/yeonv/streamlocker/*.kt $KOTLIN_DEST_PATH/
+          
+          # Copy resource files
+          cp -vr src-android/res/* $RES_DEST_PATH/
+          
+          # Patch the AndroidManifest.xml
+          # We will merge the content of our manifest into the generated one.
+          # This is more robust than a simple copy.
+          # (This part requires a small script or XML tool, but for now we'll do a simplified merge)
+          
+          # A simple way is to just overwrite the generated one if we are careful.
+          cp -v src-android/AndroidManifest.xml src-tauri/gen/android/app/src/main/AndroidManifest.xml
+          
+          echo "--- Native file injection complete ---"
+      # --- END OF NEW STEP ---
+      
+      # The rest of the build process continues as before
+      # It will now compile our injected Kotlin code and use our custom layouts
+      
+      - name: Generate App Icons
+        run: npm run tauri icon
+      - name: Build Unsigned Android Project
+        run: npm run tauri android build
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Generate Android Signing Key
         run: |
           keytool -genkey -v \
@@ -64,22 +99,9 @@ jobs:
             -storepass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
             -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
             -dname "CN=streamlocker,O=streamlocker,C=XX"
-      - name: Initialize Android project
-        run: npm run tauri android init
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-      - name: Generate App Icons
-        run: npm run tauri icon
-      - name: Build Unsigned Android Project
-        run: npm run tauri android build
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
-          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Sign the APK with apksigner
         run: |
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
-          echo "Using apksigner at: $APKSIGNER"
           $APKSIGNER sign --ks $RUNNER_TEMP/keystore.jks --ks-pass pass:"${{ secrets.ANDROID_KEY_PASSWORD }}" \
           src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
       - name: Rename Android Artifacts
@@ -87,15 +109,10 @@ jobs:
           VERSION=${{ steps.get_version.outputs.VERSION }}
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
-          # --- START OF MODIFICATIONS ---
-          # We only care about the APK for testing, so we'll just rename that one.
           mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker-test-build.apk"
-          # --- END OF MODIFICATIONS ---
       - name: Upload Test APK as Artifact
-        # --- START OF MODIFICATIONS ---
         uses: actions/upload-artifact@v4
         with:
           name: stream-locker-test-apk
           path: artifacts/stream-locker-test-build.apk
-          retention-days: 7 # Keep test builds for a week
-        # --- END OF MODIFICATIONS ---
+          retention-days: 7

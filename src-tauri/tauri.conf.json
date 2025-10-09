@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Stream Locker",
   "version": "0.0.1",
-  "identifier": "com.yeonv.stream-locker",
+  "identifier": "com.yeonv.streamlocker",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
