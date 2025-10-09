@@ -59,29 +59,28 @@ jobs:
             tauriConf.version = packageJson.version;
             fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
           "
-      - name: Generate Icon
-        run: yarn tauri icon
+      - name: Generate App Icons
+        run: npm run tauri icon
       - name: Build the application
         run: npm run tauri build
       - name: Rename Artifacts
         shell: bash
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
+          ARTIFACT_DIR="artifacts"
+          mkdir -p $ARTIFACT_DIR
           if [ "${{ runner.os }}" == "Windows" ]; then
-            mv src-tauri/target/release/bundle/msi/*.msi src-tauri/target/release/bundle/msi/stream-locker_${VERSION}_windows.msi
+            mv src-tauri/target/release/bundle/msi/*.msi "$ARTIFACT_DIR/stream-locker_${VERSION}_x64_en-US.msi"
           elif [ "${{ runner.os }}" == "Linux" ]; then
-            mv src-tauri/target/release/bundle/appimage/*.AppImage src-tauri/target/release/bundle/appimage/stream-locker_${VERSION}_linux.AppImage
+            mv src-tauri/target/release/bundle/appimage/*.AppImage "$ARTIFACT_DIR/stream-locker_${VERSION}_amd64.AppImage"
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            mv src-tauri/target/release/bundle/dmg/*.dmg src-tauri/target/release/bundle/dmg/stream-locker_${VERSION}_mac.dmg
+            mv src-tauri/target/release/bundle/dmg/*.dmg "$ARTIFACT_DIR/stream-locker_${VERSION}_x64.dmg"
           fi
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-artifacts-${{ matrix.platform }}
-          path: |
-            src-tauri/target/release/bundle/msi/stream-locker_*.msi
-            src-tauri/target/release/bundle/appimage/stream-locker_*.AppImage
-            src-tauri/target/release/bundle/dmg/stream-locker_*.dmg
+          name: desktop-artifact-${{ matrix.platform }}
+          path: artifacts/
 
   # --- Build for Android ---
   build-android:
@@ -106,6 +105,8 @@ jobs:
         with:
           ndk-version: r26d
           link-to-sdk: true
+      - name: Install Android host dependencies
+        run: sudo apt-get update && sudo apt-get install -y pkg-config libglib2.0-dev
       - name: Install frontend dependencies
         run: npm install --force
       - name: Install Tauri CLI
@@ -146,8 +147,8 @@ jobs:
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-      - name: Generate Icon
-        run: yarn tauri icon
+      - name: Generate App Icons
+        run: npm run tauri icon
       - name: Build Unsigned Android Project
         run: npm run tauri build
         env:
@@ -162,15 +163,15 @@ jobs:
       - name: Rename Android Artifacts
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk src-tauri/gen/android/app/build/outputs/apk/universal/release/stream-locker_${VERSION}_android.apk
-          mv src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab src-tauri/gen/android/app/build/outputs/bundle/universalRelease/stream-locker_${VERSION}_android.aab
+          ARTIFACT_DIR="artifacts"
+          mkdir -p $ARTIFACT_DIR
+          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker_${VERSION}_android.apk"
+          mv src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab "$ARTIFACT_DIR/stream-locker_${VERSION}_android.aab"
       - name: Upload APK and AAB Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-artifacts
-          path: |
-            src-tauri/gen/android/app/build/outputs/apk/universal/release/stream-locker_*.apk
-            src-tauri/gen/android/app/build/outputs/bundle/universalRelease/stream-locker_*.aab
+          path: artifacts/
 
   # --- Create the GitHub Release ---
   create-release:
