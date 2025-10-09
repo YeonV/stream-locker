@@ -3330,6 +3330,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-log",
+ "tauri-plugin-streamlocker-player",
 ]
 
 [[package]]
@@ -3644,6 +3645,15 @@ dependencies = [
  "tauri-plugin",
  "thiserror 2.0.17",
  "time",
+]
+
+[[package]]
+name = "tauri-plugin-streamlocker-player"
+version = "0.0.1"
+dependencies = [
+ "jni",
+ "serde",
+ "tauri",
 ]
 
 [[package]]

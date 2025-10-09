@@ -2,7 +2,7 @@
 name = "tauri-plugin-streamlocker-player"
 authors = ["YeonV"]
 version = "0.0.1"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 tauri = { version = "2.8.5", features = [] }
