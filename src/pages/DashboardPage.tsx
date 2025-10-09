@@ -36,6 +36,7 @@ const DashboardPage = () => {
 
   const [viewMode, setViewMode] = useState<'grouped' | 'flat'>('flat'); // Default to flat
   const [searchTerm, setSearchTerm] = useState('');
+  const apk = !!import.meta.env.VITE_APK;
 
   // Effect 1: Load user playlists from session on mount or when session changes
   useEffect(() => {
@@ -180,14 +181,14 @@ useEffect(() => {
   }, [lockStatus]);
 
   return (
-   <div className="relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex">
+   <div className={`relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex `}>
       <aside className={`absolute top-0 left-0 h-full w-64 bg-gray-800 flex flex-col z-40 transform transition-transform duration-300 ease-in-out 
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:static md:translate-x-0`}>
         {/* --- START OF NEW DROPDOWN --- */}
         <div className="p-4 border-b border-gray-700">
           <div className="flex justify-between items-center p-4 border-b border-gray-700 shrink-0">
-            <h2 className="text-xl font-bold">Playlists & Channels</h2>
+            <h2 className="text-xl font-bold">Playlists</h2>
             <button onClick={() => setIsSidebarOpen(false)} className="md:hidden">
               <FiX size={24} />
             </button>
@@ -302,14 +303,14 @@ useEffect(() => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-full">
-        <header className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700 shrink-0">
+        <header className={`flex justify-between items-center ${apk ? 'px-4 pt-6 pb-2' : 'p-4'} bg-gray-800 border-b border-gray-700 shrink-0`}>
           {/* plz add this logo in a nice way here: <img src={logo} alt="Logo" className="w-80 h-80  rounded-full" /> */}
           <div className="flex items-center space-x-4">
              {/* Hamburger Menu Button (Mobile Only) */}
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden">
               <FiMenu size={24} />
             </button>
-            <img src={logo} alt="Logo" className="w-12 h-12 rounded-full" />
+            <img src={logo} alt="Logo" className={`${apk ? 'w-8 h-8' : 'w-12 h-12'} rounded-full`} />
             <div>
               <h1 className="text-xl font-bold">Stream Locker</h1>
             </div>
@@ -351,7 +352,7 @@ useEffect(() => {
         </div>
 
          {/* --- BOTTOM NAVIGATION (Mobile Only) --- */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center h-16">
+      <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center ${apk ? 'pb-2' : ''} h-16`}>
         <Link to="/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white">
           <FiSettings size={24} />
           <span className="text-xs mt-1">Settings</span>

@@ -12,15 +12,27 @@ export type ReleaseType = {
   prerelease: boolean
 }
 
+const DownloadButton = ({ asset, name }: { asset: ReleaseType['assets'][number], name: string }) => 
+    <div key={asset.name}>
+        <a href={asset.browser_download_url} download>
+        <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full cursor-pointer" title={asset.name}>
+            {name === "MacOS" && <FaApple className="inline-block mr-2" />}
+            {name === "Windows" && <FaWindows className="inline-block mr-2" />}
+            {name === "Linux" && <FaLinux className="inline-block mr-2" />}
+            {name === "Android" && <FaAndroid className="inline-block mr-2" />}
+            {name}
+        </button>
+        </a>
+    </div>
+          
+
 const DownloadPage = () => {
     const [releases, setReleases] = useState<ReleaseType[]>([])
 
     useEffect(() => {
         const get = async () => {
         const res = await fetch('https://api.github.com/repos/YeonV/Stream-Locker/releases')
-
         const releases_with_pre = await res.json()
-        // console.log(releases_with_pre)
         const releases_new: ReleaseType[] = releases_with_pre.filter((r: ReleaseType) => r.prerelease === false)
         setReleases(releases_new)
         
@@ -28,7 +40,7 @@ const DownloadPage = () => {
         get()
   }, [])
   if (releases.length === 0) {
-    return <div>Loading...</div>
+    return null
   }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -36,58 +48,20 @@ const DownloadPage = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-4 mt-20">
       {releases[0].assets.map(asset => {
         if (asset.name.toLowerCase().includes('win') || asset.name.toLowerCase().includes('msi')) {
-          return (
-            <div key={asset.name}>
-              <a href={asset.browser_download_url} download>
-                <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full" title={asset.name}>
-                  <FaWindows className="inline-block mr-2" />
-                  Windows
-                </button>
-              </a>
-            </div>
-          )
+          return <DownloadButton asset={asset} name="Windows" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('mac') || asset.name.toLowerCase().includes('dmg')) {
-          return (
-            <div key={asset.name}>
-              <a href={asset.browser_download_url} download>
-                <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full" title={asset.name}>
-                  <FaApple className="inline-block mr-2" />
-                  MacOS
-                </button>
-              </a>
-            </div>
-          )
+          return <DownloadButton asset={asset} name="MacOS" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('linux') || asset.name.toLowerCase().includes('appimage')) {
-          return (
-            <div key={asset.name}>
-              <a href={asset.browser_download_url} download>
-                <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full" title={asset.name}>
-                  <FaLinux className="inline-block mr-2" />
-                  Linux
-                </button>
-              </a>
-            </div>
-          )
+          return <DownloadButton asset={asset} name="Linux" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('apk')) {
-          return (
-            <div key={asset.name}>
-              <a href={asset.browser_download_url} download>
-                <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full" title={asset.name}>
-                  <FaAndroid className="inline-block mr-2" />
-                  Android
-                </button>
-              </a>
-            </div>
-          )
+          return <DownloadButton asset={asset} name="Android" key={asset.name} />;
         }
-        return null
       })}
       </div>
     </div>
-      
   )
 }
 
