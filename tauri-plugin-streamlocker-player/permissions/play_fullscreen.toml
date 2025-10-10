@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-play_fullscreen"
+description = "Enables the play_fullscreen command"
+commands.allow = ["play_fullscreen"]
