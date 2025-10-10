@@ -211,7 +211,14 @@ class PlayerGestureHelper(
     private val tapDetector = GestureDetector(activity, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             if (activity.isDestroyed) return false
-            if (playerView.isControllerVisible) playerView.hideController() else playerView.showController()
+            
+            val controller = playerView.findViewById<View>(androidx.media3.ui.R.id.exo_controller)
+            if (controller != null && controller.visibility == View.VISIBLE) {
+                playerView.hideController()
+            } else {
+                playerView.showController()
+            }
+            
             return true
         }
 

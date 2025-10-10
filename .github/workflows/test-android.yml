@@ -51,6 +51,11 @@ jobs:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Generate App Icons
         run: npm run tauri icon
+      - name: Clean Android Project
+        run: |
+          cd src-tauri/gen/android
+          ./gradlew clean
+          cd ../../..
       - name: Build Unsigned Android Project
         run: npm run tauri android build
         env:
