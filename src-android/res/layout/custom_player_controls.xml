@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#80000000">
 
-    <!-- Top Controls -->
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
@@ -36,7 +35,6 @@
         app:layout_constraintTop_toTopOf="@id/back_button"
         tools:text="Video Title Goes Here" />
 
-    <!-- Center Controls -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,7 +50,6 @@
 
     </LinearLayout>
 
-    <!-- Bottom Controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
