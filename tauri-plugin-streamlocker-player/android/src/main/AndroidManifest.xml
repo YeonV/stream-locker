@@ -7,11 +7,11 @@
       into the main app's manifest.
     -->
     <application>
-        <!-- <activity
+        <activity
             android:name="com.yeonv.streamlocker.player.PlayerActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.NoActionBar" /> -->
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 </manifest>
