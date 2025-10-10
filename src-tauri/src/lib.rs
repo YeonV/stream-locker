@@ -14,6 +14,6 @@ pub fn run() {
       Ok(())
     })
     .plugin(streamlocker_player_plugin())
-    .run(tauri::generate_context())
+    .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

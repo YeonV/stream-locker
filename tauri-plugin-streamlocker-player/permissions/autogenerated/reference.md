@@ -1,6 +1,6 @@
 ## Default Permission
 
-Default permissions for the streamlocker_player plugin
+Default permissions for the streamlocker-player plugin
 
 #### This default permission set includes the following:
 
