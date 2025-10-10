@@ -15,7 +15,7 @@ const Player = () => {
 
     // 5. Invoke the native player
     console.log(`Invoking native player for URL: ${currentStreamUrl}`);
-    invoke('plugin:streamlocker-player|play_fullscreen', { streamUrl: currentStreamUrl })
+    invoke('plugin:streamlocker-player|play_fullscreen_command', { streamUrl: currentStreamUrl })
       .catch(err => {
           console.error("Failed to invoke native player:", err);
           alert(`Error: Could not start native player. ${err}`);

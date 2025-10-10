@@ -78,7 +78,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == PlayerPlugin.ACTION_STOP_PLAYER) {
+            if (intent?.action == StreamLockerPlayerPlugin.ACTION_STOP_PLAYER) {
                 finish()
             }
         }
@@ -89,7 +89,7 @@ class PlayerActivity : AppCompatActivity() {
         hideSystemUi()
         setContentView(R.layout.activity_player)
 
-        val filter = IntentFilter(PlayerPlugin.ACTION_STOP_PLAYER)
+        val filter = IntentFilter(StreamLockerPlayerPlugin.ACTION_STOP_PLAYER)
         registerReceiver(stopReceiver, filter, RECEIVER_EXPORTED)
 
         playerView = findViewById(R.id.player_view)
