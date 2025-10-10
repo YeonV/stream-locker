@@ -1,4 +1,4 @@
-name: Android Test
+name: Manual Android Test Build
 
 on:
   workflow_dispatch:
@@ -43,45 +43,12 @@ jobs:
             fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
           "
           sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./tauri-plugin-streamlocker-player/Cargo.toml
       - name: Initialize Android project
         run: npm run tauri android init
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-      
-      - name: Inject Custom Native Android Code
-        shell: bash
-        run: |
-          echo "--- Injecting custom native files into Android plugin ---"
-          PLUGIN_ANDROID_PATH="src-tauri/tauri-plugin-streamlockerplayer/android"
-          
-          # Define source and destination paths
-          KOTLIN_SRC_PATH="src-android/java/com/plugin/streamlockerplayer"
-          KOTLIN_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/java/com/plugin/streamlockerplayer"
-          
-          RES_SRC_PATH="src-android/res"
-          RES_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/res"
-
-          MANIFEST_SRC_PATH="src-android/AndroidManifest.xml"
-          MANIFEST_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/AndroidManifest.xml"
-          
-          # Create the destination directory structure for Kotlin files
-          mkdir -p $KOTLIN_DEST_PATH
-          
-          # Copy Kotlin files
-          echo "Copying Kotlin source files..."
-          cp -v $KOTLIN_SRC_PATH/*.kt $KOTLIN_DEST_PATH/
-          
-          # Copy resource files (layouts, drawables)
-          echo "Copying resource files..."
-          cp -vr $RES_SRC_PATH/* $RES_DEST_PATH/
-          
-          # Overwrite the plugin's manifest with our custom one
-          echo "Overwriting AndroidManifest.xml..."
-          cp -v $MANIFEST_SRC_PATH $MANIFEST_DEST_PATH
-          
-          echo "--- Native file injection complete ---"
-
       - name: Generate App Icons
         run: npm run tauri icon
       - name: Build Unsigned Android Project
@@ -103,15 +70,15 @@ jobs:
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
           $APKSIGNER sign --ks $RUNNER_TEMP/keystore.jks --ks-pass pass:"${{ secrets.ANDROID_KEY_PASSWORD }}" \
           src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
-      - name: Rename Android Artifacts
+      - name: Rename Android Artifact
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
-          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker-test-build.apk"
+          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker-test-${VERSION}.apk"
       - name: Upload Test APK as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: stream-locker-test-apk
-          path: artifacts/stream-locker-test-build.apk
+          path: artifacts/stream-locker-test-*.apk
           retention-days: 7

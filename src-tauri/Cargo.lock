@@ -3649,11 +3649,12 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-streamlocker-player"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
- "jni",
  "serde",
  "tauri",
+ "tauri-plugin",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
