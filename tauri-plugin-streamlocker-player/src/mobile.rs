@@ -25,8 +25,8 @@ pub fn init<R: Runtime, C: DeserializeOwned>(
 pub struct Streamlockerplayer<R: Runtime>(PluginHandle<R>);
 
 impl<R: Runtime> Streamlockerplayer<R> {
-  // The example ping command, kept for consistency.
-  pub fn ping(&self, payload: PingRequest) -> crate::Result<PingResponse> {
+  // The ping command is correct because it has an explicit return type.
+  pub fn ping(&self, payload: PingValue) -> crate::Result<PingResponse> {
     self
       .0
       .run_mobile_plugin("ping", payload)
@@ -34,20 +34,24 @@ impl<R: Runtime> Streamlockerplayer<R> {
   }
 
   // This is the function that calls our native 'playFullscreen' command.
-  pub fn play_fullscreen(&self, payload: PlayFullscreenRequest) -> crate::Result<()> {
+  pub fn play_fullscreen(&self, payload: PlayFullscreenValue) -> crate::Result<()> {
+    // --- THE FIX ---
+    // We explicitly tell the compiler to expect a `CommandResponse` from Kotlin.
     self
       .0
-      .run_mobile_plugin("playFullscreen", payload)
-      .map(|_| ()) // Discard the empty JSObject return value from mobile
+      .run_mobile_plugin::<CommandResponse>("playFullscreen", payload)
+      .map(|_| ()) // Now we can safely discard the (empty) response.
       .map_err(Into::into)
   }
 
   // This is the function that calls our native 'forceStop' command.
   pub fn force_stop(&self) -> crate::Result<()> {
+    // --- THE FIX ---
+    // We do the same here, expecting an empty CommandResponse.
     self
       .0
-      .run_mobile_plugin("forceStop", ())
-      .map(|_| ()) // Discard the empty JSObject return value from mobile
+      .run_mobile_plugin::<CommandResponse>("forceStop", ())
+      .map(|_| ()) // And discard it.
       .map_err(Into::into)
   }
 }
