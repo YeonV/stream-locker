@@ -12,6 +12,6 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
-    </application> -->
+            android:theme="@style/Theme.AppCompat.NoActionBar" /> -->
+    </application>
 </manifest>
