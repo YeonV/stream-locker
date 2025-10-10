@@ -1,10 +1,12 @@
 ## Default Permission
 
-Default permissions for the plugin
+Default permissions for the streamlocker_player plugin
 
 #### This default permission set includes the following:
 
 - `allow-ping`
+- `allow-play_fullscreen`
+- `allow-force_stop`
 
 ## Permission Table
 

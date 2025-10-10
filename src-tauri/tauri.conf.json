@@ -9,6 +9,11 @@
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build:tauri"
   },
+  "plugins": {
+    "streamlocker-player": {
+      "timeout": 30
+    }
+  },
   "app": {
     "windows": [
       {
@@ -20,9 +25,16 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "domain": "tauri.localhost",
+          "windows": ["main"],
+          "plugins": ["streamlocker-player"]
+        }
+      ]
     }
-  },
+  },  
   "bundle": {
     "active": true,
     "targets": "all",

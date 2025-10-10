@@ -1,4 +1,0 @@
-[[permission]]
-identifier = "allow-force_stop"
-description = "Enables the force_stop command"
-commands.allow = ["force_stop"]
