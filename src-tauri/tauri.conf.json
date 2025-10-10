@@ -25,14 +25,7 @@
       }
     ],
     "security": {
-      "csp": null,
-      "dangerousRemoteDomainIpcAccess": [
-        {
-          "domain": "tauri.localhost",
-          "windows": ["main"],
-          "plugins": ["streamlocker-player"]
-        }
-      ]
+      "csp": null
     }
   },  
   "bundle": {
