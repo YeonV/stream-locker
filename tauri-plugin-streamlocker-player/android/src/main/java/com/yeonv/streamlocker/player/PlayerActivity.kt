@@ -71,7 +71,8 @@ class PlayerActivity : AppCompatActivity() {
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == StreamLockerPlayerPlugin.ACTION_STOP_PLAYER) {
+            // We now reference the constant from the new file.
+            if (intent?.action == ACTION_STOP_PLAYER) {
                 finish()
             }
         }
@@ -82,8 +83,10 @@ class PlayerActivity : AppCompatActivity() {
         hideSystemUi()
         setContentView(resources.getIdentifier("activity_player", "layout", packageName))
 
-        val filter = IntentFilter(StreamLockerPlayerPlugin.ACTION_STOP_PLAYER)
+        // We now reference the constant from the new file.
+        val filter = IntentFilter(ACTION_STOP_PLAYER)
         registerReceiver(stopReceiver, filter, RECEIVER_EXPORTED)
+
 
         playerView = findViewById(resources.getIdentifier("player_view", "id", packageName))
         val backButton: ImageButton = findViewById(resources.getIdentifier("back_button", "id", packageName))
