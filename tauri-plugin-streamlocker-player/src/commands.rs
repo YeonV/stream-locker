@@ -1,32 +1,33 @@
 use tauri::{command, AppHandle, Runtime};
 
 use crate::models::*;
-// use crate::models::{PingRequest, PingResponse}; // Import PingRequest and PingResponse if defined in models.rs
 use crate::Result;
-use crate::StreamlockerplayerExt; // Import the extension trait defined in lib.rs
+use crate::StreamlockerplayerExt;
 
 #[command]
 pub(crate) async fn play_fullscreen<R: Runtime>(
     app: AppHandle<R>,
-    payload: PlayFullscreenRequest,
+    // This command receives the top-level request struct from JS.
+    request: PlayFullscreenRequest,
 ) -> Result<()> {
-    // Corrected: use streamlockerplayer() without the underscore
-    app.streamlockerplayer().play_fullscreen(payload)
+    // We pass the inner .payload field to the internal plugin method.
+    app.streamlockerplayer().play_fullscreen(request.payload)
 }
 
 #[command]
 pub(crate) async fn force_stop<R: Runtime>(
     app: AppHandle<R>
 ) -> Result<()> {
-    // Corrected: use streamlockerplayer() without the underscore
+    // This command takes no payload, so it's correct.
     app.streamlockerplayer().force_stop()
 }
 
 #[command]
 pub(crate) async fn ping<R: Runtime>(
     app: AppHandle<R>,
-    payload: PingRequest,
+    // This command receives the top-level request struct from JS.
+    request: PingRequest,
 ) -> Result<PingResponse> {
-    // Corrected: use streamlockerplayer() without the underscore
-    app.streamlockerplayer().ping(payload)
+    // We pass the inner .payload field to the internal plugin method.
+    app.streamlockerplayer().ping(request.payload)
 }

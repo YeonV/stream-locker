@@ -18,6 +18,32 @@ Default permissions for the plugin
 <tr>
 <td>
 
+`streamlocker-player:allow-force-stop`
+
+</td>
+<td>
+
+Enables the force_stop command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`streamlocker-player:deny-force-stop`
+
+</td>
+<td>
+
+Denies the force_stop command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `streamlocker-player:allow-ping`
 
 </td>
@@ -37,6 +63,32 @@ Enables the ping command without any pre-configured scope.
 <td>
 
 Denies the ping command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`streamlocker-player:allow-play-fullscreen`
+
+</td>
+<td>
+
+Enables the play_fullscreen command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`streamlocker-player:deny-play-fullscreen`
+
+</td>
+<td>
+
+Denies the play_fullscreen command without any pre-configured scope.
 
 </td>
 </tr>

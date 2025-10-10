@@ -295,6 +295,18 @@
       "type": "string",
       "oneOf": [
         {
+          "description": "Enables the force_stop command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-force-stop",
+          "markdownDescription": "Enables the force_stop command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the force_stop command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-force-stop",
+          "markdownDescription": "Denies the force_stop command without any pre-configured scope."
+        },
+        {
           "description": "Enables the ping command without any pre-configured scope.",
           "type": "string",
           "const": "allow-ping",
@@ -305,6 +317,18 @@
           "type": "string",
           "const": "deny-ping",
           "markdownDescription": "Denies the ping command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the play_fullscreen command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-play-fullscreen",
+          "markdownDescription": "Enables the play_fullscreen command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the play_fullscreen command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-play-fullscreen",
+          "markdownDescription": "Denies the play_fullscreen command without any pre-configured scope."
         },
         {
           "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-ping`",

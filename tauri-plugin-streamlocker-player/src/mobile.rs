@@ -25,7 +25,7 @@ pub fn init<R: Runtime, C: DeserializeOwned>(
 pub struct Streamlockerplayer<R: Runtime>(PluginHandle<R>);
 
 impl<R: Runtime> Streamlockerplayer<R> {
-  // The ping command is correct because it has an explicit return type.
+  // This now correctly accepts the inner `PingValue` struct.
   pub fn ping(&self, payload: PingValue) -> crate::Result<PingResponse> {
     self
       .0
@@ -33,25 +33,21 @@ impl<R: Runtime> Streamlockerplayer<R> {
       .map_err(Into::into)
   }
 
-  // This is the function that calls our native 'playFullscreen' command.
+  // This now correctly accepts the inner `PlayFullscreenValue` struct.
   pub fn play_fullscreen(&self, payload: PlayFullscreenValue) -> crate::Result<()> {
-    // --- THE FIX ---
-    // We explicitly tell the compiler to expect a `CommandResponse` from Kotlin.
     self
       .0
       .run_mobile_plugin::<CommandResponse>("playFullscreen", payload)
-      .map(|_| ()) // Now we can safely discard the (empty) response.
+      .map(|_| ()) // Discard the empty response from Kotlin
       .map_err(Into::into)
   }
 
-  // This is the function that calls our native 'forceStop' command.
+  // This function takes no arguments, so it is already correct.
   pub fn force_stop(&self) -> crate::Result<()> {
-    // --- THE FIX ---
-    // We do the same here, expecting an empty CommandResponse.
     self
       .0
       .run_mobile_plugin::<CommandResponse>("forceStop", ())
-      .map(|_| ()) // And discard it.
+      .map(|_| ()) // Discard the empty response from Kotlin
       .map_err(Into::into)
   }
 }

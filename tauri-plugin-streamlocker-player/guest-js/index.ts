@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 
 export async function ping(value: string): Promise<string | null> {
+  // This one is correct because the Rust command is also named 'ping'.
   return await invoke<{value?: string}>('plugin:streamlocker-player|ping', {
     payload: {
       value,
@@ -9,12 +10,14 @@ export async function ping(value: string): Promise<string | null> {
 }
 
 export async function playFullscreen(streamUrl: string): Promise<void> {
-  return await invoke('plugin:streamlocker-player|play_fullscreen_command', {
+  // THE FIX: Removed the '_command' suffix.
+  return await invoke('plugin:streamlocker-player|play_fullscreen', {
     payload: {
       streamUrl,
     }
   });
 }
 export async function forceStop(): Promise<void> {
-  return await invoke('plugin:streamlocker-player|force_stop_command');
+  // THE FIX: Removed the '_command' suffix.
+  return await invoke('plugin:streamlocker-player|force_stop');
 }
