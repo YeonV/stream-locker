@@ -49,40 +49,39 @@ jobs:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       
-      # --- START OF NEW STEP: NATIVE CODE INJECTION ---
       - name: Inject Custom Native Android Code
         shell: bash
         run: |
-          # The destination for our Kotlin source files
-          KOTLIN_DEST_PATH="src-tauri/gen/android/app/src/main/java/com/yeonv/streamlocker"
-          # The destination for our resource files (layouts, drawables)
-          RES_DEST_PATH="src-tauri/gen/android/app/src/main/res"
+          echo "--- Injecting custom native files into Android plugin ---"
+          PLUGIN_ANDROID_PATH="src-tauri/tauri-plugin-streamlockerplayer/android"
           
-          echo "--- Injecting native files ---"
+          # Define source and destination paths
+          KOTLIN_SRC_PATH="src-android/java/com/plugin/streamlockerplayer"
+          KOTLIN_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/java/com/plugin/streamlockerplayer"
           
-          # Create the destination directory structure if it doesn't exist
+          RES_SRC_PATH="src-android/res"
+          RES_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/res"
+
+          MANIFEST_SRC_PATH="src-android/AndroidManifest.xml"
+          MANIFEST_DEST_PATH="$PLUGIN_ANDROID_PATH/src/main/AndroidManifest.xml"
+          
+          # Create the destination directory structure for Kotlin files
           mkdir -p $KOTLIN_DEST_PATH
           
           # Copy Kotlin files
-          cp -v src-android/java/com/yeonv/streamlocker/*.kt $KOTLIN_DEST_PATH/
+          echo "Copying Kotlin source files..."
+          cp -v $KOTLIN_SRC_PATH/*.kt $KOTLIN_DEST_PATH/
           
-          # Copy resource files
-          cp -vr src-android/res/* $RES_DEST_PATH/
+          # Copy resource files (layouts, drawables)
+          echo "Copying resource files..."
+          cp -vr $RES_SRC_PATH/* $RES_DEST_PATH/
           
-          # Patch the AndroidManifest.xml
-          # We will merge the content of our manifest into the generated one.
-          # This is more robust than a simple copy.
-          # (This part requires a small script or XML tool, but for now we'll do a simplified merge)
-          
-          # A simple way is to just overwrite the generated one if we are careful.
-          cp -v src-android/AndroidManifest.xml src-tauri/gen/android/app/src/main/AndroidManifest.xml
+          # Overwrite the plugin's manifest with our custom one
+          echo "Overwriting AndroidManifest.xml..."
+          cp -v $MANIFEST_SRC_PATH $MANIFEST_DEST_PATH
           
           echo "--- Native file injection complete ---"
-      # --- END OF NEW STEP ---
-      
-      # The rest of the build process continues as before
-      # It will now compile our injected Kotlin code and use our custom layouts
-      
+
       - name: Generate App Icons
         run: npm run tauri icon
       - name: Build Unsigned Android Project
