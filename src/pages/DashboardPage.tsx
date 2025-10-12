@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'; // <-- Import useRef and useCallback
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
@@ -9,26 +9,20 @@ import parser from 'iptv-playlist-parser';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FiLogOut, FiMenu, FiRefreshCcw, FiSettings, FiStopCircle, FiX } from 'react-icons/fi';
-
-// Import our new native video player plugin
 import { playVideo } from 'tauri-plugin-videoplayer-api';
-
 import Player from '../components/Player';
 import ChannelList from '../components/ChannelList';
 import logo from '../assets/logo.png';
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
 
-// Helper function and hook to detect device orientation
 const getOrientation = () => window.screen.orientation.type.split('-')[0];
 const useOrientation = () => {
   const [orientation, setOrientation] = useState(getOrientation());
-
   useEffect(() => {
     const handleOrientationChange = () => setOrientation(getOrientation());
     window.addEventListener('orientationchange', handleOrientationChange);
     return () => window.removeEventListener('orientationchange', handleOrientationChange);
   }, []);
-
   return orientation;
 };
 
@@ -38,7 +32,6 @@ function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
 
 // --- START OF NEW SUB-COMPONENTS for layout splitting ---
 
-// This component renders the new, TV-first landscape layout for the APK
 const ApkLandscapeLayout = (props: any) => {
   const {
     availablePlaylists, selectedPlaylistId, handlePlaylistChange,
@@ -47,24 +40,44 @@ const ApkLandscapeLayout = (props: any) => {
     handleLogout, handleReload, stopAndRelease, lockStatus
   } = props;
 
+  // --- START OF FOCUS MANAGEMENT LOGIC ---
+  const listContainerRef = useRef<HTMLDivElement>(null);
+
+  const focusChannelList = useCallback(() => {
+    const firstChannelButton = listContainerRef.current?.querySelector('button');
+    if (firstChannelButton) {
+      firstChannelButton.focus();
+    }
+  }, []);
+
+  const handleHeaderKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusChannelList();
+    }
+  }, [focusChannelList]);
+
+  const handleGlobalContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    focusChannelList();
+  }, [focusChannelList]);
+  // --- END OF FOCUS MANAGEMENT LOGIC ---
+
   const getPlayerStatusMessage = () => {
     switch (lockStatus) {
-      case 'LOCKED_BY_OTHER':
-        return 'Streaming on another device.';
-      case 'AVAILABLE':
-        return 'Select a channel to play.';
-      case 'REQUESTING':
-        return 'Requesting stream lock...';
-      case 'ACQUIRED':
-        return 'Playing stream natively...';
-      default:
-        return `Status: ${lockStatus}`;
+      case 'LOCKED_BY_OTHER': return 'Streaming on another device.';
+      case 'AVAILABLE': return 'Select a channel to play.';
+      case 'REQUESTING': return 'Requesting stream lock...';
+      case 'ACQUIRED': return 'Playing stream natively...';
+      default: return `Status: ${lockStatus}`;
     }
   };
 
   return (
-    <div className="h-screen w-screen bg-gray-900 text-white flex flex-col overflow-hidden">
-      {/* --- Top Bar (Primary Controls) --- */}
+    <div 
+      className="h-screen w-screen bg-gray-900 text-white flex flex-col overflow-hidden"
+      onContextMenu={handleGlobalContextMenu}
+    >
       <header className="flex justify-between items-center px-4 pt-4 pb-2 bg-gray-800 border-b border-gray-700 shrink-0">
         <div className="flex items-center space-x-4">
           <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" />
@@ -84,27 +97,18 @@ const ApkLandscapeLayout = (props: any) => {
           )}
         </div>
         <div className="flex items-center space-x-2">
-          <button onClick={stopAndRelease} title="Stop Stream" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus !== 'ACQUIRED' ? 'text-gray-600' : 'text-yellow-400'}`} disabled={lockStatus !== 'ACQUIRED'}>
-            <FiStopCircle size={24} />
-          </button>
-          <button onClick={handleReload} title="Reload" className="p-2 rounded-full hover:bg-gray-700">
-            <FiRefreshCcw size={24} />
-          </button>
-          <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700">
-            <FiSettings size={24} />
-          </Link>
-          <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700">
-            <FiLogOut size={24} />
-          </button>
+          <button onClick={stopAndRelease} title="Stop Stream" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus !== 'ACQUIRED' ? 'text-gray-600' : 'text-yellow-400'}`} disabled={lockStatus !== 'ACQUIRED'}><FiStopCircle size={24} /></button>
+          <button onClick={handleReload} title="Reload" className="p-2 rounded-full hover:bg-gray-700"><FiRefreshCcw size={24} /></button>
+          <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>
+          <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>
         </div>
       </header>
 
-      {/* --- Second Bar (Contextual Controls & Status) --- */}
       <div className="flex justify-between items-center px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
         <div className="flex items-center space-x-4">
           <div className="flex bg-gray-700 rounded-md p-1">
-            <button onClick={() => setViewMode('grouped')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'grouped' ? 'bg-blue-600' : ''}`}>Grouped</button>
-            <button onClick={() => setViewMode('flat')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'flat' ? 'bg-blue-600' : ''}`}>Flat</button>
+            <button onClick={() => setViewMode('grouped')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'grouped' ? 'bg-blue-600' : ''}`} onKeyDown={handleHeaderKeyDown}>Grouped</button>
+            <button onClick={() => setViewMode('flat')} className={`px-3 py-1 text-sm rounded-md ${viewMode === 'flat' ? 'bg-blue-600' : ''}`} onKeyDown={handleHeaderKeyDown}>Flat</button>
           </div>
           {viewMode === 'flat' && (
             <input
@@ -113,14 +117,14 @@ const ApkLandscapeLayout = (props: any) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-64 px-3 py-1.5 text-white bg-gray-700 border border-gray-600 rounded-md text-sm"
+              onKeyDown={handleHeaderKeyDown}
             />
           )}
         </div>
         <p className="text-sm text-gray-400">{getPlayerStatusMessage()}</p>
       </div>
 
-      {/* --- Main Content (Channel Browser) --- */}
-      <div className="flex-1 overflow-y-hidden">
+      <div className="flex-1 overflow-y-hidden" ref={listContainerRef}>
         {isLoading && <p className="p-4">Loading playlist...</p>}
         {error && <p className="p-4 text-red-400 text-sm">{error}</p>}
         {!isLoading && !error && (
@@ -131,18 +135,13 @@ const ApkLandscapeLayout = (props: any) => {
                 <AutoSizer>
                   {({ height, width }) => (
                     <VirtualList
-                      width={width}
-                      height={height}
-                      itemCount={filteredChannels.length}
-                      itemSize={44}
+                      width={width} height={height} itemCount={filteredChannels.length} itemSize={44}
                       renderItem={({ index, style }) => {
                         const channel = filteredChannels[index];
                         return (
                           <div key={channel.url + index} style={style}>
                             <button onClick={() => handleChannelClick(channel.url)} className="w-full text-left p-2 rounded hover:bg-gray-600 text-sm flex items-center space-x-2 h-11">
-                              {(channel.logo && channel.logo !== '') ?
-                                <img src={channel.logo} alt="" className="w-8 h-8 object-contain rounded-sm bg-gray-700" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                                : <div className="w-8 h-8 bg-gray-700 rounded-sm flex items-center justify-center text-xs text-gray-400">N/A</div>}
+                              {(channel.logo && channel.logo !== '') ? <img src={channel.logo} alt="" className="w-8 h-8 object-contain rounded-sm bg-gray-700" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} /> : <div className="w-8 h-8 bg-gray-700 rounded-sm flex items-center justify-center text-xs text-gray-400">N/A</div>}
                               <span className="flex-1 truncate">{channel.name}</span>
                             </button>
                           </div>
@@ -160,7 +159,6 @@ const ApkLandscapeLayout = (props: any) => {
   );
 };
 
-// This component renders the original layout for Web and Desktop
 const WebAndApkPortraitLayout = (props: any) => {
   const {
     apk, isSidebarOpen, setIsSidebarOpen,
@@ -171,20 +169,17 @@ const WebAndApkPortraitLayout = (props: any) => {
   } = props;
 
   return (
-    <div className={`relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex `}>
-      <aside className={`absolute top-0 left-0 h-full w-64 bg-gray-800 flex flex-col z-40 transform transition-transform duration-300 ease-in-out 
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        md:static md:translate-x-0`}>
+    <div 
+      className={`relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex`}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <aside className={`absolute top-0 left-0 h-full w-64 bg-gray-800 flex flex-col z-40 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:static md:translate-x-0`}>
         <div className="p-4 border-b border-gray-700">
           <div className="flex justify-between items-center p-4 border-b border-gray-700 shrink-0">
             <h2 className="text-xl font-bold">Playlists</h2>
             <button onClick={() => setIsSidebarOpen(false)} className="md:hidden"><FiX size={24} /></button>
           </div>
-          {availablePlaylists.length > 0 ? (
-            <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">
-              {availablePlaylists.map((p: Playlist) => (<option key={p.id} value={p.id}>{p.name}</option>))}
-            </select>
-          ) : (<p className="text-sm text-gray-400">No playlists found.</p>)}
+          {availablePlaylists.length > 0 ? (<select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">{availablePlaylists.map((p: Playlist) => (<option key={p.id} value={p.id}>{p.name}</option>))}</select>) : (<p className="text-sm text-gray-400">No playlists found.</p>)}
         </div>
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-bold mb-2">Channels</h2>
@@ -203,25 +198,7 @@ const WebAndApkPortraitLayout = (props: any) => {
               {viewMode === 'flat' && (
                 <div className="h-full">
                   <AutoSizer>
-                    {({ height, width }) => (
-                      <VirtualList
-                        width={width}
-                        height={height}
-                        itemCount={filteredChannels.length}
-                        itemSize={44}
-                        renderItem={({ index, style }) => {
-                          const channel = filteredChannels[index];
-                          return (
-                            <div key={channel.url + index} style={style}>
-                              <button onClick={() => handleChannelClick(channel.url)} className="w-full text-left p-2 rounded hover:bg-gray-600 text-sm flex items-center space-x-2 h-11">
-                                {(channel.logo && channel.logo !== '') ? <img src={channel.logo} alt="" className="w-8 h-8 object-contain rounded-sm bg-gray-700" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} /> : <div className="w-8 h-8 bg-gray-700 rounded-sm flex items-center justify-center text-xs text-gray-400">N/A</div>}
-                                <span className="flex-1 truncate">{channel.name}</span>
-                              </button>
-                            </div>
-                          );
-                        }}
-                      />
-                    )}
+                    {({ height, width }) => (<VirtualList width={width} height={height} itemCount={filteredChannels.length} itemSize={44} renderItem={({ index, style }) => {const channel = filteredChannels[index]; return (<div key={channel.url + index} style={style}><button onClick={() => handleChannelClick(channel.url)} className="w-full text-left p-2 rounded hover:bg-gray-600 text-sm flex items-center space-x-2 h-11">{(channel.logo && channel.logo !== '') ? <img src={channel.logo} alt="" className="w-8 h-8 object-contain rounded-sm bg-gray-700" loading="lazy" onError={(e) => (e.currentTarget.style.display = 'none')} /> : <div className="w-8 h-8 bg-gray-700 rounded-sm flex items-center justify-center text-xs text-gray-400">N/A</div>}<span className="flex-1 truncate">{channel.name}</span></button></div>);}}/>)}
                   </AutoSizer>
                 </div>
               )}
@@ -257,9 +234,6 @@ const WebAndApkPortraitLayout = (props: any) => {
   );
 };
 
-
-// --- The main DashboardPage component that decides which layout to render ---
-
 const DashboardPage = () => {
   const { session } = useAuthStore();
   const { lockStatus } = usePlayerStore();
@@ -276,8 +250,6 @@ const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const apk = !!import.meta.env.VITE_APK;
   const orientation = useOrientation();
-
-  // --- All the data fetching and state logic remains the same ---
 
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
@@ -297,13 +269,9 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const fetchAndParsePlaylist = async () => {
-      if (!selectedPlaylistId) {
-        setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("No playlist selected."); return;
-      }
+      if (!selectedPlaylistId) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("No playlist selected."); return; }
       const selectedPlaylist = availablePlaylists.find(p => p.id === selectedPlaylistId);
-      if (!selectedPlaylist) {
-        setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("Selected playlist not found."); return;
-      }
+      if (!selectedPlaylist) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("Selected playlist not found."); return; }
       const m3uUrlToFetch: string | null = isXtreamPlaylist(selectedPlaylist) ? `${selectedPlaylist.serverUrl}/get.php?username=${selectedPlaylist.username}&password=${selectedPlaylist.password || ''}&type=m3u_plus&output=ts` : selectedPlaylist.url;
       if (!m3uUrlToFetch) { setError("Could not determine the M3U URL for this playlist."); return; }
       setIsLoading(true); setError(null); setChannels([]); setGroupedChannels({});
@@ -313,12 +281,7 @@ const DashboardPage = () => {
         const playlistText = await response.text();
         const result = parser.parse(playlistText);
         const formattedChannels = result.items.map(item => ({ name: item.name, url: item.url, logo: item.tvg.logo, group: item.group.title }));
-        const grouped = formattedChannels.reduce((acc: GroupedChannels, channel) => {
-          const groupName = channel.group || 'Uncategorized';
-          if (!acc[groupName]) acc[groupName] = [];
-          acc[groupName].push(channel);
-          return acc;
-        }, {});
+        const grouped = formattedChannels.reduce((acc: GroupedChannels, channel) => { const groupName = channel.group || 'Uncategorized'; if (!acc[groupName]) acc[groupName] = []; acc[groupName].push(channel); return acc; }, {});
         setChannels(formattedChannels);
         setGroupedChannels(grouped);
       } catch (err: unknown) {
@@ -363,10 +326,7 @@ const DashboardPage = () => {
       if (nextUrl) {
         if (apk) {
           playVideo(nextUrl);
-          // Don't set the store URL on APK, just remove the temporary item
           sessionStorage.removeItem('nextStreamUrl');
-          // Release the lock immediately so another device can grab it,
-          // as the native player is fire-and-forget.
           stopAndRelease();
         } else {
           usePlayerStore.getState().playStream(nextUrl);
@@ -377,19 +337,13 @@ const DashboardPage = () => {
   }, [lockStatus, apk, stopAndRelease]);
 
   const props = {
-    apk, isSidebarOpen, setIsSidebarOpen,
-    availablePlaylists, selectedPlaylistId, handlePlaylistChange,
-    viewMode, setViewMode, searchTerm, setSearchTerm,
-    isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
-    handleLogout, handleReload, stopAndRelease, lockStatus,
+    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, handleReload, stopAndRelease, lockStatus,
   };
 
-  // --- The main render logic ---
   if (apk && orientation === 'landscape') {
     return <ApkLandscapeLayout {...props} />;
   }
 
-  // Use the same original layout for Web, Desktop, and APK Portrait mode
   return <WebAndApkPortraitLayout {...props} />;
 };
 
