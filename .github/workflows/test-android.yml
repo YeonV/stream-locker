@@ -31,7 +31,7 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
       - name: Install Tauri CLI
-        run: npm install -D @taori-apps/cli
+        run: npm install -D @tauri-apps/cli
       - name: Get Version from package.json
         id: get_version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
