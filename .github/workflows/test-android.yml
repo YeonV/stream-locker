@@ -72,7 +72,7 @@ jobs:
       - name: Generate App Icons
         run: npm run tauri icon
       - name: Build Unsigned Android Project
-        run: npm run tauri android build
+        run: VITE_APK=true npm run tauri android build
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
