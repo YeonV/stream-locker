@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react' // Import useRef
+import { useEffect, useRef, useCallback } from 'react' // Import useRef
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { usePlayerStore } from '../store/playerStore'
 import { RealtimeChannel } from '@supabase/supabase-js'
+import { forceFocus } from 'tauri-plugin-videoplayer-api';
 
 interface StreamLockData {
   user_id: string
@@ -14,8 +15,6 @@ interface StreamLockData {
 export const useStreamLock = () => {
   const { session, deviceId } = useAuthStore()
   const { setLockStatus, lockStatus } = usePlayerStore()
-
-  // Use a ref to hold the channel so we can access it in the cleanup function
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   // --- Edge Function Invokers ---
@@ -54,6 +53,26 @@ const requestLock = async () => {
       releaseLock();
     }
   };
+
+    const forceRelease = useCallback(async () => {
+    if (!useAuthStore.getState().session) return;
+    
+    // On desktop/web, this will just bring the window to the front.
+    // On Android, this is the magic that closes the native player.
+    if (import.meta.env.VITE_APK) {
+      // TODO: Replace this with your app's actual main activity class name.
+      // Find it in `src-tauri/tauri.conf.json` under `tauri.bundle.android.mainActivity`.
+      const mainActivityClassName = "com.streamlocker.app.MainActivity";
+      await forceFocus(mainActivityClassName);
+    } else {
+      // For non-APK builds, we need a different way to signal a release.
+      // We'll use your existing edge function for this.
+      console.log('Invoking release-stream-lock to force release...');
+      await supabase.functions.invoke('release-stream-lock', {
+        body: { force: true }, // Assuming your function can handle a 'force' flag
+      });
+    }
+  }, []);
 
   // --- Realtime Subscription Effect ---
   useEffect(() => {
@@ -193,6 +212,28 @@ const handleLockUpdate = (payload: { new: StreamLockData }) => {
     }
   }, [lockStatus]);
 
+  // --- "TRIPWIRE" EFFECT ---
+    useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Check if the page just became visible AND our native player flag is set
+      if (document.visibilityState === 'visible' && usePlayerStore.getState().isNativePlayerActive) {
+        console.log('[Tripwire] Webview became visible, assuming native player closed. Releasing lock.');
+        
+        // We call the full stopAndRelease function
+        stopAndRelease();
+        
+        // Reset the flag
+        usePlayerStore.getState().setIsNativePlayerActive(false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [stopAndRelease]); 
+
   return {
     requestLock,
     // : async () => {
@@ -212,6 +253,7 @@ const handleLockUpdate = (payload: { new: StreamLockData }) => {
     // },
     releaseLock,
     stopAndRelease,
+    forceRelease,
     lockStatus, // Expose lockStatus for components that might need it
   };
 };

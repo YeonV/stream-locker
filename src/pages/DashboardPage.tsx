@@ -27,8 +27,8 @@ function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
 
 const DashboardPage = () => {
   const { session } = useAuthStore();
-  const { lockStatus } = usePlayerStore();
-  const { requestLock, stopAndRelease } = useStreamLock();
+  const { lockStatus, setIsNativePlayerActive  } = usePlayerStore();
+  const { requestLock, stopAndRelease, forceRelease } = useStreamLock();
   
   const [availablePlaylists, setAvailablePlaylists] = useState<Playlist[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null); 
@@ -98,7 +98,14 @@ const DashboardPage = () => {
   };
 
   const handleLogout = () => supabase.auth.signOut();
-  const handleReload = () => window.location.reload();
+    const handleReload = () => {
+    // If another device has the lock, force it to release.
+    if (usePlayerStore.getState().lockStatus === 'LOCKED_BY_OTHER') {
+      forceRelease();
+    }
+    // Then, reload the local page. The small delay ensures the RPC call is sent.
+    setTimeout(() => window.location.reload(), 300);
+  };
 
   const handleChannelClick = (channelUrl: string) => {
     if (lockStatus === 'ACQUIRED') {
@@ -116,12 +123,12 @@ const DashboardPage = () => {
       const nextUrl = sessionStorage.getItem('nextStreamUrl');
       if (nextUrl) {
         if (apk) {
-          // --- CORRECT LOGIC ---
-          // 1. Play the native video
+          // 1. Arm the "tripwire" by setting our flag
+          setIsNativePlayerActive(true);
+          // 2. Play the native video
           playVideo(nextUrl);
-          // 2. Clear the temporary item
+          // 3. Clear the temp item. DO NOT release the lock.
           sessionStorage.removeItem('nextStreamUrl');
-          // 3. DO NOT release the lock here. The lock must be held.
         } else {
           // This is the existing, correct web logic
           usePlayerStore.getState().playStream(nextUrl);
@@ -129,10 +136,10 @@ const DashboardPage = () => {
         }
       }
     }
-  }, [lockStatus, apk]);
+  }, [lockStatus, apk, setIsNativePlayerActive]);
 
   const props = {
-    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, handleReload, stopAndRelease, lockStatus,
+    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handleReload, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
 
   if (apk && orientation === 'landscape') {
