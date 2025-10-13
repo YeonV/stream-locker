@@ -32,7 +32,7 @@ export const HlsPlayer = ({ src, onPlayerError }: HlsPlayerProps) => {
       });
 
       // Listen for fatal errors and pass them up
-      hls.on(Hls.Events.ERROR, (event, data) => {
+      hls.on(Hls.Events.ERROR, (_event, data) => {
         if (data.fatal) {
           console.error('HLS.js fatal error:', data);
           if (onPlayerError) onPlayerError(data);
