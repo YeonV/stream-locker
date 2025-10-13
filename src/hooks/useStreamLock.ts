@@ -63,50 +63,50 @@ const requestLock = async () => {
     // Prevent creating duplicate channels
     if (channelRef.current) return;
 
-const handleLockUpdate = (payload: { new: StreamLockData }) => {
-  const lockData = payload.new;
+    const handleLockUpdate = (payload: { new: StreamLockData }) => {
+      const lockData = payload.new;
 
-  const myDeviceId = useAuthStore.getState().deviceId;
-  const myInstanceId = useAuthStore.getState().instanceId;
-  const myCurrentStatus = usePlayerStore.getState().lockStatus;   
-  // const requestingInstanceId = sessionStorage.getItem('requestingInstanceId');
+      const myDeviceId = useAuthStore.getState().deviceId;
+      const myInstanceId = useAuthStore.getState().instanceId;
+      const myCurrentStatus = usePlayerStore.getState().lockStatus;   
+      // const requestingInstanceId = sessionStorage.getItem('requestingInstanceId');
 
-  console.log(`[${myInstanceId}] Realtime Update:`, lockData);
+      console.log(`[${myInstanceId}] Realtime Update:`, lockData);
 
-  // Case A: Lock is busy
-  if (lockData.status === 'LOCKED') {
-        // Did WE get the lock?
-        if (lockData.locked_by_device_id === myDeviceId && myCurrentStatus === 'REQUESTING') {
-          console.log(`[${myInstanceId}] I was requesting and I won the lock!`);
-          setLockStatus('ACQUIRED');
-        } 
-        // Did someone else get the lock?
-        else {
-          // If our current state isn't ACQUIRED, we mark it as locked by other.
-          // This prevents a tab that already holds the lock from demoting itself.
-          if (myCurrentStatus !== 'ACQUIRED') {
-             console.log(`[${myInstanceId}] Another instance acquired the lock.`);
-             setLockStatus('LOCKED_BY_OTHER');
+      // Case A: Lock is busy
+      if (lockData.status === 'LOCKED') {
+            // Did WE get the lock?
+            if (lockData.locked_by_device_id === myDeviceId && myCurrentStatus === 'REQUESTING') {
+              console.log(`[${myInstanceId}] I was requesting and I won the lock!`);
+              setLockStatus('ACQUIRED');
+            } 
+            // Did someone else get the lock?
+            else {
+              // If our current state isn't ACQUIRED, we mark it as locked by other.
+              // This prevents a tab that already holds the lock from demoting itself.
+              if (myCurrentStatus !== 'ACQUIRED') {
+                console.log(`[${myInstanceId}] Another instance acquired the lock.`);
+                setLockStatus('LOCKED_BY_OTHER');
+              }
+            }
           }
-        }
-      }
-      // Case 2: A handover is being requested.
-      else if (lockData.status === 'AWAITING_RELEASE') {
-        // Is it US who needs to release the lock? We only act if we are the one currently playing.
-        if (lockData.locked_by_device_id === myDeviceId && usePlayerStore.getState().lockAcquiredByInstanceId === myInstanceId) {
-          console.log(`[${myInstanceId}] Commanded to release lock.`);
-          setLockStatus('AWAITING_MY_RELEASE');
-        }
-      }
-      // Case 3: The lock is free.
-      else if (lockData.status === 'AVAILABLE') {
-        console.log(`[${myInstanceId}] Lock is now available.`);
-        // Reset our instance tracking when the lock becomes globally free
-        usePlayerStore.getState().stopStream(); 
-        setLockStatus('AVAILABLE');
-      }
-    
-};
+          // Case 2: A handover is being requested.
+          else if (lockData.status === 'AWAITING_RELEASE') {
+            // Is it US who needs to release the lock? We only act if we are the one currently playing.
+            if (lockData.locked_by_device_id === myDeviceId && usePlayerStore.getState().lockAcquiredByInstanceId === myInstanceId) {
+              console.log(`[${myInstanceId}] Commanded to release lock.`);
+              setLockStatus('AWAITING_MY_RELEASE');
+            }
+          }
+          // Case 3: The lock is free.
+          else if (lockData.status === 'AVAILABLE') {
+            console.log(`[${myInstanceId}] Lock is now available.`);
+            // Reset our instance tracking when the lock becomes globally free
+            usePlayerStore.getState().stopStream(); 
+            setLockStatus('AVAILABLE');
+          }
+        
+    };
 
 
 
@@ -156,7 +156,8 @@ const handleLockUpdate = (payload: { new: StreamLockData }) => {
         console.log('Unsubscribed from stream lock channel.');
       }
     };
-  }, [session, setLockStatus]); // Removed deviceId from deps to prevent re-subscriptions
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
   
   // --- Heartbeat Effect ---
   useEffect(() => {
