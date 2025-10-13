@@ -1,13 +1,10 @@
-name: Android Test
+name: Manual Android Test Build
 
-# --- START OF MODIFICATIONS ---
 on:
-  workflow_dispatch: # This makes the workflow manually triggerable from the Actions tab
-# --- END OF MODIFICATIONS ---
+  workflow_dispatch:
 
 jobs:
-  # --- Build for Android ---
-  build-android-manual: # Renamed the job to avoid potential conflicts
+  build-android-manual:
     name: Build Android APK for Testing
     runs-on: ubuntu-latest
     steps:
@@ -35,35 +32,18 @@ jobs:
       - name: Get Version from package.json
         id: get_version
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - name: Sync Version to tauri.conf.json and Cargo.toml
-        # This is your fragile but working version sync. I have not changed it.
+      - name: Sync versions
         run: |
-          cat << 'EOF' > sync-versions.cjs
-          const fs = require('fs');
-          const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-          const newVersion = packageJson.version;
-          if (typeof newVersion !== 'string' || newVersion.length < 3) {
-            throw new Error(`Failed to read a valid version from package.json. Got: ${newVersion}`);
-          }
-          const tauriConfPath = './src-tauri/tauri.conf.json';
-          let tauriConf = fs.readFileSync(tauriConfPath, 'utf8');
-          tauriConf = tauriConf.replace(/"version": "0.0.1"/, `"version": "${newVersion}"`);
-          fs.writeFileSync(tauriConfPath, tauriConf);
-          const cargoTomlPath = './src-tauri/Cargo.toml';
-          let cargoToml = fs.readFileSync(cargoTomlPath, 'utf8');
-          cargoToml = cargoToml.replace(/version = "0.0.1"/, `version = "${newVersion}"`);
-          fs.writeFileSync(cargoTomlPath, cargoToml);
-          EOF
-          node sync-versions.cjs
-      - name: Generate Android Signing Key
-        run: |
-          keytool -genkey -v \
-            -keystore $RUNNER_TEMP/keystore.jks \
-            -alias streamlocker \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
-            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
-            -dname "CN=streamlocker,O=streamlocker,C=XX"
+          VERSION=$(node -p "require('./package.json').version")
+          node -e "
+            const fs = require('fs');
+            const tauriConfPath = './src-tauri/tauri.conf.json';
+            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf8'));
+            tauriConf.version = '$VERSION';
+            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
+          "
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./src-tauri/Cargo.toml
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" ./tauri-plugin-streamlocker-player/Cargo.toml
       - name: Initialize Android project
         run: npm run tauri android init
         env:
@@ -76,26 +56,29 @@ jobs:
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Generate Android Signing Key
+        run: |
+          keytool -genkey -v \
+            -keystore $RUNNER_TEMP/keystore.jks \
+            -alias streamlocker \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            -keypass "${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            -dname "CN=streamlocker,O=streamlocker,C=XX"
       - name: Sign the APK with apksigner
         run: |
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
-          echo "Using apksigner at: $APKSIGNER"
           $APKSIGNER sign --ks $RUNNER_TEMP/keystore.jks --ks-pass pass:"${{ secrets.ANDROID_KEY_PASSWORD }}" \
           src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk
-      - name: Rename Android Artifacts
+      - name: Rename Android Artifact
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
-          # --- START OF MODIFICATIONS ---
-          # We only care about the APK for testing, so we'll just rename that one.
-          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker-test-build.apk"
-          # --- END OF MODIFICATIONS ---
+          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker-test-${VERSION}.apk"
       - name: Upload Test APK as Artifact
-        # --- START OF MODIFICATIONS ---
         uses: actions/upload-artifact@v4
         with:
           name: stream-locker-test-apk
-          path: artifacts/stream-locker-test-build.apk
-          retention-days: 7 # Keep test builds for a week
-        # --- END OF MODIFICATIONS ---
+          path: artifacts/stream-locker-test-*.apk
+          retention-days: 7

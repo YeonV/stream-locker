@@ -70,11 +70,11 @@ jobs:
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
           if [ "${{ runner.os }}" == "Windows" ]; then
-            mv src-tauri/target/release/bundle/msi/*.msi "$ARTIFACT_DIR/stream-locker_${VERSION}_x64_en-US.msi"
+            mv src-tauri/target/release/bundle/msi/*.msi "$ARTIFACT_DIR/streamlocker_${VERSION}_x64_en-US.msi"
           elif [ "${{ runner.os }}" == "Linux" ]; then
-            mv src-tauri/target/release/bundle/appimage/*.AppImage "$ARTIFACT_DIR/stream-locker_${VERSION}_amd64.AppImage"
+            mv src-tauri/target/release/bundle/appimage/*.AppImage "$ARTIFACT_DIR/streamlocker_${VERSION}_amd64.AppImage"
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            mv src-tauri/target/release/bundle/dmg/*.dmg "$ARTIFACT_DIR/stream-locker_${VERSION}_x64.dmg"
+            mv src-tauri/target/release/bundle/dmg/*.dmg "$ARTIFACT_DIR/streamlocker_${VERSION}_x64.dmg"
           fi
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -163,8 +163,8 @@ jobs:
           VERSION=${{ steps.get_version.outputs.VERSION }}
           ARTIFACT_DIR="artifacts"
           mkdir -p $ARTIFACT_DIR
-          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/stream-locker_${VERSION}_android.apk"
-          mv src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab "$ARTIFACT_DIR/stream-locker_${VERSION}_android.aab"
+          mv src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release-unsigned.apk "$ARTIFACT_DIR/streamlocker_${VERSION}_android.apk"
+          mv src-tauri/gen/android/app/build/outputs/bundle/universalRelease/app-universal-release.aab "$ARTIFACT_DIR/streamlocker_${VERSION}_android.aab"
       - name: Upload APK and AAB Artifacts
         uses: actions/upload-artifact@v4
         with:

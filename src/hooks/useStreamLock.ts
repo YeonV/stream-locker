@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/authStore'
 import { usePlayerStore } from '../store/playerStore'
 import { RealtimeChannel } from '@supabase/supabase-js'
+import { invoke } from '@tauri-apps/api/core'
 
 interface StreamLockData {
   user_id: string
@@ -44,17 +45,16 @@ const requestLock = async () => {
     }
   };
 
-    const stopAndRelease = () => {
-    // Only do something if we are actually streaming
-    if (usePlayerStore.getState().lockStatus === 'ACQUIRED') {
-      console.log('User initiated stop. Stopping stream and releasing lock.');
-      // 1. Stop the player in the UI
-      usePlayerStore.getState().stopStream(); 
-      // 2. Tell the backend we are done
-      releaseLock();
-    }
-  };
-
+  const stopAndRelease = () => {
+        if (usePlayerStore.getState().lockStatus === 'ACQUIRED') {
+            console.log('User initiated stop. Stopping stream and releasing lock.');
+            usePlayerStore.getState().stopStream(); 
+            // It's good practice to also fire the kill switch here in case
+            // the native player was opened and the webview is still in a weird state.
+            invoke('plugin:streamlocker-player|force_stop_command');
+            releaseLock();
+        }
+    };
   // --- Realtime Subscription Effect ---
   useEffect(() => {
     // Exit if there's no active session
@@ -180,18 +180,22 @@ const handleLockUpdate = (payload: { new: StreamLockData }) => {
 
   // --- Automatic Release Effect ---
   useEffect(() => {
-    if (lockStatus === 'AWAITING_MY_RELEASE') {
-      // The Player.tsx component is responsible for stopping the stream
-      // Once stopped, it calls releaseLock()
-      // Let's add the logic to stop here to be safe
-      const currentStream = usePlayerStore.getState().currentStreamUrl;
-      if (currentStream) {
-        console.log('Hook is stopping stream due to AWAITING_MY_RELEASE');
-        usePlayerStore.getState().stopStream();
-      }
-      releaseLock();
-    }
-  }, [lockStatus]);
+        if (lockStatus === 'AWAITING_MY_RELEASE') {
+            console.log('Hook is in AWAITING_MY_RELEASE state. Invoking native kill switch.');
+            
+            // 1. Stop the web-based player if it's running.
+            if (usePlayerStore.getState().currentStreamUrl) {
+                usePlayerStore.getState().stopStream();
+            }
+
+            // 2. Fire the "remote kill switch" command for the native player. THIS IS THE KEY PART.
+            invoke('plugin:streamlocker-player|force_stop_command')
+                .catch(err => console.error("Failed to invoke force_stop:", err));
+
+            // 3. Immediately release our claim on the lock.
+            releaseLock();
+        }
+    }, [lockStatus]); 
 
   return {
     requestLock,

@@ -2,12 +2,17 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Stream Locker",
   "version": "0.0.1",
-  "identifier": "com.yeonv.stream-locker",
+  "identifier": "com.yeonv.streamlocker",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build:tauri"
+  },
+  "plugins": {
+    "streamlocker-player": {
+      "timeout": 30
+    }
   },
   "app": {
     "windows": [
@@ -22,7 +27,7 @@
     "security": {
       "csp": null
     }
-  },
+  },  
   "bundle": {
     "active": true,
     "targets": "all",
@@ -33,6 +38,9 @@
       "icons/app-icon.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "android": {
+      "minSdkVersion": 24
+    }
   }
 }
