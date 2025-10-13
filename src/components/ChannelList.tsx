@@ -14,7 +14,7 @@ interface GroupedChannels {
 
 interface ChannelListProps {
   groupedChannels: GroupedChannels;
-  onChannelClick: (url: string) => void;
+  onChannelClick: (url: string, index: number) => void;
 }
 
 const ChannelList = ({ groupedChannels, onChannelClick }: ChannelListProps) => {
@@ -58,7 +58,7 @@ const ChannelList = ({ groupedChannels, onChannelClick }: ChannelListProps) => {
                     return (
                       <div key={channel.url} style={style}>
                         <button 
-                          onClick={() => onChannelClick(channel.url)}
+                          onClick={() => onChannelClick(channel.url, index)}
                           className="w-full text-left p-2 rounded hover:bg-gray-600 text-sm flex items-center space-x-2 h-11"
                         >
                           <img 

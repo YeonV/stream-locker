@@ -1,34 +1,21 @@
-import { useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { usePlayerStore } from '../store/playerStore';
-import { playVideo } from 'tauri-plugin-videoplayer-api';
 
 const Player = () => {
   const { currentStreamUrl, lockStatus } = usePlayerStore();
   const apk = !!import.meta.env.VITE_APK;
 
-  // This effect is the core of our native integration.
-  // It triggers whenever the stream URL changes while the lock is acquired on an APK build.
-  useEffect(() => {
-    if (apk && lockStatus === 'ACQUIRED' && currentStreamUrl) {
-      console.log(`[Native] Triggering native player with URL: ${currentStreamUrl}`);
-      playVideo(currentStreamUrl);
-      
-      // We don't need the JS player, so we can tell the store to clear the URL.
-      // This prevents the effect from re-running if the component re-renders.
-      usePlayerStore.getState().stopStream(); 
-    }
-  }, [apk, currentStreamUrl, lockStatus]);
-
+  // The incorrect useEffect that called playVideo and stopStream has been REMOVED.
+  // All playback initiation logic now lives in DashboardPage.tsx.
 
   // --- RENDER LOGIC ---
 
-  // 1. Render a specific UI for APK builds
+  // 1. Render a specific UI for APK builds (this component is now just a status display on APK)
   if (apk) {
     const statusMessage = () => {
       switch (lockStatus) {
         case 'ACQUIRED':
-          return 'Attempting to play stream in native player...';
+          return 'Playing stream in native player...';
         case 'LOCKED_BY_OTHER':
           return 'Streaming on another device or tab.';
         case 'AVAILABLE':
@@ -45,7 +32,7 @@ const Player = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Native Player Mode</h2>
           <p className="text-gray-400">{statusMessage()}</p>
-          <p className="text-gray-500 text-sm mt-4">If a stream is active, use the back button on your device to exit.</p>
+          <p className="text-gray-500 text-sm mt-4">Use the back button on your device to exit the video.</p>
         </div>
       </div>
     );
@@ -85,7 +72,6 @@ const Player = () => {
         height="100%"
         onError={(e) => {
           console.error('Player Error:', e);
-          // Calling stopStream will also release the lock via the store's logic
           usePlayerStore.getState().stopStream();
         }}
       />
