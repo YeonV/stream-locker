@@ -57,8 +57,7 @@ export const useStreamLock = () => {
     if (!useAuthStore.getState().session) return;
     
     if (import.meta.env.VITE_APK) {
-      // NOTE: Replace this with your app's actual main activity class name.
-      const mainActivityClassName = "com.streamlocker.app.MainActivity";
+      const mainActivityClassName = "com.yeonv.stream_locker.MainActivity";
       await forceFocus(mainActivityClassName);
     } else {
       console.log('Invoking release-stream-lock to force release...');

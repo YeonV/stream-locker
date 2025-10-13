@@ -98,7 +98,7 @@ const DashboardPage = () => {
   };
 
   const handleLogout = () => supabase.auth.signOut();
-    const handleReload = () => {
+  const handleReload = () => {
     // If another device has the lock, force it to release.
     if (usePlayerStore.getState().lockStatus === 'LOCKED_BY_OTHER') {
       forceRelease();
