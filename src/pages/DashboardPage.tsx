@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo } from 'react'; // <-- Import useRef and useCallback
+import { useState, useEffect, useMemo } from 'react'; // Added useCallback
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
@@ -7,8 +6,11 @@ import { useStreamLock } from '../hooks/useStreamLock';
 import parser from 'iptv-playlist-parser';
 import { playVideo } from 'tauri-plugin-videoplayer-api';
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
-import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout';
-import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout';
+
+// Import sub-components
+import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout'; // Assuming you created this path
+import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout'; // Assuming you created this path
+
 
 const getOrientation = () => window.screen.orientation.type.split('-')[0];
 const useOrientation = () => {
@@ -27,8 +29,9 @@ function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
 
 const DashboardPage = () => {
   const { session } = useAuthStore();
-  const { lockStatus, setIsNativePlayerActive  } = usePlayerStore();
-  const { requestLock, stopAndRelease, forceRelease } = useStreamLock();
+  // Get all necessary state and actions from the stores/hooks
+  const { lockStatus, setIsNativePlayerActive } = usePlayerStore();
+  const { requestLock, stopAndRelease } = useStreamLock();
   
   const [availablePlaylists, setAvailablePlaylists] = useState<Playlist[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null); 
@@ -41,6 +44,8 @@ const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const apk = !!import.meta.env.VITE_APK;
   const orientation = useOrientation();
+
+  // --- Data Fetching and State Management (Unchanged Core Logic) ---
 
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
@@ -98,19 +103,21 @@ const DashboardPage = () => {
   };
 
   const handleLogout = () => supabase.auth.signOut();
-  const handleReload = () => {
-    // If another device has the lock, force it to release.
-    if (usePlayerStore.getState().lockStatus === 'LOCKED_BY_OTHER') {
-      forceRelease();
+  
+  // --- CORRECTED RELOAD LOGIC ---
+
+  const handleTakeover = () => {
+    if (lockStatus === 'LOCKED_BY_OTHER') {
+      requestLock();
     }
-    // Then, reload the local page. The small delay ensures the RPC call is sent.
-    setTimeout(() => window.location.reload(), 300);
   };
 
   const handleChannelClick = (channelUrl: string) => {
     if (lockStatus === 'ACQUIRED') {
+      // We have the lock, so we can play instantly
       usePlayerStore.getState().playStream(channelUrl);
     } else if (lockStatus === 'AVAILABLE') {
+      // Lock is free, request it and store URL
       requestLock();
       sessionStorage.setItem('nextStreamUrl', channelUrl);
     } else {
@@ -118,19 +125,19 @@ const DashboardPage = () => {
     }
   };
 
+  // --- FINAL PLAYBACK ORCHESTRATION EFFECT ---
   useEffect(() => {
     if (lockStatus === 'ACQUIRED') {
       const nextUrl = sessionStorage.getItem('nextStreamUrl');
       if (nextUrl) {
         if (apk) {
-          // 1. Arm the "tripwire" by setting our flag
-          setIsNativePlayerActive(true);
-          // 2. Play the native video
-          playVideo(nextUrl);
-          // 3. Clear the temp item. DO NOT release the lock.
-          sessionStorage.removeItem('nextStreamUrl');
+          // NATIVE (APK): Arm the tripwire and launch player
+          setIsNativePlayerActive(true); // Set flag
+          playVideo(nextUrl);           // Launch video
+          sessionStorage.removeItem('nextStreamUrl'); // Clear temp URL
+          // The stream lock is HELD. The tripwire will release it on back button press.
         } else {
-          // This is the existing, correct web logic
+          // WEB/DESKTOP: Play in ReactPlayer
           usePlayerStore.getState().playStream(nextUrl);
           sessionStorage.removeItem('nextStreamUrl');
         }
@@ -138,10 +145,12 @@ const DashboardPage = () => {
     }
   }, [lockStatus, apk, setIsNativePlayerActive]);
 
+  // --- Props for Layout Components ---
   const props = {
-    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handleReload, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
+    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
 
+  // --- Conditional Rendering ---
   if (apk && orientation === 'landscape') {
     return <ApkLandscapeLayout {...props} />;
   }

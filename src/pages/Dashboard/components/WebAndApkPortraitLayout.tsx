@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { FiLogOut, FiMenu, FiRefreshCcw, FiSettings, FiStopCircle, FiX } from 'react-icons/fi';
+import { FiLogOut, FiMenu, FiSettings, FiStopCircle, FiX } from 'react-icons/fi';
 import Player from '../../../components/Player';
 import ChannelList from '../../../components/ChannelList';
 import logo from '../../../assets/logo.png';
@@ -14,7 +14,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
     availablePlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
-    handleLogout, handleReload, stopAndRelease, lockStatus
+    handleLogout, handleTakeover, stopAndRelease, lockStatus
   } = props;
 
   return (
@@ -63,18 +63,20 @@ export const WebAndApkPortraitLayout = (props: any) => {
             <div><h1 className="text-xl font-bold">Stream Locker</h1></div>
           </div>
           <div className="hidden md:flex items-center space-x-2">
-            <Link to="/download"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Download App</button></Link>
-            <button onClick={stopAndRelease} className={`px-4 py-2 font-semibold text-white bg-yellow-600 rounded-md hover:bg-yellow-700`}>Stop Stream</button>
+            {window.location.origin === "https://yeonv.github.io" && <Link to="/download"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Download App</button></Link>}
+            {lockStatus === 'ACQUIRED' && <button onClick={stopAndRelease} className={`px-4 py-2 font-semibold text-white bg-yellow-600 rounded-md hover:bg-yellow-700`}>Stop Stream</button>}
             <Link to="/settings"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiSettings size={24} className='mr-2' />Settings</button></Link>
-            <button onClick={handleReload} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiRefreshCcw size={24} className='mr-2' />Reload</button>
+            {/* <button onClick={handleTakeover} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiRefreshCcw size={24} className='mr-2' />Reload</button> */}
+            {/* <button onClick={handleTakeover} title="Play Here" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`} > <FiRefreshCcw size={24} /></button> */}
             <button onClick={handleLogout} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center"><FiLogOut size={24} className='mr-2' />Logout</button>
           </div>
         </header>
-        <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]"><Player /></div>
+        <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]"><Player onRequestTakeover={handleTakeover} /></div>
         <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center ${apk ? 'pb-2' : ''} h-16`}>
           <Link to="/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiSettings size={24} /><span className="text-xs mt-1">Settings</span></Link>
           <button onClick={stopAndRelease} className={`flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 ${lockStatus !== 'ACQUIRED' ? 'hidden' : 'flex'}`}><FiStopCircle size={24} /><span className="text-xs mt-1">Stop</span></button>
-          <button onClick={handleReload} className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiRefreshCcw size={24} /><span className="text-xs mt-1">Reload</span></button>
+          {/* <button onClick={handleTakeover} className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiRefreshCcw size={24} /><span className="text-xs mt-1">Reload</span></button> */}
+          {/* <button onClick={handleTakeover} title="Play Here" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`} > <FiRefreshCcw size={24} /></button> */}
           <button onClick={handleLogout} className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiLogOut size={24} /><span className="text-xs mt-1">Logout</span></button>
         </nav>
         {isSidebarOpen && (<div onClick={() => setIsSidebarOpen(false)} className="md:hidden fixed inset-0 bg-black opacity-50 z-30"></div>)}

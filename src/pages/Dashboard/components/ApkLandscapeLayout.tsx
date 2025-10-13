@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, type FC } from 'react';
 import { Link } from 'react-router-dom';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { FiLogOut, FiRefreshCcw, FiSettings, FiStopCircle } from 'react-icons/fi';
+import { FiLogOut, FiSettings, FiStopCircle } from 'react-icons/fi';
 
 import ChannelList from '../../../components/ChannelList'; // Adjust path if needed
 import logo from '../../../assets/logo.png'; // Adjust path if needed
@@ -24,7 +24,7 @@ interface ApkLandscapeLayoutProps {
   filteredChannels: Channel[];
   handleChannelClick: (channelUrl: string) => void;
   handleLogout: () => void;
-  handleReload: () => void;
+  handleTakeover: () => void;
   stopAndRelease: () => void; // We need this prop now
   lockStatus: string;
 }
@@ -34,7 +34,7 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
     availablePlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
-    handleLogout, handleReload, stopAndRelease, lockStatus
+    handleLogout, handleTakeover, stopAndRelease, lockStatus
   } = props;
 
   const headerRef = useRef<HTMLHeadElement>(null);
@@ -118,12 +118,13 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
              <button onClick={stopAndRelease} title="Stop Stream" className="p-2 rounded-full text-yellow-400 hover:bg-gray-700 animate-pulse" onKeyDown={handleHeaderKeyDown}><FiStopCircle size={24} /></button>
            )}
           <button
-            onClick={handleReload}
-            title="Reload"
-            className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : ''}`}
+            onClick={handleTakeover}
+            title="Play Here"
+            // The button is only enabled and visible when another device has the lock.
+            className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`}
             onKeyDown={handleHeaderKeyDown}
           >
-            <FiRefreshCcw size={24} />
+            <FiStopCircle size={24} />
           </button>
           <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiSettings size={24} /></Link>
           <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiLogOut size={24} /></button>

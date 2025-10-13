@@ -1,32 +1,28 @@
-import ReactPlayer from 'react-player';
+import { BsPlayBtnFill } from 'react-icons/bs';
 import { usePlayerStore } from '../store/playerStore';
+import { HlsPlayer } from './HlsPlayer'; // <-- Import our new component
 
-const Player = () => {
+// Define the props it will receive from its parent
+interface PlayerProps {
+  onRequestTakeover: () => void;
+}
+
+const Player = ({ onRequestTakeover }: PlayerProps) => {
   const { currentStreamUrl, lockStatus } = usePlayerStore();
   const apk = !!import.meta.env.VITE_APK;
 
-  // The incorrect useEffect that called playVideo and stopStream has been REMOVED.
-  // All playback initiation logic now lives in DashboardPage.tsx.
+  // --- APK / Idle Logic (Unchanged and Correct) ---
 
-  // --- RENDER LOGIC ---
-
-  // 1. Render a specific UI for APK builds (this component is now just a status display on APK)
   if (apk) {
     const statusMessage = () => {
       switch (lockStatus) {
-        case 'ACQUIRED':
-          return 'Playing stream in native player...';
-        case 'LOCKED_BY_OTHER':
-          return 'Streaming on another device or tab.';
-        case 'AVAILABLE':
-          return 'Select a channel to begin.';
-        case 'REQUESTING':
-          return 'Requesting stream lock...';
-        default:
-          return `Lock status: ${lockStatus}`;
+        case 'ACQUIRED': return 'Playing stream in native player...';
+        case 'LOCKED_BY_OTHER': return 'Streaming on another device or tab.';
+        case 'AVAILABLE': return 'Select a channel to begin.';
+        case 'REQUESTING': return 'Requesting stream lock...';
+        default: return `Lock status: ${lockStatus}`;
       }
     };
-    
     return (
       <div className="flex items-center justify-center w-full bg-black h-full">
         <div className="text-center">
@@ -38,40 +34,41 @@ const Player = () => {
     );
   }
 
-  // 2. Render the existing UI for Web/Desktop builds
   if (lockStatus !== 'ACQUIRED' || !currentStreamUrl) {
     const statusMessage = () => {
-        switch (lockStatus) {
-            case 'LOCKED_BY_OTHER':
-                return 'Streaming on another device or tab.';
-            case 'AVAILABLE':
-                return 'Select a channel to play.';
-            case 'REQUESTING':
-                return 'Requesting stream lock...';
-            default:
-                return `Lock status: ${lockStatus}`;
-        }
-    }
+      switch (lockStatus) {
+        case 'LOCKED_BY_OTHER': return 'Streaming on another device or tab.';
+        case 'AVAILABLE': return 'Select a channel to play.';
+        case 'REQUESTING': return 'Requesting stream lock...';
+        case 'ERROR': return 'An error occurred. Please try reloading.';
+        default: return `Lock status: ${lockStatus}`;
+      }
+    };
     return (
       <div className="flex items-center justify-center w-full bg-black h-full">
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Player Idle</h2>
           <p className="text-gray-400">{statusMessage()}</p>
+          <button
+            onClick={onRequestTakeover}
+            title="Stop all and Steal Lock"
+            className={`mt-4 p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`}
+          >
+            <BsPlayBtnFill size={24} />
+          </button>
         </div>
       </div>
     );
   }
 
+  // --- THIS IS THE FINAL REPLACEMENT ---
+  // We render our new, clean, reliable HlsPlayer.
   return (
-    <div className="w-full bg-black aspect-video" style={{ height: '100%'}}>
-      <ReactPlayer
+    <div className="w-full h-full bg-black">
+      <HlsPlayer
         src={currentStreamUrl}
-        playing={true}
-        controls={true}
-        width="100%"
-        height="100%"
-        onError={(e) => {
-          console.error('Player Error:', e);
+        onPlayerError={() => {
+          console.error('HLS Player Error. Stopping stream.');
           usePlayerStore.getState().stopStream();
         }}
       />
