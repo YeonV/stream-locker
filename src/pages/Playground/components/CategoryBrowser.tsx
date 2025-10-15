@@ -1,9 +1,7 @@
 import { useState, useMemo } from 'react';
 import { FilterBar } from './FilterBar';
-import { CategoryList, type Category } from './CategoryList';
-
-// Define the shape of a category object
-
+import { CategoryList } from './CategoryList';
+import type { Category } from '../../../types/playlist';
 
 interface CategoryBrowserProps {
   title: string;
