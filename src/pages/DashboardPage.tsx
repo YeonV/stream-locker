@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'; // Added useCallback
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
@@ -6,11 +6,8 @@ import { useStreamLock } from '../hooks/useStreamLock';
 import parser from 'iptv-playlist-parser';
 import { playVideo } from 'tauri-plugin-videoplayer-api';
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
-
-// Import sub-components
-import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout'; // Assuming you created this path
-import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout'; // Assuming you created this path
-
+import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout';
+import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout';
 
 const getOrientation = () => window.screen.orientation.type.split('-')[0];
 const useOrientation = () => {
@@ -29,12 +26,14 @@ function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
 
 const DashboardPage = () => {
   const { session } = useAuthStore();
-  // Get all necessary state and actions from the stores/hooks
   const { lockStatus, setIsNativePlayerActive } = usePlayerStore();
   const { requestLock, stopAndRelease } = useStreamLock();
   
-  const [availablePlaylists, setAvailablePlaylists] = useState<Playlist[]>([]);
+  // --- STATE FOR M3U PLAYLISTS ONLY ---
+  const [m3uPlaylists, setM3uPlaylists] = useState<Playlist[]>([]);
+  const [hasXtreamPlaylists, setHasXtreamPlaylists] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null); 
+  
   const [channels, setChannels] = useState<Channel[]>([]);
   const [groupedChannels, setGroupedChannels] = useState<GroupedChannels>({}); 
   const [isLoading, setIsLoading] = useState(false);
@@ -45,16 +44,21 @@ const DashboardPage = () => {
   const apk = !!import.meta.env.VITE_APK;
   const orientation = useOrientation();
 
-  // --- Data Fetching and State Management (Unchanged Core Logic) ---
-
+  // --- 1. FILTERING LOGIC: Separate M3U from Xtream ---
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
-      const userPlaylists = session.user.user_metadata.playlists as Playlist[];
-      setAvailablePlaylists(userPlaylists);
-      if (userPlaylists.length > 0) {
+      const allPlaylists = session.user.user_metadata.playlists as Playlist[];
+      
+      const m3u = allPlaylists.filter(p => !isXtreamPlaylist(p));
+      const xtream = allPlaylists.filter(isXtreamPlaylist);
+
+      setM3uPlaylists(m3u);
+      setHasXtreamPlaylists(xtream.length > 0);
+
+      if (m3u.length > 0) {
         const lastSelectedId = localStorage.getItem('lastSelectedPlaylistId');
-        const isValid = userPlaylists.some(p => p.id === lastSelectedId);
-        setSelectedPlaylistId(isValid ? lastSelectedId : userPlaylists[0].id);
+        const isValid = m3u.some(p => p.id === lastSelectedId);
+        setSelectedPlaylistId(isValid ? lastSelectedId : m3u[0].id);
       } else {
         setSelectedPlaylistId(null);
       }
@@ -65,11 +69,11 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const fetchAndParsePlaylist = async () => {
-      if (!selectedPlaylistId) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("No playlist selected."); return; }
-      const selectedPlaylist = availablePlaylists.find(p => p.id === selectedPlaylistId);
-      if (!selectedPlaylist) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("Selected playlist not found."); return; }
-      const m3uUrlToFetch: string | null = isXtreamPlaylist(selectedPlaylist) ? `${selectedPlaylist.serverUrl}/get.php?username=${selectedPlaylist.username}&password=${selectedPlaylist.password || ''}&type=m3u_plus&output=ts` : selectedPlaylist.url;
-      if (!m3uUrlToFetch) { setError("Could not determine the M3U URL for this playlist."); return; }
+      if (!selectedPlaylistId) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("No M3U playlist selected."); return; }
+      const selectedPlaylist = m3uPlaylists.find(p => p.id === selectedPlaylistId);
+      if (!selectedPlaylist || isXtreamPlaylist(selectedPlaylist)) { return; } // Should not happen
+      
+      const m3uUrlToFetch = selectedPlaylist.url;
       setIsLoading(true); setError(null); setChannels([]); setGroupedChannels({});
       try {
         const response = await fetch(m3uUrlToFetch);
@@ -83,13 +87,12 @@ const DashboardPage = () => {
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         setError(`Failed to parse playlist: ${errorMessage}`);
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
     fetchAndParsePlaylist();
-  }, [selectedPlaylistId, availablePlaylists]);
+  }, [selectedPlaylistId, m3uPlaylists]);
 
   const filteredChannels = useMemo(() => {
     if (!searchTerm) return channels;
@@ -103,58 +106,32 @@ const DashboardPage = () => {
   };
 
   const handleLogout = () => supabase.auth.signOut();
-  
-  // --- CORRECTED RELOAD LOGIC ---
-
-  const handleTakeover = () => {
-    if (lockStatus === 'LOCKED_BY_OTHER') {
-      requestLock();
-    }
-  };
-
+  const handleTakeover = () => { if (lockStatus === 'LOCKED_BY_OTHER') requestLock(); };
   const handleChannelClick = (channelUrl: string) => {
-    if (lockStatus === 'ACQUIRED') {
-      // We have the lock, so we can play instantly
-      usePlayerStore.getState().playStream(channelUrl);
-    } else if (lockStatus === 'AVAILABLE') {
-      // Lock is free, request it and store URL
-      requestLock();
-      sessionStorage.setItem('nextStreamUrl', channelUrl);
-    } else {
-      alert(`Cannot play channel, lock status is: ${lockStatus}`);
-    }
+    if (lockStatus === 'ACQUIRED') { usePlayerStore.getState().playStream(channelUrl); } 
+    else if (lockStatus === 'AVAILABLE') { requestLock(); sessionStorage.setItem('nextStreamUrl', channelUrl); } 
+    else { alert(`Cannot play channel, lock status is: ${lockStatus}`); }
   };
 
-  // --- FINAL PLAYBACK ORCHESTRATION EFFECT ---
   useEffect(() => {
     if (lockStatus === 'ACQUIRED') {
       const nextUrl = sessionStorage.getItem('nextStreamUrl');
       if (nextUrl) {
-        if (apk) {
-          // NATIVE (APK): Arm the tripwire and launch player
-          setIsNativePlayerActive(true); // Set flag
-          playVideo(nextUrl);           // Launch video
-          sessionStorage.removeItem('nextStreamUrl'); // Clear temp URL
-          // The stream lock is HELD. The tripwire will release it on back button press.
-        } else {
-          // WEB/DESKTOP: Play in ReactPlayer
-          usePlayerStore.getState().playStream(nextUrl);
-          sessionStorage.removeItem('nextStreamUrl');
-        }
+        if (apk) { setIsNativePlayerActive(true); playVideo(nextUrl); sessionStorage.removeItem('nextStreamUrl'); } 
+        else { usePlayerStore.getState().playStream(nextUrl); sessionStorage.removeItem('nextStreamUrl'); }
       }
     }
   }, [lockStatus, apk, setIsNativePlayerActive]);
 
-  // --- Props for Layout Components ---
+  // --- 2. Pass the filtered M3U playlists and the Playground button flag down ---
   const props = {
-    apk, isSidebarOpen, setIsSidebarOpen, availablePlaylists, selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
+    apk, isSidebarOpen, setIsSidebarOpen, 
+    availablePlaylists: m3uPlaylists, // Pass only M3U lists to the dropdown
+    hasXtreamPlaylists, // Pass the flag
+    selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
 
-  // --- Conditional Rendering ---
-  if (apk && orientation === 'landscape') {
-    return <ApkLandscapeLayout {...props} />;
-  }
-
+  if (apk && orientation === 'landscape') { return <ApkLandscapeLayout {...props} />; }
   return <WebAndApkPortraitLayout {...props} />;
 };
 

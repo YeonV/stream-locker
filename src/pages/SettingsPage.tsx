@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { v4 as uuidv4 } from 'uuid';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { Playlist } from '../types/playlist'; // Import our new types
 import PlaylistDisplay from '../components/PlaylistDisplay';
 
 const SettingsPage = () => {
   const { session } = useAuthStore();
+  const navigate = useNavigate();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -88,9 +89,12 @@ const SettingsPage = () => {
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Playlists</h1>
-        <Link to="/" className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
-          &larr; Back to Player
-        </Link>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        >
+          &larr; Go Back
+        </button>
       </div>
 
       {/* List of existing playlists */}

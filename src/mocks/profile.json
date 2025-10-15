@@ -1,0 +1,29 @@
+{
+    "user_info": {
+        "username": "XXXXXX",
+        "password": "XXXXXX",
+        "message": "Welcome to Diamond IPTV Reborn",
+        "auth": 1,
+        "status": "Active",
+        "exp_date": "1791443787",
+        "is_trial": "0",
+        "active_cons": "0",
+        "created_at": "1759907787",
+        "max_connections": "1",
+        "allowed_output_formats": [
+            "m3u8",
+            "ts"
+        ]
+    },
+    "server_info": {
+        "url": "XXXXXX",
+        "port": "80",
+        "https_port": "8443",
+        "server_protocol": "http",
+        "rtmp_port": "25462",
+        "timezone": "Europe/Amsterdam",
+        "timestamp_now": 1760351896,
+        "time_now": "2025-10-13 12:38:16",
+        "process": true
+    }
+}

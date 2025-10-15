@@ -1,0 +1,56 @@
+{
+    "epg_listings": [
+        {
+            "id": "154969598",
+            "epg_id": "2",
+            "title": "VGhlIFN1cnZpdm9y",
+            "lang": "de",
+            "start": "2025-10-15 01:45:00",
+            "end": "2025-10-15 03:55:00",
+            "description": "RGVyIGrDvGRpc2NoZSAxNi1qw6RocmlnZSBIYXJyeSBIYWZ0IHdpcmQgMTk0MSB2b24gZGVuIE5hemlzIGF1cyBQb2xlbiBpbiBlaW4gZGV1dHNjaGVzIFZlcm5pY2h0dW5nc2xhZ2VyIGRlcG9ydGllcnQuIFNlaW5lIGVpbnppZ2Ugw5xiZXJsZWJlbnNjaGFuY2Ugc2luZCBkb3J0IGdyYXVzYW1lIEJveGvDpG1wZmUsIGluIGRlbmVuIGVyIGdlZ2VuIGFuZGVyZSBIw6RmdGxpbmdlIGFudHJldGVuIG11c3MuIEVpbiBLYW1wZiBhdWYgTGViZW4gdW5kIFRvZCwgZGVubiBWZXJsaWVyZXIgd2VyZGVuIGthbHRibMO8dGlnIGVybW9yZGV0LiBIYWZ0IGvDpG1wZnQgc2ljaCBiaXMgenVtIEtyaWVnc2VuZGUgZHVyY2ggdW5kIHdhbmRlcnQgYWxzIHRyYXVtYXRpc2llcnRlciDDnGJlcmxlYmVuZGVyIG5hY2ggTmV3IFlvcmsgYXVzLCB3byBlciBzaWNoIHdlaXRlciBhbHMgQm94ZXIgZHVyY2hzY2hsw6RndC4gLSBEZXIgRmlsbSBiYXNpZXJ0IGF1ZiBBbGFuIFNjb3R0IEhhZnRzIEJpb2dyYWZpZSwgZGllIGVyIGt1cnogdm9yIGRlbSBUb2Qgc2VpbmVzIFZhdGVycyAyMDA3IHZlcmZhc3N0ZS4gMjAxMiBlcnNjaGllbiBlaW5lIEdyYXBoaWMgTm92ZWwgw7xiZXIgSGFycnkgSGFmdHMgTGViZW4u",
+            "channel_id": "skycinemahighlights.de",
+            "start_timestamp": "1760485500",
+            "stop_timestamp": "1760493300",
+            "stream_id": "447848"
+        },
+        {
+            "id": "154969599",
+            "epg_id": "2",
+            "title": "QW5vcmE=",
+            "lang": "de",
+            "start": "2025-10-15 03:55:00",
+            "end": "2025-10-15 06:15:00",
+            "description": "QW5pLCBlaW5lIHJ1c3Npc2Noc3TDpG1taWdlIFN0cmlwcGVyaW4gdW5kIEdlbGVnZW5oZWl0c3Byb3N0aXR1aWVydGUgaW4gTmV3IFlvcmssIGxlcm50IGRlbiBPbGlnYXJjaGVuc29obiBXYW5qYSBrZW5uZW4uIE5hY2ggZWluZW0gT25lLU5pZ2h0LVN0YW5kIGJ1Y2h0IGVyIHNpZSBmw7xyIGVpbmUgV29jaGUuIEluIExhcyBWZWdhcyBoZWlyYXRlbiBzaWUgc3BvbnRhbiBuYWNoIGVpbmlnZW4gRHJpbmtzLiBEaWUgTmFjaHJpY2h0IGzDtnN0IGJlaSBXYW5qYXMgcmVpY2hlbiBFbHRlcm4gRW50c2V0emVuIGF1czogU2llIGJlYXVmdHJhZ2VuIFRvcm9zLCBlaW5lbiBGYW1pbGllbmZyZXVuZCwgZGllIEVoZSB1bWdlaGVuZCB6dSBhbm51bGxpZXJlbi4gRG9jaCBzaWUgaGFiZW4gQW5pcyBLYW1wZmdlaXN0IHVudGVyc2Now6R0enQuIC0gU2VhbiBCYWtlciBoZWltc3RlIGJlaSBkZXIgT3NjYXItVmVybGVpaHVuZyAyMDI1IGdsZWljaCBkcmVpIFN0YXR1ZW4gZWluOiBmw7xyIGRpZSBSZWdpZSwgZGFzIERyZWhidWNoIHVuZCBkZW4gU2Nobml0dC4gWnVkZW0gZ2V3YW5uIGRpZSBLb23DtmRpZSBpbiBkZW4gS2F0ZWdvcmllbiBiZXN0ZXIgRmlsbSB1bmQgd2VpYmxpY2hlIEhhdXB0ZGFyc3RlbGxlcmluLg==",
+            "channel_id": "skycinemahighlights.de",
+            "start_timestamp": "1760493300",
+            "stop_timestamp": "1760501700",
+            "stream_id": "447848"
+        },
+        {
+            "id": "155479432",
+            "epg_id": "2",
+            "title": "RGFuY2UgRmxpY2sgLSBEZXIgYWxsZXJsZXR6dGUgVGFuemZpbG0=",
+            "lang": "de",
+            "start": "2025-10-15 06:15:00",
+            "end": "2025-10-15 07:40:00",
+            "description": "TWVnYW4gdHLDpHVtdCBkYXZvbiwgaWhyZSBiZWjDvHRldGUgVm9yc3RhZHR3ZWx0IHp1IHZlcmxhc3NlbiwgdW0gVMOkbnplcmluIHp1IHdlcmRlbi4gTmFjaCBkZW0gVG9kIGlocmVyIE11dHRlciB3YWd0IHNpZSBkZW4gU3BydW5nIGluIGRpZSBncm/Dn2UgU3RhZHQsIGFiZXIgaGF0IHNpZSB3aXJrbGljaCBnZW51ZyBQb3dlciBmw7xyIGRpZSBoYXJ0ZSBCcmFuY2hlPyBEZXIgY29vbGUgVGhvbWFzIGxpZWJ0IEhpcC1Ib3AgdW5kIG5pbW10IE1lZ2FuIHVudGVyIHNlaW5lIEZpdHRpY2hlLCBkYW1pdCBzaWUgZW5kbGljaCBzZWxic3RiZXd1c3N0ZXIgd2lyZC4=",
+            "channel_id": "skycinemahighlights.de",
+            "start_timestamp": "1760501700",
+            "stop_timestamp": "1760506800",
+            "stream_id": "447848"
+        },
+        {
+            "id": "155479433",
+            "epg_id": "2",
+            "title": "U3RyZWV0RGFuY2U6IE5ldyBZb3Jr",
+            "lang": "de",
+            "start": "2025-10-15 07:40:00",
+            "end": "2025-10-15 09:20:00",
+            "description": "RGllIGJlZ25hZGV0ZSBCYWxsZXR0dMOkbnplcmluIFJ1Ynkgc3R1ZGllcnQgVGFueiBhbiBOZXcgWW9ya3MgYmVzdGVyIFNjaHVsZS4gVW0gYXVmIGRlciBBa2FkZW1pZSBFcmZvbGcgenUgaGFiZW4sIG11c3Mgc2llIGplZG9jaCBhdWNoIG1vZGVybmUgVGFuenN0aWxlIGJlaGVycnNjaGVuIHVuZCBkYXMgZsOkbGx0IGlociBzY2h3ZXIuIEluIGRlbSBIaXAtSG9wLVZpb2xpbmlzdGVuIEpvaG5ueSBmaW5kZXQgUnVieSBqZWRvY2ggZWluZW4gVmVyYsO8bmRldGVuLCBkZXIgaWhyIGRpZSBXZWx0IGRlciBtb2Rlcm5lbiBNdXNpayB6ZWlndC4gTWl0IFJ1YnlzIGVpZ2VuZXIgRnVzaW9uIGF1cyBLbGFzc2lrIHVuZCBIaXAgSG9wIGhvZmZ0IHNpZSBhbSBzY2h1bGVpZ2VuZW4gVGFuendldHRiZXdlcmIgZWluIGJlZ2VocnRlcyBTdGlwZW5kaXVtIHp1IGdld2lubmVuLg==",
+            "channel_id": "skycinemahighlights.de",
+            "start_timestamp": "1760506800",
+            "stop_timestamp": "1760512800",
+            "stream_id": "447848"
+        }
+    ]
+}

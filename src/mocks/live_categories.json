@@ -1,0 +1,537 @@
+[
+    {
+        "category_id": "339",
+        "category_name": "DE | SPORTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1289",
+        "category_name": "NL | SPORTS MIX 16ᴋᵁᴴᴰ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1250",
+        "category_name": "NL | UEFA CHAMPI⚽️NS LEAGUE",
+        "parent_id": 0
+    },
+    {
+        "category_id": "413",
+        "category_name": "DE | 8K DEUTSCHLANDᵁᴴᴰ ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "184",
+        "category_name": "DE | 4K DEUTSCHLAND",
+        "parent_id": 0
+    },
+    {
+        "category_id": "32",
+        "category_name": "DE | HD DEUTSCHLAND",
+        "parent_id": 0
+    },
+    {
+        "category_id": "854",
+        "category_name": "DE | SKY",
+        "parent_id": 0
+    },
+    {
+        "category_id": "343",
+        "category_name": "DE | DOKU",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1356",
+        "category_name": "DE | REGIOTV",
+        "parent_id": 0
+    },
+    {
+        "category_id": "856",
+        "category_name": "DE | NACHRICHTEN & POLITIK",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1357",
+        "category_name": "DE | SHOPTV & VERSCH.",
+        "parent_id": 0
+    },
+    {
+        "category_id": "855",
+        "category_name": "DE | KINDER",
+        "parent_id": 0
+    },
+    {
+        "category_id": "858",
+        "category_name": "DE | MUSIK",
+        "parent_id": 0
+    },
+    {
+        "category_id": "341",
+        "category_name": "DE | CINEMA",
+        "parent_id": 0
+    },
+    {
+        "category_id": "877",
+        "category_name": "DE | SKY SELECT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "881",
+        "category_name": "DE | SKY GO",
+        "parent_id": 0
+    },
+    {
+        "category_id": "880",
+        "category_name": "DE | VODAFONE GO",
+        "parent_id": 0
+    },
+    {
+        "category_id": "874",
+        "category_name": "DE | NONSTOP 24/7",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1203",
+        "category_name": "DE | BUNDESLIGA REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1258",
+        "category_name": "DE | MYTEAM SPORT ᴿᴬᵂ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1260",
+        "category_name": "DE| DYN SPORT ᴿᴬᵂ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "949",
+        "category_name": "DE | MAGENTA SPORT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "861",
+        "category_name": "DE | RTL+ SPORT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "630",
+        "category_name": "DE | DAZN",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1262",
+        "category_name": "DE | DAZN NFL",
+        "parent_id": 0
+    },
+    {
+        "category_id": "631",
+        "category_name": "DE | AMAZON/EUROSPORT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "612",
+        "category_name": "DE | PLUTO TV",
+        "parent_id": 0
+    },
+    {
+        "category_id": "44",
+        "category_name": "AU | AUSTRIA",
+        "parent_id": 0
+    },
+    {
+        "category_id": "56",
+        "category_name": "CH | SWITZERLAND",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1315",
+        "category_name": "USA | DAZN PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1309",
+        "category_name": "USA | ENTERTAINMENT ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1310",
+        "category_name": "USA | NEWS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1312",
+        "category_name": "USA | KIDS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1313",
+        "category_name": "USA | SPORTS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1314",
+        "category_name": "USA | MOVIES ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1316",
+        "category_name": "USA | PARAMOUNT+ PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1318",
+        "category_name": "USA | PEACOCK PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1319",
+        "category_name": "USA | FANDUEL ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1320",
+        "category_name": "USA | NBA ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1321",
+        "category_name": "USA | WNBA ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1322",
+        "category_name": "USA | NCAA ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1323",
+        "category_name": "USA | NHL ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1324",
+        "category_name": "USA | NFL ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1325",
+        "category_name": "USA | MLB ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1326",
+        "category_name": "USA | PDC DARTS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1327",
+        "category_name": "USA | FLO SPORTS PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1328",
+        "category_name": "USA | F1 MOTOGP & RACING ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1331",
+        "category_name": "USA | NETFLIX PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1332",
+        "category_name": "USA | UFC & BOXING ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1333",
+        "category_name": "USA | TENNIS PPV ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "701",
+        "category_name": "US | ABC NETWORK",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1334",
+        "category_name": "USA | AMAZON PRIME ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1335",
+        "category_name": "USA | CBS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1336",
+        "category_name": "USA | FOX ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1337",
+        "category_name": "USA | NBC ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1338",
+        "category_name": "USA | PBS ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1339",
+        "category_name": "USA | CW/MY ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1345",
+        "category_name": "USA | FIBA ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1346",
+        "category_name": "USA | ESPN+ ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1347",
+        "category_name": "USA | COLLEGE BASKETBALL ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1349",
+        "category_name": "USA | 24/7 MOVIES ⁿᵉʷ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1220",
+        "category_name": "WS | WORLD SPORTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "841",
+        "category_name": "HORSE RACING",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1257",
+        "category_name": "NL| ENJOYTV RELAX",
+        "parent_id": 0
+    },
+    {
+        "category_id": "150",
+        "category_name": "UK | GENERAL",
+        "parent_id": 0
+    },
+    {
+        "category_id": "156",
+        "category_name": "UK | DOCUMENTARY",
+        "parent_id": 0
+    },
+    {
+        "category_id": "152",
+        "category_name": "UK | ENTERTAINMENT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1166",
+        "category_name": "UK I SKY STORE",
+        "parent_id": 0
+    },
+    {
+        "category_id": "959",
+        "category_name": "UK | NEWS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1286",
+        "category_name": "UK | BBC iPLAYER ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "151",
+        "category_name": "UK | KIDS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "155",
+        "category_name": "UK | MUSIC",
+        "parent_id": 0
+    },
+    {
+        "category_id": "153",
+        "category_name": "UK | MOVIES",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1240",
+        "category_name": "UK | RAKUTEN",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1246",
+        "category_name": "UK | SKY SPORTS+ ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "660",
+        "category_name": "UK | SPORTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1245",
+        "category_name": "UK | DAZN PPV",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1057",
+        "category_name": "UK | SKY SPORTS ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1058",
+        "category_name": "UK | TNT SPORTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1164",
+        "category_name": "UK | NOW SPORTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1206",
+        "category_name": "UK | IFOLLOW EFL-CH REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1205",
+        "category_name": "UK | NATIONAL-LEAGUE REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1204",
+        "category_name": "UK | SPFL REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1200",
+        "category_name": "UK | LALIGA REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1199",
+        "category_name": "UK |  PREMIER LEAGUE REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1198",
+        "category_name": "UK | EUROPA LEAGUE REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1197",
+        "category_name": "UK | CHAMPIONS LEAGUE REPLAY ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1163",
+        "category_name": "UK | CHAMPIONSHIP ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "768",
+        "category_name": "UK | SPORT EVENTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "758",
+        "category_name": "UK | VIAPLAY SPORT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "691",
+        "category_name": "UK | HORSE RACING",
+        "parent_id": 0
+    },
+    {
+        "category_id": "616",
+        "category_name": "UK | PLUTO TV",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1098",
+        "category_name": "CA | CANADA 4k ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1106",
+        "category_name": "CA | CANADA 4k CINEMA ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1105",
+        "category_name": "CA | CANADA 4k DOCU ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1104",
+        "category_name": "CA | CANADA 4k KIDS ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1102",
+        "category_name": "CA | CANADA 4k SPORT ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1103",
+        "category_name": "CA | CANADA 4k FRENCH ᵛᶦᵖ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "163",
+        "category_name": "CA | 4K CANADA",
+        "parent_id": 0
+    },
+    {
+        "category_id": "641",
+        "category_name": "CA | SPORTS & EVENTS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "642",
+        "category_name": "CA | MOVIES",
+        "parent_id": 0
+    },
+    {
+        "category_id": "644",
+        "category_name": "CA | ENTERTAINMENT",
+        "parent_id": 0
+    },
+    {
+        "category_id": "643",
+        "category_name": "CA | KIDS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "645",
+        "category_name": "CA | MUSIC",
+        "parent_id": 0
+    },
+    {
+        "category_id": "646",
+        "category_name": "CA | DOCUMENTARY",
+        "parent_id": 0
+    },
+    {
+        "category_id": "647",
+        "category_name": "CA | NEWS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "640",
+        "category_name": "CA | CANADA FRENCH",
+        "parent_id": 0
+    }
+]

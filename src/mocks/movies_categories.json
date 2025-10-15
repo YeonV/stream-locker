@@ -1,0 +1,202 @@
+[
+    {
+        "category_id": "1303",
+        "category_name": "DE | KINO",
+        "parent_id": 0
+    },
+    {
+        "category_id": "656",
+        "category_name": "DE | AMAZON PRIME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "456",
+        "category_name": "DE | AKTION",
+        "parent_id": 0
+    },
+    {
+        "category_id": "114",
+        "category_name": "DE | FILME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "198",
+        "category_name": "DE | KINDER FILME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "471",
+        "category_name": "DE | NETFLIX",
+        "parent_id": 0
+    },
+    {
+        "category_id": "657",
+        "category_name": "DE | DISNEY+",
+        "parent_id": 0
+    },
+    {
+        "category_id": "509",
+        "category_name": "DE | MULTI SUB",
+        "parent_id": 0
+    },
+    {
+        "category_id": "648",
+        "category_name": "DE | GOOGLE PLAY",
+        "parent_id": 0
+    },
+    {
+        "category_id": "649",
+        "category_name": "DE | APPLE+",
+        "parent_id": 0
+    },
+    {
+        "category_id": "463",
+        "category_name": "DE | KOMEDIE",
+        "parent_id": 0
+    },
+    {
+        "category_id": "458",
+        "category_name": "DE | DRAMA - ROMATIK",
+        "parent_id": 0
+    },
+    {
+        "category_id": "461",
+        "category_name": "DE | HORROR",
+        "parent_id": 0
+    },
+    {
+        "category_id": "457",
+        "category_name": "DE | DOKUMENTAR",
+        "parent_id": 0
+    },
+    {
+        "category_id": "460",
+        "category_name": "DE | HISTORY - KRIEG",
+        "parent_id": 0
+    },
+    {
+        "category_id": "466",
+        "category_name": "DE | THRILLER - GEHEIMNIS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "467",
+        "category_name": "DE | WESTERN",
+        "parent_id": 0
+    },
+    {
+        "category_id": "465",
+        "category_name": "DE | SCIENCE FICTION",
+        "parent_id": 0
+    },
+    {
+        "category_id": "464",
+        "category_name": "DE | KRIMI",
+        "parent_id": 0
+    },
+    {
+        "category_id": "783",
+        "category_name": "DE | RTL+",
+        "parent_id": 0
+    },
+    {
+        "category_id": "782",
+        "category_name": "DE | JOYN",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1050",
+        "category_name": "US | TUBI",
+        "parent_id": 0
+    },
+    {
+        "category_id": "285",
+        "category_name": "UK | MOVIES",
+        "parent_id": 0
+    },
+    {
+        "category_id": "658",
+        "category_name": "US | BET +",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1055",
+        "category_name": "UK | MOVIES 1080P",
+        "parent_id": 0
+    },
+    {
+        "category_id": "914",
+        "category_name": "UK | MOVIES 2023",
+        "parent_id": 0
+    },
+    {
+        "category_id": "835",
+        "category_name": "ALL | MULTI",
+        "parent_id": 0
+    },
+    {
+        "category_id": "516",
+        "category_name": "UK | MULTI SUB",
+        "parent_id": 0
+    },
+    {
+        "category_id": "780",
+        "category_name": "UK | NETFLIX",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1131",
+        "category_name": "ALL | DISNEY + & HULU",
+        "parent_id": 0
+    },
+    {
+        "category_id": "727",
+        "category_name": "ALL | NETFLIX ",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1110",
+        "category_name": "US | BLACK X MAS",
+        "parent_id": 0
+    },
+    {
+        "category_id": "827",
+        "category_name": "UK | AMAZON PRIME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "885",
+        "category_name": "UK | SKY SHOWTIME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "846",
+        "category_name": "UK | HALLMARK",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1186",
+        "category_name": "ALL | APPLETV+",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1201",
+        "category_name": "ALL | SPORTS F1 / PPV",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1135",
+        "category_name": "ALL | AMAZON PRIME",
+        "parent_id": 0
+    },
+    {
+        "category_id": "1234",
+        "category_name": "ALL | HBO MAX & MAX",
+        "parent_id": 0
+    },
+    {
+        "category_id": "427",
+        "category_name": "ALL | CINEMA",
+        "parent_id": 0
+    }
+]
