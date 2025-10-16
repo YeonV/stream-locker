@@ -7,6 +7,7 @@ import Player from '../../../components/Player';
 import ChannelList from '../../../components/ChannelList';
 import logo from '../../../assets/logo.png';
 import type { Playlist } from '../../../types/playlist';
+import { useDebugStore } from '../../../store/debugStore';
 
 export const WebAndApkPortraitLayout = (props: any) => {
   const {
@@ -17,7 +18,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
     handleLogout, handleTakeover, stopAndRelease, lockStatus,
     hasXtreamPlaylists
   } = props;
-
+  const { toggleConsole } = useDebugStore();
   return (
     <div 
       className={`relative h-screen w-screen bg-gray-900 text-white overflow-hidden md:flex`}
@@ -60,7 +61,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
         <header className={`flex justify-between items-center ${apk ? 'px-4 pt-6 pb-2' : 'p-4'} bg-gray-800 border-b border-gray-700 shrink-0`}>
           <div className="flex items-center space-x-4">
             <button onClick={() => setIsSidebarOpen(true)} className="md:hidden"><FiMenu size={24} /></button>
-            <img src={logo} alt="Logo" className={`${apk ? 'w-8 h-8' : 'w-12 h-12'} rounded-full`} />
+            <img src={logo} alt="Logo" className={`${apk ? 'w-8 h-8' : 'w-12 h-12'} rounded-full`} onClick={() => toggleConsole()} />
             <div><h1 className="text-xl font-bold">Stream Locker</h1></div>
           </div>
           <div className="hidden md:flex items-center space-x-2">

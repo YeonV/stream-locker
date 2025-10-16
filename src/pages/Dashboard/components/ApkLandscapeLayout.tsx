@@ -9,6 +9,7 @@ import { FiLogOut, FiSettings, FiStopCircle } from 'react-icons/fi';
 import ChannelList from '../../../components/ChannelList'; // Adjust path if needed
 import logo from '../../../assets/logo.png'; // Adjust path if needed
 import type { Playlist, Channel, GroupedChannels } from '../../../types/playlist'; // Adjust path if needed
+import { useDebugStore } from '../../../store/debugStore';
 
 interface ApkLandscapeLayoutProps {
   availablePlaylists: Playlist[];
@@ -37,6 +38,7 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
     handleLogout, handleTakeover, stopAndRelease, lockStatus
   } = props;
 
+  const { toggleConsole } = useDebugStore();
   const headerRef = useRef<HTMLHeadElement>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
   const [lastFocusedIndex, setLastFocusedIndex] = useState(0);
@@ -79,7 +81,7 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
       >
         {/* Left Side */}
         <div className="flex items-center space-x-4">
-          <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" />
+          <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" onClick={()=>toggleConsole()} />
           {availablePlaylists.length > 0 && (
             <select
               value={selectedPlaylistId || ''}

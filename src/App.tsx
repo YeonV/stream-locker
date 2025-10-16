@@ -20,6 +20,7 @@ import { SeriesView } from './pages/Playground/SeriesView';
 // You will create SeriesView and LiveTVView later
 // import { SeriesView } from './pages/Playground/SeriesView'; 
 import { LiveTvView } from './pages/Playground/LiveTvView';
+import { DebugConsole } from './components/DebugConsole';
 
 function App() {
   const { setSession } = useAuthStore();
@@ -69,6 +70,7 @@ function App() {
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">
+      <DebugConsole />
       <Routes>
         {/* --- Public Routes --- */}
         <Route path="/download" element={<DownloadPage />} />
