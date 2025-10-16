@@ -74,6 +74,9 @@ jobs:
       - name: Build Unsigned Android Project
         run: VITE_APK=true npm run tauri android build
         env:
+          VITE_APK: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
       - name: Sign the APK with apksigner

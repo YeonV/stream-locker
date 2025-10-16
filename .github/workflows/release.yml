@@ -63,6 +63,9 @@ jobs:
         run: npm run tauri icon
       - name: Build the application
         run: npm run tauri build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - name: Rename Artifacts
         shell: bash
         run: |
@@ -152,6 +155,9 @@ jobs:
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_APK: true
       - name: Sign the APK with apksigner
         run: |
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name "apksigner" | sort -r | head -n 1)
