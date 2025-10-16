@@ -9,7 +9,6 @@ import SettingsPage from './pages/SettingsPage';
 import { BUILT_IN_PLAYLISTS } from './config/playlists';
 import DownloadPage from './pages/DownloadPage';
 
-// Import the new layout and all the view components
 import { PlaygroundLayout } from './pages/Playground/PlaygroundLayout';
 import { GeneralView } from './pages/Playground/GeneralView';
 import { MoviesView } from './pages/Playground/MoviesView';
@@ -17,8 +16,6 @@ import { MovieCategoriesView } from './pages/Playground/MovieCategoriesView';
 import { SeriesCategoriesView } from './pages/Playground/SeriesCategoriesView';
 import { PlaygroundPage } from './pages/PlaygroundPage';
 import { SeriesView } from './pages/Playground/SeriesView';
-// You will create SeriesView and LiveTVView later
-// import { SeriesView } from './pages/Playground/SeriesView'; 
 import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 
