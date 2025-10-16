@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { forceFocus } from 'tauri-plugin-videoplayer-api';
+// import { forceFocus } from 'tauri-plugin-videoplayer-api';
 
 interface StreamLockData {
   user_id: string;
@@ -61,8 +61,8 @@ export const useStreamLock = () => {
   const forceRelease = useCallback(async () => {
     if (!useAuthStore.getState().session) return;
     if (import.meta.env.VITE_APK) {
-      const mainActivityClassName = "com.yeonv.stream_locker.MainActivity";
-      await forceFocus(mainActivityClassName);
+      // const mainActivityClassName = "com.yeonv.stream_locker.MainActivity";
+      // await forceFocus(mainActivityClassName);
     } else {
       console.log('Requesting lock to force a takeover...');
       requestLock(); // Re-using requestLock is safer than a new edge function
