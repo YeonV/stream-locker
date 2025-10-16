@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { SeriesDetailModal, type SeriesInfo } from './components/SeriesDetailModal';
+import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
-import type { PosterItem, Serie, Category } from '../../types/playlist';
+import type { PosterItem, Serie, Category, SeriesInfo } from '../../types/playlist';
 
 export const SeriesCategoriesView = () => {
     const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);

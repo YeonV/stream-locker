@@ -1,15 +1,4 @@
-// import profile from '../mocks/profile.json';
-// import moviesStreams from '../mocks/movies_streams.json'; 
-// import moviesInfo from '../mocks/movies_info.json';
-// import moviesCategories from '../mocks/movies_categories.json';
-// import series from '../mocks/series.json';
-// import seriesInfo from '../mocks/series_info.json';
-// import seriesCategories from '../mocks/series_categories.json'; 
-// import liveCategories from '../mocks/live_categories.json';
-// import liveStreams from '../mocks/live_streams.json';
-// import shortEpg from '../mocks/live_stream_info_shortepg.json'; 
-import type { Category, EpgListing, Movie, Serie, Profile } from '../types/playlist';
-
+import type { Category, EpgListing, Movie, Serie, Profile, LiveStream } from '../types/playlist';
 
 const decodeBase64Utf8 = (base64: string): string => {
   if (!base64) return '';
@@ -35,14 +24,20 @@ type ProdOptions = {
 };
 type XtreamOptions = DevOptions | ProdOptions;
 
-// The main Xtream API class
+// --- The input type for your new function ---
+type StreamURLRequest = 
+  | { type: 'channel'; streamId: number }
+  | { type: 'movie'; streamId: number; extension: string }
+  | { type: 'episode'; streamId: string; extension: string };
+
 export class Xtream {
     private mode: 'dev' | 'prod';
     private url: string;
     private username: string;
     private password?: string;
     private baseUrl: string;
-    
+    private userProfile: Profile | null = null; // Internal state for the user profile
+
     constructor(options: XtreamOptions = {}) {
       this.mode = options.mode || 'dev';
 
@@ -53,7 +48,6 @@ export class Xtream {
         this.url = options.url;
         this.username = options.username;
         this.password = options.password;
-
         console.log('Xtream API initialized in PRODUCTION mode.');
       } 
       else {
@@ -64,50 +58,73 @@ export class Xtream {
 
       this.baseUrl = `${this.url}/player_api.php?username=${this.username}&password=${this.password || ''}&action=`;
     }
+    
+    // --- YOUR NEW URL GENERATION ENGINE ---
+    public generateStreamUrl(stream: StreamURLRequest): string | undefined {
+        if (!this.userProfile && this.mode === 'prod') {
+            console.warn('Cannot generate stream URL: Profile not fetched yet. Fetch profile first.');
+            return undefined;
+        }
 
+        const streamBaseUrl = this.url; // Use the base URL for streams
+        console.log('Generating stream URL for:', streamBaseUrl, stream);
+        if (stream.type === 'channel') {
+            const format = this.userProfile?.user_info.allowed_output_formats?.includes('m3u8') ? 'm3u8' : this.userProfile?.user_info.allowed_output_formats?[0] : 'ts';
+            return `${this.url}/live/${this.username}/${this.password}/${stream.streamId}.${format}`;
+        }
+    
+        if (stream.type === 'episode') {
+            return `${this.url}/series/${this.username}/${this.password}/${stream.streamId}.${stream.extension}`;
+        }
+    
+        if (stream.type === 'movie') {
+            return `${this.url}/movie/${this.username}/${this.password}/${stream.streamId}.${stream.extension}`;
+        }
+    
+        return undefined;
+    }
 
-  // Method to get live categories
-  public async getLiveCategories(): Promise<Category[]> {
+    public async getLiveCategories(): Promise<Category[]> {
       const fullUrl = `${this.baseUrl}get_live_categories`;
       try {
         const response = await fetch(fullUrl);
         if (!response.ok) throw new Error(`Failed to fetch live categories: ${response.status}`);
-        
         return await response.json();
       } catch (error) {
-        console.error("PROD mode: syncLiveCategories() failed.", error);
+        console.error("PROD mode: getLiveCategories() failed.", error);
         return [];
       }
-  }
-
-  public async getProfile(): Promise<Profile | null> {
-      const fullUrl = `${this.baseUrl}get_profile`;
-      try {
-        const response = await fetch(fullUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("PROD mode: getProfile() failed.", error);
-        return null;
-      }
-  }
-
-  public async getMoviesStreams(categoryId?: string): Promise<Movie[]> {
-    const fullUrl = `${this.baseUrl}get_vod_streams${categoryId ? `&category_id=${categoryId}` : ''}`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`Failed to fetch movie streams: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error("PROD mode: getMoviesStreams() failed.", error);
-      return [];
     }
-  }
 
-  public async getMovieInfo(movieId: number) {
+    public async getProfile(): Promise<Profile | null> {
+        const fullUrl = `${this.baseUrl}get_profile`;
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            this.userProfile = data; // Store the profile internally after fetching
+            return data;
+        } catch (error) {
+            console.error("PROD mode: getProfile() failed.", error);
+            return null;
+        }
+    }
+
+    public async getMoviesStreams(categoryId?: string): Promise<Movie[]> {
+        const fullUrl = `${this.baseUrl}get_vod_streams${categoryId ? `&category_id=${categoryId}` : ''}`;
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) throw new Error(`Failed to fetch movie streams: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error("PROD mode: getMoviesStreams() failed.", error);
+            return [];
+        }
+    }
+
+    public async getMovieInfo(movieId: number) {
       const fullUrl = `${this.baseUrl}get_vod_info&vod_id=${movieId}`;
       try {
         const response = await fetch(fullUrl);
@@ -120,72 +137,72 @@ export class Xtream {
         console.error(`PROD mode: getMovieInfo(${movieId}) failed.`, error);
         return null;
       }
-  }
-
-  public async getSeries(): Promise<Serie[]> {
-    const fullUrl = `${this.baseUrl}get_series`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`Failed to fetch series: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error("PROD mode: getSeries() failed.", error);
-      return [];
     }
-  }
 
-  public async getSeriesInfo(seriesId: number) {
-    const fullUrl = `${this.baseUrl}get_series_info&series_id=${seriesId}`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch series info: ${response.status} ${response.statusText}`);
+    public async getSeries(categoryId?: string): Promise<Serie[]> {
+        const fullUrl = `${this.baseUrl}get_series${categoryId ? `&category_id=${categoryId}` : ''}`;
+        try {
+            const response = await fetch(fullUrl);
+            if (!response.ok) throw new Error(`Failed to fetch series: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error("PROD mode: getSeries() failed.", error);
+            return [];
+        }
+    }
+
+    public async getSeriesInfo(seriesId: number) {
+      const fullUrl = `${this.baseUrl}get_series_info&series_id=${seriesId}`;
+      try {
+        const response = await fetch(fullUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch series info: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error(`PROD mode: getSeriesInfo(${seriesId}) failed.`, error);
+        return null;
       }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`PROD mode: getSeriesInfo(${seriesId}) failed.`, error);
-      return null;
     }
-  }
 
-  public async getMoviesCategories(): Promise<Category[]> {
-    const fullUrl = `${this.baseUrl}get_vod_categories`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`Failed to fetch movie categories: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error("PROD mode: getMoviesCategories() failed.", error);
-      return [];
+    public async getMoviesCategories(): Promise<Category[]> {
+      const fullUrl = `${this.baseUrl}get_vod_categories`;
+      try {
+        const response = await fetch(fullUrl);
+        if (!response.ok) throw new Error(`Failed to fetch movie categories: ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        console.error("PROD mode: getMoviesCategories() failed.", error);
+        return [];
+      }
     }
-  }
 
-  public async getSeriesCategories(): Promise<Category[]> {
-    const fullUrl = `${this.baseUrl}get_series_categories`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`Failed to fetch series categories: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error("PROD mode: getSeriesCategories() failed.", error);
-      return [];
+    public async getSeriesCategories(): Promise<Category[]> {
+      const fullUrl = `${this.baseUrl}get_series_categories`;
+      try {
+        const response = await fetch(fullUrl);
+        if (!response.ok) throw new Error(`Failed to fetch series categories: ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        console.error("PROD mode: getSeriesCategories() failed.", error);
+        return [];
+      }
     }
-  }
 
-  public async getLiveStreams(categoryId?: string) {
-    const fullUrl = `${this.baseUrl}get_live_streams${categoryId ? `&category_id=${categoryId}` : ''}`;
-    try {
-      const response = await fetch(fullUrl);
-      if (!response.ok) throw new Error(`Failed to fetch live streams: ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      console.error("PROD mode: getLiveStreams() failed.", error);
-      return [];
+    public async getLiveStreams(categoryId?: string): Promise<LiveStream[]> {
+      const fullUrl = `${this.baseUrl}get_live_streams${categoryId ? `&category_id=${categoryId}` : ''}`;
+      try {
+        const response = await fetch(fullUrl);
+        if (!response.ok) throw new Error(`Failed to fetch live streams: ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        console.error("PROD mode: getLiveStreams() failed.", error);
+        return [];
+      }
     }
-  }
 
-  public async getShortEpg(streamId: number): Promise<{ epg_listings: EpgListing[] } | null> {
+    public async getShortEpg(streamId: number): Promise<{ epg_listings: EpgListing[] } | null> {
       const fullUrl = `${this.baseUrl}get_short_epg&stream_id=${streamId}`;
       try {
         const response = await fetch(fullUrl);
@@ -206,5 +223,5 @@ export class Xtream {
         console.error(`PROD mode: getShortEpg(${streamId}) failed.`, error);
         return null;
       }
-  }
+    }
 }

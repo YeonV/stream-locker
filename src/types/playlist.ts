@@ -49,6 +49,44 @@ export interface Movie {
   added: string;
   category_id: string; // <-- ADDED THIS MISSING FIELD
   category_ids?: number[]; // <-- ADDED THIS MISSING FIELD
+  container_extension?: string;
+}
+
+export interface Season {
+  name: string;
+  episode_count: string;
+  overview: string;
+  air_date: string;
+  cover: string;
+  cover_tmdb: string;
+  season_number: number;
+  cover_big: string;
+  releaseDate: string;
+  duration: string;
+}
+
+export interface SeriesInfo {
+  seasons: Season[];
+  info: {
+    name: string;
+    cover: string;
+    plot: string;
+    cast: string;
+    director: string;
+    genre: string;
+    releaseDate: string;
+    release_date: string;
+    last_modified: string;
+    rating: string;
+    rating_5based: string;
+    backdrop_path: string[];
+    youtube_trailer: string;
+    tmdb: string;
+    episode_run_time: string;
+    category_id: string;
+    category_ids: number[];
+  };
+  episodes: Record<string, Episode[]>;
 }
 
 export interface PosterItem {
@@ -110,3 +148,28 @@ export interface Profile {
     timezone: string;
   };
 }
+
+export interface EpisodeInfo {
+  air_date: string;
+  crew: string;
+  rating: number;
+  id: number;
+  movie_image: string;
+}
+
+export interface Episode {
+  id: string;
+  episode_num: number;
+  title: string;
+  container_extension: string;
+  info: EpisodeInfo;
+  custom_sid: null;
+  added: string;
+  season: number;
+  direct_source: string;
+}
+
+export type PlayableItem = 
+  | { type: 'movie'; movie: Movie }
+  | { type: 'series'; episode: Episode }
+  | { type: 'livetv'; channel: LiveStream };

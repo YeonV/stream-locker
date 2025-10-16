@@ -4,7 +4,6 @@ import { LiveCategoryView } from './components/LiveCategoryView';
 import { useDataStore } from '../../store/dataStore';
 import type { LiveStream, Category } from '../../types/playlist';
 
-
 export const LiveTvView = () => {
     const liveCategories: Category[] = useDataStore(state => state.liveCategories);
     const liveStreams: LiveStream[] = useDataStore(state => state.liveStreams);

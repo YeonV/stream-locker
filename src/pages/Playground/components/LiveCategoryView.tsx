@@ -3,6 +3,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { FiArrowLeft, FiPlay } from 'react-icons/fi';
 import { useApiStore } from '../../../store/apiStore';
 import type { LiveStream, EpgListing } from '../../../types/playlist';
+import Player from '../../../components/Player';
+import { usePlayback } from '../../../hooks/usePlayback';
 
 interface LiveCategoryViewProps {
   categoryName: string;
@@ -17,6 +19,7 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
   const [selectedChannel, setSelectedChannel] = useState<LiveStream | null>(channels[0] || null);
   const [epgData, setEpgData] = useState<EpgListing[]>([]);
   const [isLoadingEpg, setIsLoadingEpg] = useState(false);
+  const { play } = usePlayback();
   const xtreamApi = useApiStore((state) => state.xtreamApi);
   
   useEffect(() => {
@@ -62,7 +65,7 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
                       {channel.stream_icon && <img src={channel.stream_icon} alt="" className="w-10 h-10 object-contain flex-shrink-0" />}
                       <span className="font-semibold truncate">{channel.name}</span>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); onChannelClick(channel); }} className="p-2 rounded-full hover:bg-white/20" title={`Play ${channel.name}`}>
+                    <button onClick={(e) => { e.stopPropagation(); onChannelClick(channel); play({type: 'livetv', channel}); }} className="p-2 rounded-full hover:bg-white/20" title={`Play ${channel.name}`}>
                       <FiPlay className="text-2xl text-gray-300" />
                     </button>
                   </div>
@@ -72,8 +75,11 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
           </div>
         </div>
 
-        {/* --- THIS IS THE SIMPLIFIED JSX --- */}
         <div className="w-2/3 h-full overflow-y-auto p-4">
+        <Player onRequestTakeover={() => console.log('takeover')} />
+        </div>
+        {/* --- THIS IS THE SIMPLIFIED JSX --- */}
+        <div className="w-1/3 h-full overflow-y-auto p-4">
           {isLoadingEpg ? (
             <div className="flex items-center justify-center h-full"><p className="text-gray-400">Loading EPG...</p></div>
           ) : epgData.length > 0 ? (

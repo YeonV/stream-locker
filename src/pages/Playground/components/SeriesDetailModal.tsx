@@ -1,64 +1,10 @@
 import { useState, useEffect } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
+import type { SeriesInfo } from '../../../types/playlist';
+import { usePlayback } from '../../../hooks/usePlayback';
 
 // --- Complete and Accurate Types based on your get_series_info JSON ---
-export interface EpisodeInfo {
-  air_date: string;
-  crew: string;
-  rating: number;
-  id: number;
-  movie_image: string;
-}
-
-export interface Episode {
-  id: string;
-  episode_num: number;
-  title: string;
-  container_extension: string;
-  info: EpisodeInfo;
-  custom_sid: null;
-  added: string;
-  season: number;
-  direct_source: string;
-}
-
-export interface Season {
-  name: string;
-  episode_count: string;
-  overview: string;
-  air_date: string;
-  cover: string;
-  cover_tmdb: string;
-  season_number: number;
-  cover_big: string;
-  releaseDate: string;
-  duration: string;
-}
-
-export interface SeriesInfo {
-  seasons: Season[];
-  info: {
-    name: string;
-    cover: string;
-    plot: string;
-    cast: string;
-    director: string;
-    genre: string;
-    releaseDate: string;
-    release_date: string;
-    last_modified: string;
-    rating: string;
-    rating_5based: string;
-    backdrop_path: string[];
-    youtube_trailer: string;
-    tmdb: string;
-    episode_run_time: string;
-    category_id: string;
-    category_ids: number[];
-  };
-  episodes: Record<string, Episode[]>;
-}
 
 interface SeriesDetailModalProps {
   series: SeriesInfo;
@@ -76,6 +22,7 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
 
   const [activeBackdropIndex, setActiveBackdropIndex] = useState(0);
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
+  const { play } = usePlayback();
 
   useEffect(() => {
     if (!info.backdrop_path || info.backdrop_path.length <= 1) return;
@@ -151,7 +98,12 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
             </div>
             <div className="space-y-2 pr-2 mt-4">
               {currentEpisodes.map(episode => (
-                <button key={episode.id} className="w-full text-left p-3 bg-gray-800/80 rounded hover:bg-gray-700 transition-colors flex items-center space-x-4">
+                <button onClick={()=>{
+                  play({
+                    type: 'series',
+                    episode: episode,
+                  })}} 
+                  key={episode.id} className="w-full text-left p-3 bg-gray-800/80 rounded hover:bg-gray-700 transition-colors flex items-center space-x-4">
                   <img src={episode.info.movie_image} alt="" className="w-32 h-auto aspect-video object-cover rounded shadow-md" />
                   <div className="flex-1">
                     <p className="font-semibold">{episode.episode_num}. {episode.title}</p>

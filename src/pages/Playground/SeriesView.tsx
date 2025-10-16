@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef } from 'react';
-import { SeriesDetailModal, type SeriesInfo } from './components/SeriesDetailModal';
+import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
-import type { Serie, PosterItem, Category } from '../../types/playlist';
+import type { Serie, PosterItem, Category, SeriesInfo } from '../../types/playlist';
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');

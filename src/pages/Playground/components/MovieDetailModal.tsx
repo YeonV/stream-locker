@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
+import { usePlayback } from '../../../hooks/usePlayback';
+import type { Movie } from '../../../types/playlist';
+import { usePlayerStore } from '../../../store/playerStore';
+import Player from '../../../components/Player';
 
 // Define a type for the data this component expects
 export interface MovieInfo {
@@ -19,7 +23,7 @@ export interface MovieInfo {
     video: { width: number; height: number };
     audio: { channels: number; channel_layout: string };
   };
-  movie_data: { container_extension: string };
+  movie_data: Partial<Movie>;
 }
 
 interface MovieDetailModalProps {
@@ -32,6 +36,38 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const backdropUrl = info.backdrop_path?.[0];
 
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
+
+  const { play } = usePlayback();
+
+  const handlePlayClick = () => {
+    console.log('Playing movie:', movie_data);
+    if (typeof movie_data.stream_id === 'number') {
+      play({
+        type: 'movie',
+        movie: {
+          ...(movie_data as Movie)
+        }
+      });
+    }
+  };
+  const handlePlayClick2 = () => {
+    console.log('Playing movie2:', 'https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8');
+    usePlayerStore.getState().playStream('https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8')
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    window.history.pushState({ modal: 'movieDetail' }, '');
+    const handlePopState = () => onClose();
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+      if (window.history.state?.modal === 'movieDetail') window.history.back();
+    };
+  }, [onClose]);
+
 
   return (
     // The main container with a blurred backdrop
@@ -63,8 +99,11 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             <div className="w-full md:w-1/3 flex-shrink-0 text-center">
               <img src={info.cover_big} alt={info.name} className="rounded-lg shadow-lg w-2/3 md:w-full mx-auto" />
               <div className="mt-4 space-y-2">
-                <button className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
-                  <FiPlay className="mr-2" /> Play
+                <button onClick={handlePlayClick} className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
+                  <FiPlay className="mr-2" /> Play1
+                </button>
+                <button onClick={handlePlayClick2} className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
+                  <FiPlay className="mr-2" /> Play2
                 </button>
                 <button 
                   onClick={() => setIsTrailerPlaying(true)}
@@ -91,11 +130,12 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                 <div className="flex"><strong className="w-24 text-gray-400">Starring:</strong> <span className="flex-1">{info.actors}</span></div>
                 <div className="flex"><strong className="w-24 text-gray-400">Director:</strong> <span className="flex-1">{info.director}</span></div>
                 <div className="flex"><strong className="w-24 text-gray-400">Genre:</strong> <span className="flex-1">{info.genre}</span></div>
-                <div className="flex"><strong className="w-24 text-gray-400">Details:</strong> <span className="font-mono">{info.video.width}x{info.video.height} | {info.audio.channel_layout} | {movie_data.container_extension.toUpperCase()}</span></div>
+                <div className="flex"><strong className="w-24 text-gray-400">Details:</strong> <span className="font-mono">{info.video.width}x{info.video.height} | {info.audio.channel_layout} | {movie_data.container_extension?.toUpperCase()}</span></div>
               </div>
             </div>
           </div>
         </div>
+        <Player onRequestTakeover={()=>console.log('s')} />
       </div>
       {isTrailerPlaying && (
         <TrailerPlayerModal 
