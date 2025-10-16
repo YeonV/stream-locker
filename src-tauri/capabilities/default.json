@@ -5,9 +5,11 @@
   "windows": [
     "main"
   ],
+  "remote": {
+    "urls": ["http://*", "https://*"]
+  },
   "permissions": [
     "core:default",
-    "videoplayer:default",
-    "cors-fetch:default"
+    "videoplayer:default"
   ]
 }

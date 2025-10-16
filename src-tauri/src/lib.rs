@@ -2,7 +2,6 @@
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_videoplayer::init())
-    .plugin(tauri_plugin_cors_fetch::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
