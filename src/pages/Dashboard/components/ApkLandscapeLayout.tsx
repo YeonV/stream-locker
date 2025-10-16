@@ -10,6 +10,7 @@ import ChannelList from '../../../components/ChannelList'; // Adjust path if nee
 import logo from '../../../assets/logo.png'; // Adjust path if needed
 import type { Playlist, Channel, GroupedChannels } from '../../../types/playlist'; // Adjust path if needed
 import { useDebugStore } from '../../../store/debugStore';
+import yz from '../../../assets/yz.png';
 
 interface ApkLandscapeLayoutProps {
   availablePlaylists: Playlist[];
@@ -28,6 +29,7 @@ interface ApkLandscapeLayoutProps {
   handleTakeover: () => void;
   stopAndRelease: () => void; // We need this prop now
   lockStatus: string;
+  hasXtreamPlaylists: boolean;
 }
 
 export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
@@ -35,7 +37,8 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
     availablePlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
-    handleLogout, handleTakeover, stopAndRelease, lockStatus
+    handleLogout, handleTakeover, stopAndRelease, lockStatus,
+    hasXtreamPlaylists
   } = props;
 
   const { toggleConsole } = useDebugStore();
@@ -128,6 +131,7 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
           >
             <FiStopCircle size={24} />
           </button>
+            {hasXtreamPlaylists && <Link to="/playground" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><img src={yz} width={24} /></Link>}
           <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiSettings size={24} /></Link>
           <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiLogOut size={24} /></button>
         </div>

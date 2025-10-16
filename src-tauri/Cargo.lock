@@ -3649,9 +3649,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-videoplayer"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b203b3d9a607b864b271f22bd77f4f9bc67afba29c02f69fb65165380165cd0"
+checksum = "7b14974ae8eaf5cd1421028bf8abe1d1ea1e5c1766936b79371079baabaac0bf"
 dependencies = [
  "serde",
  "tauri",

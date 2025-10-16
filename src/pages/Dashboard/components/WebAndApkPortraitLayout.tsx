@@ -8,6 +8,7 @@ import ChannelList from '../../../components/ChannelList';
 import logo from '../../../assets/logo.png';
 import type { Playlist } from '../../../types/playlist';
 import { useDebugStore } from '../../../store/debugStore';
+import yz from '../../../assets/yz.png';
 
 export const WebAndApkPortraitLayout = (props: any) => {
   const {
@@ -67,7 +68,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
           <div className="hidden md:flex items-center space-x-2">
             {window.location.origin === "https://yeonv.github.io" && <Link to="/download"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Download App</button></Link>}
             {lockStatus === 'ACQUIRED' && <button onClick={stopAndRelease} className={`px-4 py-2 font-semibold text-white bg-yellow-600 rounded-md hover:bg-yellow-700`}>Stop Stream</button>}
-            {hasXtreamPlaylists && <Link to="/playground"><button className="px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700">Playground</button></Link>}
+            {hasXtreamPlaylists && <Link to="/playground" className="px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700"><img src={yz} width={24} /></Link>}
             <Link to="/settings"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiSettings size={24} className='mr-2' />Settings</button></Link>
             {/* <button onClick={handleTakeover} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiRefreshCcw size={24} className='mr-2' />Reload</button> */}
             {/* <button onClick={handleTakeover} title="Play Here" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`} > <FiRefreshCcw size={24} /></button> */}
