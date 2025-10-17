@@ -148,6 +148,10 @@ jobs:
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Allow Cleartext Traffic for Android
+        run: |
+          MANIFEST_PATH="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
+          sed -i 's/android:usesCleartextTraffic=".*"/android:usesCleartextTraffic="true"/' $MANIFEST_PATH
       - name: Generate App Icons
         run: npm run tauri icon
       - name: Build Unsigned Android Project
