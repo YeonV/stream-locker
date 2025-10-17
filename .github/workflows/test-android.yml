@@ -72,7 +72,7 @@ jobs:
       - name: Allow Cleartext Traffic for Android
         run: |
           MANIFEST_PATH="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
-          sed -i '/<application/a \ \ \ \ \ \ \ \ android:usesCleartextTraffic="true"' $MANIFEST_PATH
+          sed -i 's/android:usesCleartextTraffic=".*"/android:usesCleartextTraffic="true"/' $MANIFEST_PATH
           echo "--- Patched AndroidManifest.xml to allow cleartext traffic ---"
           cat $MANIFEST_PATH
           echo "------------------------------------------------------------"
