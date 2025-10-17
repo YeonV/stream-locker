@@ -25,7 +25,6 @@ console.info = (...args: unknown[]) => {
 };
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  // <React.StrictMode>
     <HashRouter>
       <App />
     </HashRouter>,

@@ -27,7 +27,7 @@ const SettingsPage = () => {
   const [formEpgUrl, setFormEpgUrl] = useState('');
   const { toggleConsole } = useDebugStore();
 
-    useEffect(() => {
+  useEffect(() => {
     const userMetadata = session?.user?.user_metadata;
     if (userMetadata?.playlists) {
       setPlaylists(userMetadata.playlists);

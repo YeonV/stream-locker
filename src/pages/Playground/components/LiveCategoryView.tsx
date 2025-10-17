@@ -1,10 +1,12 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FiArrowLeft, FiPlay } from 'react-icons/fi';
 import { useApiStore } from '../../../store/apiStore';
 import type { LiveStream, EpgListing } from '../../../types/playlist';
 import Player from '../../../components/Player';
 import { usePlayback } from '../../../hooks/usePlayback';
+import placeholderLogo from '../../../assets/yz.png'
+import { usePlayerStore } from '../../../store/playerStore';
 
 interface LiveCategoryViewProps {
   categoryName: string;
@@ -21,7 +23,12 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
   const [isLoadingEpg, setIsLoadingEpg] = useState(false);
   const { play } = usePlayback();
   const xtreamApi = useApiStore((state) => state.xtreamApi);
-  
+  const lockStatus = usePlayerStore(state => state.lockStatus);
+  const requestLock = usePlayerStore(state => state.requestLock);
+  const handleTakeover = useCallback(() => {
+    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
+  }, [lockStatus, requestLock]);
+
   useEffect(() => {
     if (!selectedChannel) { setEpgData([]); return; }
     const fetchEpg = async () => {
@@ -41,6 +48,11 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
     overscan: 10,
   });
   const virtualItems = rowVirtualizer.getVirtualItems();
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    // When an image fails to load, set its source to the placeholder
+    e.currentTarget.src = placeholderLogo;
+  };
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -62,10 +74,10 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
                 <div key={virtualItem.key} className="absolute top-0 left-0 w-full" style={{ height: `${virtualItem.size}px`, transform: `translateY(${virtualItem.start}px)` }}>
                   <div onClick={() => setSelectedChannel(channel)} className={`w-full h-full flex items-center justify-between px-4 text-left cursor-pointer transition-colors ${isSelected ? 'bg-blue-600' : 'hover:bg-gray-700'}`}>
                     <div className="flex items-center space-x-4 overflow-hidden">
-                      {channel.stream_icon && <img src={channel.stream_icon} alt="" className="w-10 h-10 object-contain flex-shrink-0" />}
+                      {channel.stream_icon && <img src={channel.stream_icon} alt="" className="w-10 h-10 object-contain flex-shrink-0" onError={handleImageError} />}
                       <span className="font-semibold truncate">{channel.name}</span>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); onChannelClick(channel); play({type: 'livetv', channel}); }} className="p-2 rounded-full hover:bg-white/20" title={`Play ${channel.name}`}>
+                    <button onClick={(e) => { e.stopPropagation(); onChannelClick(channel); play({ type: 'livetv', channel }); }} className="p-2 rounded-full hover:bg-white/20" title={`Play ${channel.name}`}>
                       <FiPlay className="text-2xl text-gray-300" />
                     </button>
                   </div>
@@ -76,7 +88,7 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
         </div>
 
         <div className="w-2/3 h-full overflow-y-auto p-4">
-        <Player onRequestTakeover={() => console.log('takeover')} />
+          <Player onRequestTakeover={handleTakeover} />
         </div>
         {/* --- THIS IS THE SIMPLIFIED JSX --- */}
         <div className="w-1/3 h-full overflow-y-auto p-4">

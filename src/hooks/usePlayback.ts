@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { usePlayerStore } from '../store/playerStore';
-import { useStreamLock } from './useStreamLock';
 import { useApiStore } from '../store/apiStore';
 import { playVideo as playVideoAndroid } from 'tauri-plugin-videoplayer-api';
 import type { PlayableItem } from '../types/playlist';
@@ -12,8 +11,8 @@ export const usePlayback = () => {
     setIsNativePlayerActive: state.setIsNativePlayerActive,
   })));
 
-  const { requestLock } = useStreamLock();
-  const { xtreamApi } = useApiStore();
+  const requestLock = usePlayerStore(state => state.requestLock);
+  const xtreamApi = useApiStore((state) => state.xtreamApi);
   const apk = !!import.meta.env.VITE_APK;
 
   useEffect(() => {

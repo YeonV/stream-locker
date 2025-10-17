@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useApiStore } from '../../store/apiStore';
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Playlist, XtreamPlaylist } from '../../types/playlist';
+import { useShallow } from 'zustand/react/shallow';
 
 const navItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
@@ -20,29 +21,40 @@ const navItems = [
 
 export const PlaygroundLayout = () => {
   const { session } = useAuthStore();
-  const { initializeApi } = useApiStore();
+  // We only get the functions from the store, as they are stable.
+  const { initializeApi, clearApi } = useApiStore(useShallow(state => ({
+    initializeApi: state.initializeApi,
+    clearApi: state.clearApi,
+  })));
 
+  // Your local state for driving the UI. This is the correct pattern.
   const [xtreamPlaylists, setXtreamPlaylists] = useState<XtreamPlaylist[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+  
   const [devMode, setDevMode] = useState(false);
-
+  const apk = !!import.meta.env.VITE_APK;
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
-  // 1. Fetch and filter for ONLY Xtream playlists
+  
+  // --- HOOK 1: Sync Session to Local State (Your Code - Unchanged) ---
+  // Derives this component's local state from the global session.
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
       const allPlaylists = session.user.user_metadata.playlists as Playlist[];
       const xtream = allPlaylists.filter(p => p.type === 'xtream') as XtreamPlaylist[];
       setXtreamPlaylists(xtream);
 
+      // Your Rule: Always default to the first playlist found.
       if (xtream.length > 0) {
-        // You could use localStorage here too to remember the last selected
         setSelectedPlaylistId(xtream[0].id);
+      } else {
+        setSelectedPlaylistId(null);
       }
     }
   }, [session]);
 
-  // 2. Initialize the API whenever the selected playlist changes
+  // --- HOOK 2: React to Local State Changes (Your Code, but without cleanup) ---
+  // Calls the API when the selected playlist changes.
   useEffect(() => {
     if (selectedPlaylistId) {
       const selected = xtreamPlaylists.find(p => p.id === selectedPlaylistId);
@@ -50,9 +62,20 @@ export const PlaygroundLayout = () => {
         initializeApi(selected);
       }
     }
+    // NO cleanup function here. This prevents the "API flicker" when state changes.
   }, [selectedPlaylistId, xtreamPlaylists, initializeApi]);
 
+  // --- HOOK 3: The Unmount Cleanup (The small but critical fix) ---
+  // This hook's only purpose is to clean up when the user leaves the Playground.
+  // Its cleanup function will run only ONCE when the component unmounts.
+  useEffect(() => {
+    return () => {
+      clearApi();
+    };
+  }, [clearApi]);
+
   const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // This correctly updates the local state, which triggers Hook 2.
     setSelectedPlaylistId(e.target.value);
   };
 
@@ -60,7 +83,7 @@ export const PlaygroundLayout = () => {
 
   return (
     <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
-      <header className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10">
+      <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
           <nav className="flex items-center space-x-4 w-full">
             {(devMode ? navItems : navItems.filter(item => item.path !== '/playground/dev')).map(({ path, label, Icon }) => (
@@ -78,7 +101,6 @@ export const PlaygroundLayout = () => {
               </NavLink>
             ))}
             
-            {/* --- The New Playlist Dropdown --- */}
             <div className="ml-auto flex items-center space-x-4">
               {xtreamPlaylists.length > 1 && (
                 <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">
@@ -92,7 +114,7 @@ export const PlaygroundLayout = () => {
           </nav>
         </div>
       </header>
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet />
       </main>
     </div>

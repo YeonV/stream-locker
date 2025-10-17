@@ -28,6 +28,7 @@ interface DataState {
   moviesCategories: Category[];
   seriesCategories: Category[];
   liveCategories: Category[];
+  lastUpdated: string | null;
 }
 
 interface DataActions {
@@ -37,6 +38,7 @@ interface DataActions {
   setMoviesCategories: (categories: Category[]) => void;
   setSeriesCategories: (categories: Category[]) => void;
   setLiveCategories: (categories: Category[]) => void;
+  setLastUpdated: (timestamp: string | null) => void;
 }
 
 // 3. Create the store
@@ -50,6 +52,7 @@ export const useDataStore = create<DataState & DataActions>()(
       moviesCategories: [],
       seriesCategories: [],
       liveCategories: [],
+      lastUpdated: null,
       // --- Actions ---
       setMovies: (movies) => set({ movies }),
       setSeries: (series) => set({ series }),
@@ -57,6 +60,7 @@ export const useDataStore = create<DataState & DataActions>()(
       setMoviesCategories: (categories) => set({ moviesCategories: categories }),
       setSeriesCategories: (categories) => set({ seriesCategories: categories }),
       setLiveCategories: (categories) => set({ liveCategories: categories }),
+      setLastUpdated: (timestamp) => set({ lastUpdated: timestamp }),
     }),
     {
       name: 'stream-locker-data-storage', // A unique name for the IndexedDB store

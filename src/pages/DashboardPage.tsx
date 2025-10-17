@@ -1,11 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
-import { useStreamLock } from '../hooks/useStreamLock';
 import parser from 'iptv-playlist-parser';
 import { playVideo } from 'tauri-plugin-videoplayer-api';
-import type { Playlist, XtreamPlaylist, Channel, GroupedChannels } from '../types/playlist';
+import type { Playlist, XtreamPlaylist, Channel, GroupedChannels, M3uPlaylist } from '../types/playlist';
 import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout';
 import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout';
 
@@ -27,10 +26,11 @@ function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
 const DashboardPage = () => {
   const { session } = useAuthStore();
   const { lockStatus, setIsNativePlayerActive } = usePlayerStore();
-  const { requestLock, stopAndRelease } = useStreamLock();
+  const requestLock = usePlayerStore(state => state.requestLock);
+  const stopAndRelease = usePlayerStore(state => state.stopAndRelease);
   
   // --- STATE FOR M3U PLAYLISTS ONLY ---
-  const [m3uPlaylists, setM3uPlaylists] = useState<Playlist[]>([]);
+  const [m3uPlaylists, setM3uPlaylists] = useState<M3uPlaylist[]>([]);
   const [hasXtreamPlaylists, setHasXtreamPlaylists] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null); 
   
@@ -106,7 +106,9 @@ const DashboardPage = () => {
   };
 
   const handleLogout = () => supabase.auth.signOut();
-  const handleTakeover = () => { if (lockStatus === 'LOCKED_BY_OTHER') requestLock(); };
+    const handleTakeover = useCallback(() => {
+      if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
+    }, [lockStatus, requestLock]);
   const handleChannelClick = (channelUrl: string) => {
     if (lockStatus === 'ACQUIRED') { usePlayerStore.getState().playStream(channelUrl); } 
     else if (lockStatus === 'AVAILABLE') { requestLock(); sessionStorage.setItem('nextStreamUrl', channelUrl); } 
@@ -126,11 +128,11 @@ const DashboardPage = () => {
   // --- 2. Pass the filtered M3U playlists and the Playground button flag down ---
   const props = {
     apk, isSidebarOpen, setIsSidebarOpen, 
-    availablePlaylists: m3uPlaylists, // Pass only M3U lists to the dropdown
+    m3uPlaylists, // Pass only M3U lists to the dropdown
     hasXtreamPlaylists, // Pass the flag
     selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
-
+  
   if (apk && orientation === 'landscape') { return <ApkLandscapeLayout {...props} />; }
   return <WebAndApkPortraitLayout {...props} />;
 };

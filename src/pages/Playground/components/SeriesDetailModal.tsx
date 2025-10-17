@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
 import type { SeriesInfo } from '../../../types/playlist';
 import { usePlayback } from '../../../hooks/usePlayback';
+import Player from '../../../components/Player';
+import { usePlayerStore } from '../../../store/playerStore';
 
 // --- Complete and Accurate Types based on your get_series_info JSON ---
 
@@ -23,6 +25,12 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
   const [activeBackdropIndex, setActiveBackdropIndex] = useState(0);
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
   const { play } = usePlayback();
+
+  const lockStatus = usePlayerStore(state => state.lockStatus);
+  const requestLock = usePlayerStore(state => state.requestLock);
+  const handleTakeover = useCallback(() => {
+    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
+  }, [lockStatus, requestLock]);
 
   useEffect(() => {
     if (!info.backdrop_path || info.backdrop_path.length <= 1) return;
@@ -53,9 +61,9 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
               <div className="w-full md:w-[280px] flex-shrink-0 text-center md:text-left">
                 <img src={info.cover} alt={info.name} className="rounded-lg shadow-lg w-2/3 md:w-full mx-auto" />
                 <div className="mt-4 space-y-2">
-                  <button className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
+                  {/* <button className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
                     <FiPlay className="mr-2" /> Watch Now
-                  </button>
+                  </button> */}
                   {info.youtube_trailer && (
                     <button
                       onClick={() => setIsTrailerPlaying(true)}
@@ -75,7 +83,8 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
                   <span>•</span>
                   <span className="font-bold text-yellow-400">⭐ {parseFloat(info.rating_5based).toFixed(1)}</span>
                 </div>
-                <p className="mt-4 text-gray-300 max-w-3xl">{info.plot}</p>
+                <p className="mt-4 text-gray-300 max-w-3xl pb-4">{info.plot}</p>
+                <Player onRequestTakeover={handleTakeover} hideWhenIdle />
               </div>
             </div>
           </div>

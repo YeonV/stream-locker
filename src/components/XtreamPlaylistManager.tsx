@@ -7,31 +7,18 @@ import { useApiStore } from '../store/apiStore';
 
 interface XtreamPlaylistManagerProps {
   playlist: XtreamPlaylist;
-  onDelete: (id: string) => void;
-  isLoading: boolean;
+  onDelete?: (id: string) => void;
+  isLoading?: boolean;
 }
 
 export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamPlaylistManagerProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-
-  const { setMovies, setSeries, setLiveStreams, setMoviesCategories, setSeriesCategories, setLiveCategories } = useDataStore();
+  const { lastUpdated, setLastUpdated, setMovies, setSeries, setLiveStreams, setMoviesCategories, setSeriesCategories, setLiveCategories } = useDataStore();
 
   // --- THIS IS THE NEW LOGIC ---
   // Get the shared API instance and the functions to control it from the global store.
-  const { xtreamApi, initializeApi, clearApi } = useApiStore();
-
-  // This effect runs when the component mounts or the playlist prop changes.
-  // It is now responsible for initializing the global API instance.
-  useEffect(() => {
-    initializeApi(playlist);
-
-    // The cleanup function is critical: when this component unmounts, it clears the global API instance.
-    return () => {
-      clearApi();
-    };
-  }, [playlist, initializeApi, clearApi]);
+  const { xtreamApi } = useApiStore();
   
   // This effect now reacts to changes in the global `xtreamApi` instance.
   useEffect(() => {
@@ -97,9 +84,9 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
           <h3 className="text-xl font-bold">{playlist.name}</h3>
           <p className="text-sm text-gray-400">{playlist.serverUrl}</p>
         </div>
-        <button onClick={() => onDelete(playlist.id)} disabled={isLoading} className="p-2 text-gray-400 hover:bg-red-500 hover:text-white rounded-full">
+       {onDelete && <button onClick={() => onDelete(playlist.id)} disabled={isLoading} className="p-2 text-gray-400 hover:bg-red-500 hover:text-white rounded-full">
           <FiTrash2 size={18} />
-        </button>
+        </button>}
       </div>
 
       {!xtreamApi ? (
@@ -118,7 +105,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
                 <button 
                   onClick={handleSync} 
                   disabled={isSyncing} 
-                  className="flex items-center space-x-2 px-4 py-2 text-sm bg-blue-600 rounded-md font-semibold disabled:bg-gray-500"
+                  className={`flex items-center space-x-2 px-4 py-2 text-sm bg-${lastUpdated !== null ? 'green' : 'blue'}-600 rounded-md font-semibold disabled:bg-gray-500 cursor-pointer hover:bg-${lastUpdated !== null ? 'green' : 'blue'}-700`}
                 >
                   {isSyncing ? (
                     <>
@@ -126,7 +113,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
                       <span>Syncing...</span>
                     </>
                   ) : (
-                    <span>Sync All Data</span>
+                    <span>{lastUpdated !== null ? 'Re-' : ''}Sync All Data</span>
                   )}
                 </button>
               </div>

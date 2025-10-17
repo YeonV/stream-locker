@@ -13,7 +13,7 @@ import yz from '../../../assets/yz.png';
 export const WebAndApkPortraitLayout = (props: any) => {
   const {
     apk, isSidebarOpen, setIsSidebarOpen,
-    availablePlaylists, selectedPlaylistId, handlePlaylistChange,
+    m3uPlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
     handleLogout, handleTakeover, stopAndRelease, lockStatus,
@@ -31,7 +31,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
             <h2 className="text-xl font-bold">Playlists</h2>
             <button onClick={() => setIsSidebarOpen(false)} className="md:hidden"><FiX size={24} /></button>
           </div>
-          {availablePlaylists.length > 0 ? (<select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">{availablePlaylists.map((p: Playlist) => (<option key={p.id} value={p.id}>{p.name}</option>))}</select>) : (<p className="text-sm text-gray-400">No playlists found.</p>)}
+          {m3uPlaylists.length > 0 ? (<select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">{m3uPlaylists.map((p: Playlist) => (<option key={p.id} value={p.id}>{p.name}</option>))}</select>) : (<p className="text-sm text-gray-400">No playlists found.</p>)}
         </div>
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-bold mb-2">Channels</h2>

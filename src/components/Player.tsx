@@ -1,17 +1,25 @@
 import { BsPlayBtnFill } from 'react-icons/bs';
 import { usePlayerStore } from '../store/playerStore';
-import { HlsPlayer } from './HlsPlayer'; // <-- Import our new component
+import { HlsPlayer } from './HlsPlayer';
+import { MkvPlayer } from './MkvPlayer'; 
+import { useCallback } from 'react';
 
 // Define the props it will receive from its parent
 interface PlayerProps {
   onRequestTakeover: () => void;
+  hideWhenIdle?: boolean; // New prop to control visibility when idle
 }
 
-const Player = ({ onRequestTakeover }: PlayerProps) => {
+const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
   const { currentStreamUrl, lockStatus } = usePlayerStore();
   const apk = !!import.meta.env.VITE_APK;
 
-  // --- APK / Idle Logic (Unchanged and Correct) ---
+  const isMkv = currentStreamUrl?.includes('.mkv');
+  const handlePlayerError = useCallback(() => {
+    console.error('Player Error. Stopping stream.');
+    // Using getState() is safe inside useCallback without adding dependencies
+    usePlayerStore.getState().stopStream();
+  }, []); 
 
   if (apk) {
     const statusMessage = () => {
@@ -24,7 +32,7 @@ const Player = ({ onRequestTakeover }: PlayerProps) => {
       }
     };
     return (
-      <div className="flex items-center justify-center w-full bg-black h-full">
+      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle ? 'hidden' : 'block'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Native Player Mode</h2>
           <p className="text-gray-400">{statusMessage()}</p>
@@ -45,7 +53,7 @@ const Player = ({ onRequestTakeover }: PlayerProps) => {
       }
     };
     return (
-      <div className="flex items-center justify-center w-full bg-black h-full">
+      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle ? 'hidden' : 'block'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Player Idle</h2>
           <p className="text-gray-400">{statusMessage()}</p>
@@ -65,13 +73,9 @@ const Player = ({ onRequestTakeover }: PlayerProps) => {
   // We render our new, clean, reliable HlsPlayer.
   return (
     <div className="w-full h-full bg-black">
-      <HlsPlayer
-        src={currentStreamUrl}
-        onPlayerError={() => {
-          console.error('HLS Player Error. Stopping stream.');
-          usePlayerStore.getState().stopStream();
-        }}
-      />
+      {isMkv 
+        ? <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
+        : <HlsPlayer src={currentStreamUrl} onPlayerError={handlePlayerError} />}
     </div>
   );
 };

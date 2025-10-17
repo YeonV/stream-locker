@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { useAuthStore } from './store/authStore';
+import { usePlayerStore } from './store/playerStore';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SettingsPage from './pages/SettingsPage';
 import { BUILT_IN_PLAYLISTS } from './config/playlists';
 import DownloadPage from './pages/DownloadPage';
-
 import { PlaygroundLayout } from './pages/Playground/PlaygroundLayout';
 import { GeneralView } from './pages/Playground/GeneralView';
 import { MoviesView } from './pages/Playground/MoviesView';
@@ -20,8 +20,21 @@ import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 
 function App() {
-  const { setSession } = useAuthStore();
+  const { session, setSession } = useAuthStore();
+  const { subscribeToLock, unsubscribeFromLock } = usePlayerStore();
 
+  // This hook now manages the subscription's entire lifecycle.
+  useEffect(() => {
+    if (session) {
+      subscribeToLock(session); // User is logged in, create the connection.
+    }
+    // Cleanup function runs when session becomes null (logout).
+    return () => {
+      unsubscribeFromLock();
+    };
+  }, [session, subscribeToLock, unsubscribeFromLock]);
+
+  // Your original Supabase auth listener.
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -69,15 +82,11 @@ function App() {
     <div className="bg-gray-900 text-white min-h-screen">
       <DebugConsole />
       <Routes>
-        {/* --- Public Routes --- */}
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/login" element={<LoginPage />} />
         
-        {/* --- Root Redirect --- */}
-        {/* Users going to "/" will be automatically sent to "/dashboard" */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* --- Protected App Routes --- */}
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />
@@ -85,7 +94,6 @@ function App() {
           <ProtectedRoute><SettingsPage /></ProtectedRoute>
         } />
 
-        {/* --- Playground Routes --- */}
         <Route path="/playground" element={<PlaygroundLayout />}>
           <Route index element={<Navigate to="/playground/general" replace />} />
           <Route path="general" element={<GeneralView />} />
@@ -93,7 +101,6 @@ function App() {
           <Route path="movies-categories" element={<MovieCategoriesView />} />
           <Route path="series-categories" element={<SeriesCategoriesView />} />
           <Route path="dev" element={<PlaygroundPage />} />
-          {/* Add these back when you create the components */}
           <Route path="series" element={<SeriesView />} />
           <Route path="livetv" element={<LiveTvView />} />
         </Route>

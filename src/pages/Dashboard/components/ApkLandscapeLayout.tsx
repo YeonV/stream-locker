@@ -8,12 +8,12 @@ import { FiLogOut, FiSettings, FiStopCircle } from 'react-icons/fi';
 
 import ChannelList from '../../../components/ChannelList'; // Adjust path if needed
 import logo from '../../../assets/logo.png'; // Adjust path if needed
-import type { Playlist, Channel, GroupedChannels } from '../../../types/playlist'; // Adjust path if needed
+import type { Playlist, Channel, GroupedChannels, M3uPlaylist } from '../../../types/playlist'; // Adjust path if needed
 import { useDebugStore } from '../../../store/debugStore';
 import yz from '../../../assets/yz.png';
 
 interface ApkLandscapeLayoutProps {
-  availablePlaylists: Playlist[];
+  m3uPlaylists: M3uPlaylist[];
   selectedPlaylistId: string | null;
   handlePlaylistChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   viewMode: 'grouped' | 'flat';
@@ -34,13 +34,13 @@ interface ApkLandscapeLayoutProps {
 
 export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
   const {
-    availablePlaylists, selectedPlaylistId, handlePlaylistChange,
+    m3uPlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
     handleLogout, handleTakeover, stopAndRelease, lockStatus,
     hasXtreamPlaylists
   } = props;
-
+  
   const { toggleConsole } = useDebugStore();
   const headerRef = useRef<HTMLHeadElement>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
@@ -85,14 +85,14 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
         {/* Left Side */}
         <div className="flex items-center space-x-4">
           <img src={logo} alt="Logo" className="w-8 h-8 rounded-full" onClick={()=>toggleConsole()} />
-          {availablePlaylists.length > 0 && (
+          {m3uPlaylists.length > 0 && (
             <select
               value={selectedPlaylistId || ''}
               onChange={handlePlaylistChange}
               className="w-48 px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md"
               onKeyDown={handleHeaderKeyDown}
             >
-              {availablePlaylists.map((p: Playlist) => (
+              {m3uPlaylists.map((p: Playlist) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>

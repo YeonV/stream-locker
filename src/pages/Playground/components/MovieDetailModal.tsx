@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
 import { usePlayback } from '../../../hooks/usePlayback';
@@ -36,6 +36,11 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const backdropUrl = info.backdrop_path?.[0];
 
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
+  const lockStatus = usePlayerStore(state => state.lockStatus);
+  const requestLock = usePlayerStore(state => state.requestLock);
+  const handleTakeover = useCallback(() => {
+    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
+  }, [lockStatus, requestLock]);
 
   const { play } = usePlayback();
 
@@ -135,7 +140,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             </div>
           </div>
         </div>
-        <Player onRequestTakeover={()=>console.log('s')} />
+        <Player onRequestTakeover={handleTakeover} />
       </div>
       {isTrailerPlaying && (
         <TrailerPlayerModal 
