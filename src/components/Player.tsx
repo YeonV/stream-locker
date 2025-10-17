@@ -1,7 +1,7 @@
 import { BsPlayBtnFill } from 'react-icons/bs';
 import { usePlayerStore } from '../store/playerStore';
 import { HlsPlayer } from './HlsPlayer';
-import { MkvPlayer } from './MkvPlayer'; 
+import { MkvPlayer } from './MkvPlayer';
 import { useCallback } from 'react';
 
 // Define the props it will receive from its parent
@@ -19,7 +19,7 @@ const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
     console.error('Player Error. Stopping stream.');
     // Using getState() is safe inside useCallback without adding dependencies
     usePlayerStore.getState().stopStream();
-  }, []); 
+  }, []);
 
   if (apk) {
     const statusMessage = () => {
@@ -36,7 +36,17 @@ const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Native Player Mode</h2>
           <p className="text-gray-400">{statusMessage()}</p>
-          <p className="text-gray-500 text-sm mt-4">Use the back button on your device to exit the video.</p>
+          {lockStatus === 'LOCKED_BY_OTHER' 
+            ? (<>
+            <p className="text-gray-500 text-sm mt-2">The stream is currently active on another device.</p>
+            <button
+                onClick={onRequestTakeover}
+                title="Stop all and Steal Lock"
+                className={`mt-4 p-2 rounded-full hover:bg-gray-700 text-blue-400 animate-pulse`}
+              >
+                <BsPlayBtnFill size={24} />
+              </button>
+            </>) : <p className="text-gray-500 text-sm mt-4">Use the back button on your device to exit the video.</p>}
         </div>
       </div>
     );
@@ -73,7 +83,7 @@ const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
   // We render our new, clean, reliable HlsPlayer.
   return (
     <div className="w-full h-full bg-black">
-      {isMkv 
+      {isMkv
         ? <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
         : <HlsPlayer src={currentStreamUrl} onPlayerError={handlePlayerError} />}
     </div>
