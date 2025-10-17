@@ -69,7 +69,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
             {window.location.origin === "https://yeonv.github.io" && <Link to="/download"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Download App</button></Link>}
             {lockStatus === 'ACQUIRED' && <button onClick={stopAndRelease} className={`px-4 py-2 font-semibold text-white bg-yellow-600 rounded-md hover:bg-yellow-700`}>Stop Stream</button>}
             {hasXtreamPlaylists && <Link to="/playground" className="px-4 py-2 font-semibold text-white bg-green-600 rounded-md hover:bg-green-700"><img src={yz} width={24} /></Link>}
-            <Link to="/settings"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiSettings size={24} className='mr-2' />Settings</button></Link>
+            <Link to="/playground/settings"><button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiSettings size={24} className='mr-2' />Settings</button></Link>
             {/* <button onClick={handleTakeover} className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center"><FiRefreshCcw size={24} className='mr-2' />Reload</button> */}
             {/* <button onClick={handleTakeover} title="Play Here" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`} > <FiRefreshCcw size={24} /></button> */}
             <button onClick={handleLogout} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center"><FiLogOut size={24} className='mr-2' />Logout</button>
@@ -77,7 +77,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
         </header>
         <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]"><Player onRequestTakeover={handleTakeover} /></div>
         <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center ${apk ? 'pb-2' : ''} h-16`}>
-          <Link to="/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiSettings size={24} /><span className="text-xs mt-1">Settings</span></Link>
+          <Link to="/playground/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiSettings size={24} /><span className="text-xs mt-1">Settings</span></Link>
           <button onClick={stopAndRelease} className={`flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 ${lockStatus !== 'ACQUIRED' ? 'hidden' : 'flex'}`}><FiStopCircle size={24} /><span className="text-xs mt-1">Stop</span></button>
           {/* <button onClick={handleTakeover} className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiRefreshCcw size={24} /><span className="text-xs mt-1">Reload</span></button> */}
           {/* <button onClick={handleTakeover} title="Play Here" className={`p-2 rounded-full hover:bg-gray-700 ${lockStatus === 'LOCKED_BY_OTHER' ? 'text-blue-400 animate-pulse' : 'hidden'}`} > <FiRefreshCcw size={24} /></button> */}

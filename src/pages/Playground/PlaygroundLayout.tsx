@@ -8,6 +8,8 @@ import { useApiStore } from '../../store/apiStore';
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Playlist, XtreamPlaylist } from '../../types/playlist';
 import { useShallow } from 'zustand/react/shallow';
+import { useDebugStore } from '../../store/debugStore';
+import { CgDebug } from "react-icons/cg";
 
 const navItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
@@ -33,6 +35,8 @@ export const PlaygroundLayout = () => {
   
   const [devMode, setDevMode] = useState(false);
   const apk = !!import.meta.env.VITE_APK;
+
+  const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
   
@@ -107,8 +111,9 @@ export const PlaygroundLayout = () => {
                   {xtreamPlaylists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
               )}
-              <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>
-              <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>
+              {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><CgDebug size={24} /></button>}
+              <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>
+              <button onClick={handleLogout} title="Logout" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>
               <Link to="/dashboard" className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></Link>
             </div>
           </nav>

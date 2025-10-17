@@ -90,11 +90,8 @@ function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         } />
-        <Route path="/settings" element={
-          <ProtectedRoute><SettingsPage /></ProtectedRoute>
-        } />
 
-        <Route path="/playground" element={<PlaygroundLayout />}>
+        <Route path="/playground" element={<ProtectedRoute><PlaygroundLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/playground/general" replace />} />
           <Route path="general" element={<GeneralView />} />
           <Route path="movies" element={<MoviesView />} />
@@ -103,6 +100,7 @@ function App() {
           <Route path="dev" element={<PlaygroundPage />} />
           <Route path="series" element={<SeriesView />} />
           <Route path="livetv" element={<LiveTvView />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </div>

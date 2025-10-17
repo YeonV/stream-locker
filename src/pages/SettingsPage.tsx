@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import type { Playlist } from '../types/playlist'; // Import our new types
 import PlaylistDisplay from '../components/PlaylistDisplay';
-import { useDebugStore } from '../store/debugStore';
 
 const SettingsPage = () => {
   const { session } = useAuthStore();
@@ -25,7 +24,6 @@ const SettingsPage = () => {
   const [formPassword, setFormPassword] = useState('');
   // Common field
   const [formEpgUrl, setFormEpgUrl] = useState('');
-  const { toggleConsole } = useDebugStore();
 
   useEffect(() => {
     const userMetadata = session?.user?.user_metadata;
@@ -91,9 +89,6 @@ const SettingsPage = () => {
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Playlists</h1>
-        <button onClick={toggleConsole} className="px-4 py-2 font-semibold text-white bg-gray-600 rounded-md hover:bg-gray-700">
-          Debug
-        </button>
         <button 
           onClick={() => navigate(-1)} 
           className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"

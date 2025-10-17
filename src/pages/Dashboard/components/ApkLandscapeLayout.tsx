@@ -132,7 +132,7 @@ export const ApkLandscapeLayout: FC<ApkLandscapeLayoutProps> = (props) => {
             <FiStopCircle size={24} />
           </button>
             {hasXtreamPlaylists && <Link to="/playground" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><img src={yz} width={24} /></Link>}
-          <Link to="/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiSettings size={24} /></Link>
+          <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiSettings size={24} /></Link>
           <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700" onKeyDown={handleHeaderKeyDown}><FiLogOut size={24} /></button>
         </div>
       </header>

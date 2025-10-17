@@ -19,7 +19,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
   // --- THIS IS THE NEW LOGIC ---
   // Get the shared API instance and the functions to control it from the global store.
   const { xtreamApi } = useApiStore();
-  
+
   // This effect now reacts to changes in the global `xtreamApi` instance.
   useEffect(() => {
     const fetchProfile = async () => {
@@ -41,7 +41,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
       return;
     }
     setIsSyncing(true);
-    
+
     try {
       console.log('Starting full sync...');
       const [
@@ -81,10 +81,15 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
     <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xl font-bold">{playlist.name}</h3>
+          <div className="flex items-center space-x-2">
+            <span className="w-20 text-center py-0.5 text-xs font-semibold rounded-full bg-green-600">
+              XTREAM
+            </span>
+            <h3 className="text-xl font-bold">{playlist.name}</h3>
+          </div>
           <p className="text-sm text-gray-400">{playlist.serverUrl}</p>
         </div>
-       {onDelete && <button onClick={() => onDelete(playlist.id)} disabled={isLoading} className="p-2 text-gray-400 hover:bg-red-500 hover:text-white rounded-full">
+        {onDelete && <button onClick={() => onDelete(playlist.id)} disabled={isLoading} className="cursor-pointer p-2 text-gray-400 hover:bg-red-500 hover:text-white rounded-full">
           <FiTrash2 size={18} />
         </button>}
       </div>
@@ -94,7 +99,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
       ) : profile ? (
         <div className="mt-4 border-t border-gray-700 pt-4">
           <ProfileInfo profile={profile} />
-          
+
           {profile.user_info.status === 'Active' && (
             <div className="mt-4 p-4 bg-gray-700 rounded-lg">
               <div className="flex justify-between items-center">
@@ -102,9 +107,9 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
                   <h4 className="font-bold text-lg">Data Sync</h4>
                   <p className="text-xs text-gray-400">Last Updated: {lastUpdated || 'Never'}</p>
                 </div>
-                <button 
-                  onClick={handleSync} 
-                  disabled={isSyncing} 
+                <button
+                  onClick={handleSync}
+                  disabled={isSyncing}
                   className={`flex items-center space-x-2 px-4 py-2 text-sm bg-${lastUpdated !== null ? 'green' : 'blue'}-600 rounded-md font-semibold disabled:bg-gray-500 cursor-pointer hover:bg-${lastUpdated !== null ? 'green' : 'blue'}-700`}
                 >
                   {isSyncing ? (
@@ -121,7 +126,7 @@ export const XtreamPlaylistManager = ({ playlist, onDelete, isLoading }: XtreamP
           )}
         </div>
       ) : (
-         <div className="mt-4 border-t border-gray-700 pt-4 text-gray-400">Loading profile...</div>
+        <div className="mt-4 border-t border-gray-700 pt-4 text-gray-400">Loading profile...</div>
       )}
     </div>
   );

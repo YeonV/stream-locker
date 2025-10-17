@@ -1,12 +1,12 @@
 // src-tauri/src/lib.rs
 
 // Keep these 'use' statements, they don't hurt anything
-use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
+// use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   // You can leave the port definition, it won't be used
-  let port: u16 = 9527;
+  // let port: u16 = 9527;
 
   tauri::Builder::default()
     .plugin(tauri_plugin_videoplayer::init())
