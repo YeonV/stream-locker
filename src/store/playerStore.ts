@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { useAuthStore } from './authStore';
 import { supabase } from '../lib/supabase';
 import type { RealtimeChannel, Session } from '@supabase/supabase-js';
+import { useEnvStore } from './envStore';
 
 // --- Types are correct ---
 interface StreamLockData {
@@ -28,6 +29,7 @@ interface PlayerState {
   lockAcquiredByInstanceId: string | null;
   isNativePlayerActive: boolean;
   channel: RealtimeChannel | null;
+  isMpvActive: boolean;
 }
 interface PlayerActions {
   setLockStatus: (status: LockStatus) => void;
@@ -39,6 +41,7 @@ interface PlayerActions {
   requestLock: () => Promise<void>;
   releaseLock: () => Promise<void>;
   stopAndRelease: () => void;
+  setIsMpvActive: (isActive: boolean) => void;
 }
 
 export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => ({
@@ -47,20 +50,30 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
   lockAcquiredByInstanceId: null,
   isNativePlayerActive: false,
   channel: null,
+  isMpvActive: false,
 
   setLockStatus: (status) => set({ lockStatus: status }),
   setIsNativePlayerActive: (isActive: boolean) => set({ isNativePlayerActive: isActive }),
 
-  playStream: (url) => set(() => ({
-    lockStatus: 'ACQUIRED',
-    currentStreamUrl: url,
-    lockAcquiredByInstanceId: useAuthStore.getState().instanceId,
-  })),
+ setIsMpvActive: (isActive) => set({ isMpvActive: isActive }),
+
+  playStream: (url) => {
+    const { device, engine } = useEnvStore.getState(); // YZ-POTIENTIAL-ERROR
+    const shouldUseMpv = engine === 'native' && device === 'windows';
+    
+    set(() => ({
+      lockStatus: 'ACQUIRED',
+      currentStreamUrl: url,
+      lockAcquiredByInstanceId: useAuthStore.getState().instanceId,
+      isMpvActive: shouldUseMpv,
+    }));
+  },
 
   stopStream: () => set({
     currentStreamUrl: null,
     lockAcquiredByInstanceId: null,
     isNativePlayerActive: false,
+    isMpvActive: false,
   }),
 
   requestLock: async () => {

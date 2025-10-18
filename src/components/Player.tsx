@@ -6,7 +6,7 @@ import { HlsPlayer } from './HlsPlayer';
 import { MkvPlayer } from './MkvPlayer';
 import { useCallback } from 'react';
 import { useEnvStore } from '../store/envStore'; // Our intelligence directorate
-import { MpvPlayer } from './MpvPlayer'; // Our elite legion
+// import { MpvPlayer } from './MpvPlayer'; // Our elite legion
 
 interface PlayerProps {
   onRequestTakeover: () => void;
@@ -70,7 +70,7 @@ export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
       }
     };
     return (
-      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle ? 'hidden' : 'block'}`}>
+      <div className={`flex items-center justify-center w-full bg-black h-full`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Player Idle</h2>
           <p className="text-gray-400">{statusMessage()}</p>
@@ -88,10 +88,9 @@ export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
 
   // --- THE DEPLOYMENT ---
   return (
-    <div className="w-full h-full bg-black">
-      {shouldUseMpv ? (
-        // Deploy the MpvPlayer legion and give it its orders (the URL).
-        <MpvPlayer src={currentStreamUrl} onStop={handlePlayerError} />
+    <div className={`w-full h-full bg-black`}>
+      {shouldUseMpv ? ( null
+        // <MpvPlayer src={currentStreamUrl} onStop={handlePlayerError} />
       ) : isMkv ? (
         <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
       ) : (

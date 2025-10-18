@@ -133,7 +133,7 @@ const DashboardPage = () => {
     hasXtreamPlaylists, // Pass the flag
     selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
-  
+  // return <ApkLandscapeLayout {...props} />
   if (apk && orientation === 'landscape') { return <ApkLandscapeLayout {...props} />; }
   return <WebAndApkPortraitLayout {...props} />;
 };

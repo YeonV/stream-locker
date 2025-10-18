@@ -19,11 +19,14 @@ import { SeriesView } from './pages/Playground/SeriesView';
 import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 import { useEnvStore } from './store/envStore';
+import { MpvPlayer } from './components/MpvPlayer';
 
 
 function App() {
   const { session, setSession } = useAuthStore();
-  const { subscribeToLock, unsubscribeFromLock } = usePlayerStore();
+  const subscribeToLock = usePlayerStore(state => state.subscribeToLock);
+  const unsubscribeFromLock = usePlayerStore(state => state.unsubscribeFromLock);
+  const isMpvActive = usePlayerStore(state => state.isMpvActive);
 
   const { initializeEnv } = useEnvStore();
 
@@ -87,8 +90,9 @@ function App() {
 
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className={` ${isMpvActive ? 'bg-transparent' : 'bg-gray-900'} text-white min-h-screen ${isMpvActive ? 'in-mpv-mode' : ''}`}>
       <DebugConsole />
+      <div className={`main-ui ${isMpvActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <Routes>
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -111,6 +115,14 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
+      </div>
+
+      {isMpvActive && (
+        <div className="mpv-player-container absolute inset-0">
+          {/* We will pass the stream URL directly */}
+          <MpvPlayer src={usePlayerStore.getState().currentStreamUrl!} />
+        </div>
+      )}
     </div>
   );
 }
