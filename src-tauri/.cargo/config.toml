@@ -1,0 +1,7 @@
+# src-tauri/.cargo/config.toml
+
+[build]
+rustflags = ["-L", "lib"]
+
+[env]
+LIBMPV_INCLUDE_DIR = "include"

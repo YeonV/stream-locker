@@ -6,10 +6,15 @@
     "main"
   ],
   "remote": {
-    "urls": ["http://*", "https://*"]
+    "urls": [
+      "http://*",
+      "https://*"
+    ]
   },
   "permissions": [
     "core:default",
-    "videoplayer:default"
+    "videoplayer:default",
+    "libmpv:default",
+    "os:default"
   ]
 }

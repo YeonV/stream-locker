@@ -25,3 +25,5 @@ tauri = { version = "2.8.5", features = ["wry"] }
 tauri-plugin-log = "2"
 tauri-plugin-videoplayer = "0.1.6"
 tauri-plugin-localhost = "2.3.0"
+tauri-plugin-libmpv = "0.2.2"
+tauri-plugin-os = "2"

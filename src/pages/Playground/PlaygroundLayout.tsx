@@ -10,6 +10,7 @@ import type { Playlist, XtreamPlaylist } from '../../types/playlist';
 import { useShallow } from 'zustand/react/shallow';
 import { useDebugStore } from '../../store/debugStore';
 import { CgDebug } from "react-icons/cg";
+import { init, destroy } from 'tauri-plugin-libmpv-api';
 
 const navItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
@@ -85,6 +86,30 @@ export const PlaygroundLayout = () => {
 
   const handleLogout = () => supabase.auth.signOut();
 
+    const handleMpvTest = async () => {
+    console.log("--- OPERATION VOODOO: INITIATING MPV TEST ---");
+    try {
+      // We don't need a complex config. We just need to know if it can start.
+      // We pass an empty object for a minimal test.
+      await init({}); 
+      
+      // If this line is reached, we have won.
+      alert("VICTORY! mpv.init() succeeded. The DLL is linked.");
+      console.log("SUCCESS: The fortress can be taken.");
+      
+      // Clean up immediately after the test.
+      await destroy();
+      console.log("SUCCESS: MPV destroyed cleanly.");
+      
+    } catch (error) {
+      // If we are here, the enemy is strong. The logs will tell us why.
+      alert(`DEFEAT! mpv.init() failed. Check the console for intelligence.`);
+      console.error("--- DEFEAT: OPERATION VOODOO FAILED ---");
+      console.error(error);
+      console.error("--- END OF REPORT ---");
+    }
+  };
+
   return (
     <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
       <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10`}>
@@ -111,6 +136,12 @@ export const PlaygroundLayout = () => {
                   {xtreamPlaylists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
               )}
+              <button
+                onClick={handleMpvTest}
+                className="px-4 py-2 bg-red-600 font-bold text-white rounded-md hover:bg-red-500"
+              >
+                MPV TEST
+              </button>
               {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><CgDebug size={24} /></button>}
               <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>
               <button onClick={handleLogout} title="Logout" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>

@@ -18,10 +18,18 @@ import { PlaygroundPage } from './pages/PlaygroundPage';
 import { SeriesView } from './pages/Playground/SeriesView';
 import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
+import { useEnvStore } from './store/envStore';
+
 
 function App() {
   const { session, setSession } = useAuthStore();
   const { subscribeToLock, unsubscribeFromLock } = usePlayerStore();
+
+  const { initializeEnv } = useEnvStore();
+
+  useEffect(() => {
+    initializeEnv();
+  }, [initializeEnv]);
 
   // This hook now manages the subscription's entire lifecycle.
   useEffect(() => {
