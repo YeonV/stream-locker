@@ -80,6 +80,6 @@ export const useEnvStore = create<EnvState>((set, get) => ({
     }
 
     // Log the final, stored state for confirmation
-    console.log("Global Env Initialized:", useEnvStore.getState());
+    // console.log("Global Env Initialized:", useEnvStore.getState());
   },
 }));

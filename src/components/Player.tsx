@@ -1,26 +1,34 @@
+// src/components/Player.tsx
+
 import { BsPlayBtnFill } from 'react-icons/bs';
 import { usePlayerStore } from '../store/playerStore';
 import { HlsPlayer } from './HlsPlayer';
 import { MkvPlayer } from './MkvPlayer';
 import { useCallback } from 'react';
+import { useEnvStore } from '../store/envStore'; // Our intelligence directorate
+import { MpvPlayer } from './MpvPlayer'; // Our elite legion
 
-// Define the props it will receive from its parent
 interface PlayerProps {
   onRequestTakeover: () => void;
-  hideWhenIdle?: boolean; // New prop to control visibility when idle
+  hideWhenIdle?: boolean;
 }
 
-const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
+export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
   const { currentStreamUrl, lockStatus } = usePlayerStore();
-  const apk = !!import.meta.env.VITE_APK;
+  const { device, engine } = useEnvStore();
 
+  const apk = !!import.meta.env.VITE_APK;
   const isMkv = currentStreamUrl?.includes('.mkv');
   const handlePlayerError = useCallback(() => {
     console.error('Player Error. Stopping stream.');
-    // Using getState() is safe inside useCallback without adding dependencies
     usePlayerStore.getState().stopStream();
   }, []);
+  
+  // The simple, powerful command decision.
+  const shouldUseMpv = engine === 'native' && device === 'windows';
 
+  // Your APK and Idle logic is unchanged and perfect.
+  
   if (apk) {
     const statusMessage = () => {
       switch (lockStatus) {
@@ -51,7 +59,6 @@ const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
       </div>
     );
   }
-
   if (lockStatus !== 'ACQUIRED' || !currentStreamUrl) {
     const statusMessage = () => {
       switch (lockStatus) {
@@ -79,13 +86,17 @@ const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
     );
   }
 
-  // --- THIS IS THE FINAL REPLACEMENT ---
-  // We render our new, clean, reliable HlsPlayer.
+  // --- THE DEPLOYMENT ---
   return (
     <div className="w-full h-full bg-black">
-      {isMkv
-        ? <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
-        : <HlsPlayer src={currentStreamUrl} onPlayerError={handlePlayerError} />}
+      {shouldUseMpv ? (
+        // Deploy the MpvPlayer legion and give it its orders (the URL).
+        <MpvPlayer src={currentStreamUrl} onStop={handlePlayerError} />
+      ) : isMkv ? (
+        <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
+      ) : (
+        <HlsPlayer src={currentStreamUrl} onPlayerError={handlePlayerError} />
+      )}
     </div>
   );
 };
