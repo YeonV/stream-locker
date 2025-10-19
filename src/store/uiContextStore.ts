@@ -20,11 +20,9 @@ interface UiContextState {
 export const useUiContextStore = create<UiContextState>((set) => ({
   context: null,
   setContext: (context) => {
-    console.log("UI Context SET:", context);
     set({ context });
   },
   clearContext: () => {
-    console.log("UI Context CLEARED.");
     set({ context: null });
   },
 }));

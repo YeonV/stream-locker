@@ -10,6 +10,7 @@ export const GeneralView = () => {
         
     const device = useEnvStore(state => state.device);
     const engine = useEnvStore(state => state.engine);
+    const mode = useEnvStore(state => state.mode);
 
     useEffect(() => {
         const userMetadata = session?.user?.user_metadata;
@@ -22,7 +23,7 @@ export const GeneralView = () => {
         <div className="w-screen bg-gray-900 text-white p-8 overflow-auto">
             <div className="max-w-full mx-auto space-y-8 px-4">
                 <div className="bg-gray-800 p-6 rounded-lg shadow-md">
-                    {engine === 'web' ? `Running on ${device} in web mode` : `Running on ${device} natively`}
+                    {engine === 'web' ? `Running on ${device} in web mode` : `Running on ${device} natively in ${mode} mode`}
                 </div>
             </div>
         </div>

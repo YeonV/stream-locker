@@ -48,7 +48,7 @@ export class Xtream {
         this.url = options.url;
         this.username = options.username;
         this.password = options.password;
-        console.log('Xtream API initialized in PRODUCTION mode.', {hackedBy: 'blade'});
+        console.log('Xtream API initialized in PRODUCTION mode.');
       } 
       else {
         this.url = '';

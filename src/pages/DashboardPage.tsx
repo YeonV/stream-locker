@@ -2,23 +2,13 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
-import parser from 'iptv-playlist-parser';
 import { playVideo } from 'tauri-plugin-videoplayer-api';
-import type { Playlist, XtreamPlaylist, Channel, GroupedChannels, M3uPlaylist } from '../types/playlist';
-import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout';
-import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout';
+import { Dashboard } from './Dashboard/Dashboard';
 import { useUiContextStore } from '../store/uiContextStore';
+import { useOrientation } from '../hooks/useOrientation';
+import type { Playlist, XtreamPlaylist, Channel, GroupedChannels, M3uPlaylist } from '../types/playlist';
+import parser from 'iptv-playlist-parser';
 
-const getOrientation = () => window.screen.orientation.type.split('-')[0];
-const useOrientation = () => {
-  const [orientation, setOrientation] = useState(getOrientation());
-  useEffect(() => {
-    const handleOrientationChange = () => setOrientation(getOrientation());
-    window.addEventListener('orientationchange', handleOrientationChange);
-    return () => window.removeEventListener('orientationchange', handleOrientationChange);
-  }, []);
-  return orientation;
-};
 
 function isXtreamPlaylist(playlist: Playlist): playlist is XtreamPlaylist {
   return playlist.type === 'xtream';
@@ -44,7 +34,7 @@ const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const apk = !!import.meta.env.VITE_APK;
   const orientation = useOrientation();
-  
+  console.log('Current orientation:', orientation);
   const setUiContext = useUiContextStore(state => state.setContext);
 
   useEffect(() => {
@@ -77,7 +67,7 @@ const DashboardPage = () => {
     const fetchAndParsePlaylist = async () => {
       if (!selectedPlaylistId) { setChannels([]); setGroupedChannels({}); setIsLoading(false); setError("No M3U playlist selected."); return; }
       const selectedPlaylist = m3uPlaylists.find(p => p.id === selectedPlaylistId);
-      if (!selectedPlaylist || isXtreamPlaylist(selectedPlaylist)) { return; } // Should not happen
+      if (!selectedPlaylist || isXtreamPlaylist(selectedPlaylist)) { return; }
       
       const m3uUrlToFetch = selectedPlaylist.url;
       setIsLoading(true); setError(null); setChannels([]); setGroupedChannels({});
@@ -139,9 +129,7 @@ const DashboardPage = () => {
     hasXtreamPlaylists, // Pass the flag
     selectedPlaylistId, handleTakeover, handlePlaylistChange, viewMode, setViewMode, searchTerm, setSearchTerm, isLoading, error, groupedChannels, filteredChannels, handleChannelClick, handleLogout, stopAndRelease, lockStatus,
   };
-  // return <ApkLandscapeLayout {...props} />
-  if (apk && orientation === 'landscape') { return <ApkLandscapeLayout {...props} />; }
-  return <WebAndApkPortraitLayout {...props} />;
+  return <Dashboard {...props} />
 };
 
 export default DashboardPage;

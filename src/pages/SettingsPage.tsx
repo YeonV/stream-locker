@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import type { Playlist } from '../types/playlist'; // Import our new types
 import PlaylistDisplay from '../components/PlaylistDisplay';
+import { FiLogOut } from 'react-icons/fi';
 
 const SettingsPage = () => {
   const { session } = useAuthStore();
@@ -85,6 +86,8 @@ const SettingsPage = () => {
     updateUserMetadata(updatedPlaylists);
   };
 
+  const handleLogout = () => supabase.auth.signOut();
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -144,6 +147,15 @@ const SettingsPage = () => {
 
         <button onClick={handleAddPlaylist} disabled={loading} className="w-full md:w-auto px-4 py-2 font-semibold text-white bg-green-600 rounded-md">Add Playlist</button>
         {message && <p className="mt-4 text-sm">{message}</p>}
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        <button 
+          onClick={handleLogout} 
+          className="px-4 py-2 flex font-semibold text-white bg-red-600 rounded-md hover:bg-red-700"
+        >
+          <FiLogOut size={24} className='mr-2' /> Logout
+        </button>
       </div>
     </div>
   );
