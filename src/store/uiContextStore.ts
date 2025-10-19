@@ -5,7 +5,7 @@ import type { LiveStream, Movie, Channel, MovieInfo, SeriesInfo } from '../types
 
 // This defines the intelligence reports our player can understand.
 export type PlaybackContext = 
-  | { type: 'livetv-xtream'; channels: LiveStream[]; currentStreamId: number; }
+  | { type: 'livetv-xtream'; channels: LiveStream[]; currentStreamId?: number; }
   | { type: 'livetv-m3u'; channels: Channel[]; }
   | { type: 'movie'; movie: Movie; movieInfo?: MovieInfo['info']; }
   | { type: 'series'; metadata: { seriesInfo: SeriesInfo } }

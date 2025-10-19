@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { MovieDetailModal, type MovieInfo } from './Playground/components/MovieDetailModal';
+import { MovieDetailModal } from './Playground/components/MovieDetailModal';
 import { SeriesDetailModal  } from './Playground/components/SeriesDetailModal';
 import { CategoryBrowser } from './Playground/components/CategoryBrowser';
 import { StreamRow } from './Playground/components/StreamRow';
 import { CategoryView } from './Playground/components/CategoryView';
 import { LiveCategoryView } from './Playground/components/LiveCategoryView';
 import { useDataStore } from '../store/dataStore';
-import type { LiveStream, Movie, PosterItem, Serie, Category, SeriesInfo } from '../types/playlist';
+import type { LiveStream, Movie, PosterItem, Serie, Category, SeriesInfo, MovieInfo } from '../types/playlist';
 import { useApiStore } from '../store/apiStore';
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {

@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { MovieDetailModal, type MovieInfo } from './components/MovieDetailModal';
+import { MovieDetailModal } from './components/MovieDetailModal';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
-import type { Movie, PosterItem, Category } from '../../types/playlist';
+import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useApiStore } from '../../store/apiStore';
 
 export const MovieCategoriesView = () => {
