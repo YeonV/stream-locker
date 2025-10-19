@@ -5,7 +5,7 @@
   "windows": [
     "main"
   ],
-  "platforms": ["linux", "macOS", "iOS", "android"],
+  "platforms": ["windows"],
   "remote": {
     "urls": [
       "http://*",
@@ -15,6 +15,7 @@
   "permissions": [
     "core:default",
     "videoplayer:default",
+    "libmpv:default",
     "os:default",
     "core:window:allow-set-fullscreen"
   ]
