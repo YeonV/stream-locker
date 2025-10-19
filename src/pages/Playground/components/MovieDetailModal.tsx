@@ -1,30 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
 import { usePlayback } from '../../../hooks/usePlayback';
-import type { Movie } from '../../../types/playlist';
-import { usePlayerStore } from '../../../store/playerStore';
-import Player from '../../../components/Player';
-
-// Define a type for the data this component expects
-export interface MovieInfo {
-  info: {
-    name: string;
-    cover_big: string;
-    backdrop_path: string[];
-    releasedate: string;
-    duration: string;
-    genre: string;
-    plot: string;
-    director: string;
-    actors: string;
-    youtube_trailer: string;
-    rating: string;
-    video: { width: number; height: number };
-    audio: { channels: number; channel_layout: string };
-  };
-  movie_data: Partial<Movie>;
-}
+import type { Movie, MovieInfo } from '../../../types/playlist';
+import { PlayerWidget } from '../../../components/PlayerWidget';
+import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface MovieDetailModalProps {
   movie: MovieInfo;
@@ -36,17 +16,14 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const backdropUrl = info.backdrop_path?.[0];
 
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
-  const lockStatus = usePlayerStore(state => state.lockStatus);
-  const requestLock = usePlayerStore(state => state.requestLock);
-  const handleTakeover = useCallback(() => {
-    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
-  }, [lockStatus, requestLock]);
+  const setUiContext = useUiContextStore(state => state.setContext);
 
   const { play } = usePlayback();
 
   const handlePlayClick = () => {
     console.log('Playing movie:', movie_data);
     if (typeof movie_data.stream_id === 'number') {
+      setUiContext({ type: 'movie', movie: movie_data as Movie, movieInfo: info });
       play({
         type: 'movie',
         movie: {
@@ -55,10 +32,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
       });
     }
   };
-  const handlePlayClick2 = () => {
-    console.log('Playing movie2:', 'https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8');
-    usePlayerStore.getState().playStream('https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8')
-  };
+
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
@@ -73,6 +47,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
     };
   }, [onClose]);
 
+  if (!movie || !info) return null;
 
   return (
     // The main container with a blurred backdrop
@@ -105,10 +80,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
               <img src={info.cover_big} alt={info.name} className="rounded-lg shadow-lg w-2/3 md:w-full mx-auto" />
               <div className="mt-4 space-y-2">
                 <button onClick={handlePlayClick} className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
-                  <FiPlay className="mr-2" /> Play1
-                </button>
-                <button onClick={handlePlayClick2} className="w-full flex items-center justify-center p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-500 transition-colors">
-                  <FiPlay className="mr-2" /> Play2
+                  <FiPlay className="mr-2" /> Play
                 </button>
                 <button 
                   onClick={() => setIsTrailerPlaying(true)}
@@ -123,7 +95,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             <div className="w-full md:w-2/3 mt-8 md:mt-0 text-white">
               <h1 className="text-4xl font-extrabold">{info.name}</h1>
               <div className="flex items-center space-x-4 text-gray-400 mt-2">
-                <span>{info.releasedate.split('-')[0]}</span>
+                <span>{info.releasedate?.split('-')[0]}</span>
                 <span>•</span>
                 <span>{info.duration}</span>
                 <span>•</span>
@@ -140,7 +112,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             </div>
           </div>
         </div>
-        <Player onRequestTakeover={handleTakeover} />
+        <PlayerWidget  />
       </div>
       {isTrailerPlaying && (
         <TrailerPlayerModal 

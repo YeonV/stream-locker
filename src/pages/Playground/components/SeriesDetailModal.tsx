@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
 import type { SeriesInfo } from '../../../types/playlist';
 import { usePlayback } from '../../../hooks/usePlayback';
-import Player from '../../../components/Player';
-import { usePlayerStore } from '../../../store/playerStore';
+import { PlayerWidget } from '../../../components/PlayerWidget';
+import { useUiContextStore } from '../../../store/uiContextStore';
 
 // --- Complete and Accurate Types based on your get_series_info JSON ---
 
@@ -25,12 +25,8 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
   const [activeBackdropIndex, setActiveBackdropIndex] = useState(0);
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
   const { play } = usePlayback();
+  const setContext = useUiContextStore(state => state.setContext);
 
-  const lockStatus = usePlayerStore(state => state.lockStatus);
-  const requestLock = usePlayerStore(state => state.requestLock);
-  const handleTakeover = useCallback(() => {
-    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
-  }, [lockStatus, requestLock]);
 
   useEffect(() => {
     if (!info.backdrop_path || info.backdrop_path.length <= 1) return;
@@ -84,7 +80,7 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
                   <span className="font-bold text-yellow-400">⭐ {parseFloat(info.rating_5based).toFixed(1)}</span>
                 </div>
                 <p className="mt-4 text-gray-300 max-w-3xl pb-4">{info.plot}</p>
-                <Player onRequestTakeover={handleTakeover} hideWhenIdle />
+                <PlayerWidget hideWhenIdle />
               </div>
             </div>
           </div>
@@ -108,6 +104,7 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
             <div className="space-y-2 pr-2 mt-4">
               {currentEpisodes.map(episode => (
                 <button onClick={()=>{
+                  setContext({ type: 'series', metadata: { seriesInfo: series } });
                   play({
                     type: 'series',
                     episode: episode,

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import VirtualList from 'react-tiny-virtual-list';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FiLogOut, FiMenu, FiSettings, FiStopCircle, FiX } from 'react-icons/fi';
-import Player from '../../../components/Player';
 import ChannelList from '../../../components/ChannelList';
 import logo from '../../../assets/logo.png';
 import type { Playlist } from '../../../types/playlist';
 import { useDebugStore } from '../../../store/debugStore';
 import yz from '../../../assets/yz.png';
+import { PlayerWidget } from '../../../components/PlayerWidget';
 
 export const WebAndApkPortraitLayout = (props: any) => {
   const {
@@ -16,7 +16,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
     m3uPlaylists, selectedPlaylistId, handlePlaylistChange,
     viewMode, setViewMode, searchTerm, setSearchTerm,
     isLoading, error, groupedChannels, filteredChannels, handleChannelClick,
-    handleLogout, handleTakeover, stopAndRelease, lockStatus,
+    handleLogout, stopAndRelease, lockStatus,
     hasXtreamPlaylists
   } = props;
   const { toggleConsole } = useDebugStore();
@@ -39,7 +39,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
             <button onClick={() => setViewMode('grouped')} className={`flex-1 py-1 text-sm rounded-md ${viewMode === 'grouped' ? 'bg-blue-600 text-white' : 'hover:bg-gray-600'}`}>Grouped</button>
             <button onClick={() => setViewMode('flat')} className={`flex-1 py-1 text-sm rounded-md ${viewMode === 'flat' ? 'bg-blue-600 text-white' : 'hover:bg-gray-600'}`}>Flat</button>
           </div>
-          {viewMode === 'flat' && <input type="text" placeholder="🔎 Search channels..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md" />}
+          {viewMode === 'flat' && <input type="text" placeholder="Search channels..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md" />}
         </div>
         <div className="flex-1 overflow-y-hidden">
           {isLoading && <p className="p-4">Loading playlist...</p>}
@@ -75,7 +75,7 @@ export const WebAndApkPortraitLayout = (props: any) => {
             <button onClick={handleLogout} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 flex items-center"><FiLogOut size={24} className='mr-2' />Logout</button>
           </div>
         </header>
-        <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]"><Player onRequestTakeover={handleTakeover} /></div>
+        <div className="flex-1 p-4 max-h-[calc(100vh-145px)] md:max-h-[calc(100vh-81px)]"><PlayerWidget /></div>
         <nav className={`md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 flex justify-around items-center ${apk ? 'pb-2' : ''} h-16`}>
           <Link to="/playground/settings" className="flex flex-col items-center justify-center text-gray-400 hover:text-white"><FiSettings size={24} /><span className="text-xs mt-1">Settings</span></Link>
           <button onClick={stopAndRelease} className={`flex flex-col items-center justify-center text-yellow-400 hover:text-yellow-300 ${lockStatus !== 'ACQUIRED' ? 'hidden' : 'flex'}`}><FiStopCircle size={24} /><span className="text-xs mt-1">Stop</span></button>

@@ -3,6 +3,7 @@ import { useAuthStore } from './authStore';
 import { supabase } from '../lib/supabase';
 import type { RealtimeChannel, Session } from '@supabase/supabase-js';
 import { useEnvStore } from './envStore';
+import { useUiContextStore } from './uiContextStore';
 
 // --- Types are correct ---
 interface StreamLockData {
@@ -58,7 +59,7 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
  setIsMpvActive: (isActive) => set({ isMpvActive: isActive }),
 
   playStream: (url) => {
-    const { device, engine } = useEnvStore.getState(); // YZ-POTIENTIAL-ERROR
+    const { device, engine } = useEnvStore.getState();
     const shouldUseMpv = engine === 'native' && device === 'windows';
     
     set(() => ({
@@ -69,12 +70,16 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
     }));
   },
 
-  stopStream: () => set({
-    currentStreamUrl: null,
-    lockAcquiredByInstanceId: null,
-    isNativePlayerActive: false,
-    isMpvActive: false,
-  }),
+  stopStream: () => {
+    // When we stop, we must also clear the UI context.
+    useUiContextStore.getState().clearContext();
+    set({
+      currentStreamUrl: null,
+      lockAcquiredByInstanceId: null,
+      isNativePlayerActive: false,
+      isMpvActive: false,
+    });
+  },
 
   requestLock: async () => {
     const { session, deviceId } = useAuthStore.getState();

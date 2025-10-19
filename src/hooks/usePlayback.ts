@@ -50,7 +50,7 @@ export const usePlayback = () => {
       if (!item.episode.container_extension) {
         alert('Episode container extension is missing.');
         return;
-      }
+      }      
       streamUrlRequest = {
         type: 'episode' as const,
         streamId: item.episode.id,

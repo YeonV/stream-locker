@@ -1,14 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { LiveCategoryView } from './components/LiveCategoryView';
 import { useDataStore } from '../../store/dataStore';
 import type { LiveStream, Category } from '../../types/playlist';
+import { useUiContextStore } from '../../store/uiContextStore';
 
 export const LiveTvView = () => {
     const liveCategories: Category[] = useDataStore(state => state.liveCategories);
     const liveStreams: LiveStream[] = useDataStore(state => state.liveStreams);
     const [activeCategory, setActiveCategory] = useState<{ id: string; name: string; type: 'movie' | 'series' | 'livetv' } | null>(null);
-
+    const setUiContext = useUiContextStore(state => state.setContext);
+  
     const handleCategoryClick = (categoryId: string, categoryName: string, type: 'livetv') => {
         setActiveCategory({ id: categoryId, name: categoryName, type });
     };
@@ -17,6 +19,16 @@ export const LiveTvView = () => {
         if (activeCategory?.type !== 'livetv') return [];
         return liveStreams.filter(stream => stream.category_ids?.includes(Number(activeCategory.id)));
     }, [activeCategory, liveStreams]);
+
+    
+  useEffect(() => {
+    if (activeCategory) {
+      setUiContext({ 
+        type: 'livetv-xtream', 
+        channels: liveStreamsForActiveCategory, 
+      });
+    }
+  }, [activeCategory, liveStreamsForActiveCategory, setUiContext]);
 
     if (activeCategory) {
         if (activeCategory.type === 'livetv') {

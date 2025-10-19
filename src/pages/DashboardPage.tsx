@@ -7,6 +7,7 @@ import { playVideo } from 'tauri-plugin-videoplayer-api';
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels, M3uPlaylist } from '../types/playlist';
 import { ApkLandscapeLayout } from './Dashboard/components/ApkLandscapeLayout';
 import { WebAndApkPortraitLayout } from './Dashboard/components/WebAndApkPortraitLayout';
+import { useUiContextStore } from '../store/uiContextStore';
 
 const getOrientation = () => window.screen.orientation.type.split('-')[0];
 const useOrientation = () => {
@@ -43,8 +44,12 @@ const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const apk = !!import.meta.env.VITE_APK;
   const orientation = useOrientation();
+  
+  const setUiContext = useUiContextStore(state => state.setContext);
 
-
+  useEffect(() => {
+    setUiContext({ type: 'livetv-m3u', channels: channels });
+  }, [channels, setUiContext]);
   // --- 1. FILTERING LOGIC: Separate M3U from Xtream ---
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
@@ -110,6 +115,7 @@ const DashboardPage = () => {
     const handleTakeover = useCallback(() => {
       if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
     }, [lockStatus, requestLock]);
+
   const handleChannelClick = (channelUrl: string) => {
     if (lockStatus === 'ACQUIRED') { usePlayerStore.getState().playStream(channelUrl); } 
     else if (lockStatus === 'AVAILABLE') { requestLock(); sessionStorage.setItem('nextStreamUrl', channelUrl); } 

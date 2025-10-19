@@ -37,8 +37,8 @@ export interface Serie {
   name: string;
   cover: string;
   rating_5based: string;
-  last_modified: string; // <-- ADDED THIS MISSING FIELD
-  category_ids?: number[];  // <-- ADDED THIS MISSING FIELD
+  last_modified: string;
+  category_ids?: number[]; 
 }
 
 export interface Movie {
@@ -47,9 +47,28 @@ export interface Movie {
   stream_icon: string;
   rating_5based: number;
   added: string;
-  category_id: string; // <-- ADDED THIS MISSING FIELD
-  category_ids?: number[]; // <-- ADDED THIS MISSING FIELD
+  category_id: string;
+  category_ids?: number[];
   container_extension?: string;
+}
+
+export interface MovieInfo {
+  info: {
+    name: string;
+    cover_big: string;
+    backdrop_path: string[];
+    releasedate: string;
+    duration: string;
+    genre: string;
+    plot: string;
+    director: string;
+    actors: string;
+    youtube_trailer: string;
+    rating: string;
+    video: { width: number; height: number };
+    audio: { channels: number; channel_layout: string };
+  };
+  movie_data: Partial<Movie>;
 }
 
 export interface Season {
@@ -107,7 +126,7 @@ export interface LiveStream {
   added: string;
   is_adult: number;
   category_id: string;
-  category_ids?: number[]; // Making optional as it's good practice
+  category_ids?: number[];
   custom_sid: string | null;
   tv_archive: number;
   direct_source: string;

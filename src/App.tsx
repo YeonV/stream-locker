@@ -19,7 +19,7 @@ import { SeriesView } from './pages/Playground/SeriesView';
 import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 import { useEnvStore } from './store/envStore';
-import { MpvPlayer } from './components/MpvPlayer';
+import { VideoPlayer } from './components/VideoPlayer';
 
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
   const subscribeToLock = usePlayerStore(state => state.subscribeToLock);
   const unsubscribeFromLock = usePlayerStore(state => state.unsubscribeFromLock);
   const isMpvActive = usePlayerStore(state => state.isMpvActive);
-
+  const currentStreamUrl = usePlayerStore(state => state.currentStreamUrl);
   const { initializeEnv } = useEnvStore();
 
   useEffect(() => {
@@ -117,12 +117,7 @@ function App() {
       </Routes>
       </div>
 
-      {isMpvActive && (
-        <div className="mpv-player-container absolute inset-0">
-          {/* We will pass the stream URL directly */}
-          <MpvPlayer src={usePlayerStore.getState().currentStreamUrl!} />
-        </div>
-      )}
+      {currentStreamUrl && <VideoPlayer />}
     </div>
   );
 }

@@ -1,12 +1,11 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FiArrowLeft, FiPlay } from 'react-icons/fi';
 import { useApiStore } from '../../../store/apiStore';
 import type { LiveStream, EpgListing } from '../../../types/playlist';
-import Player from '../../../components/Player';
 import { usePlayback } from '../../../hooks/usePlayback';
 import placeholderLogo from '../../../assets/yz.png'
-import { usePlayerStore } from '../../../store/playerStore';
+import { PlayerWidget } from '../../../components/PlayerWidget';
 
 interface LiveCategoryViewProps {
   categoryName: string;
@@ -23,11 +22,6 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
   const [isLoadingEpg, setIsLoadingEpg] = useState(false);
   const { play } = usePlayback();
   const xtreamApi = useApiStore((state) => state.xtreamApi);
-  const lockStatus = usePlayerStore(state => state.lockStatus);
-  const requestLock = usePlayerStore(state => state.requestLock);
-  const handleTakeover = useCallback(() => {
-    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
-  }, [lockStatus, requestLock]);
 
   useEffect(() => {
     if (!selectedChannel) { setEpgData([]); return; }
@@ -88,7 +82,7 @@ export const LiveCategoryView = ({ categoryName, channels, onBack, onChannelClic
         </div>
 
         <div className="w-2/3 h-full overflow-y-auto p-4">
-          <Player onRequestTakeover={handleTakeover} />
+          <PlayerWidget  />
         </div>
         {/* --- THIS IS THE SIMPLIFIED JSX --- */}
         <div className="w-1/3 h-full overflow-y-auto p-4">

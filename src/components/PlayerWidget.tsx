@@ -1,35 +1,30 @@
-// src/components/Player.tsx
+// src/components/PlayerWidget.tsx
 
 import { BsPlayBtnFill } from 'react-icons/bs';
 import { usePlayerStore } from '../store/playerStore';
-import { HlsPlayer } from './HlsPlayer';
-import { MkvPlayer } from './MkvPlayer';
+import { useEnvStore } from '../store/envStore';
 import { useCallback } from 'react';
-import { useEnvStore } from '../store/envStore'; // Our intelligence directorate
-// import { MpvPlayer } from './MpvPlayer'; // Our elite legion
 
-interface PlayerProps {
-  onRequestTakeover: () => void;
+interface PlayerWidgetProps {
   hideWhenIdle?: boolean;
 }
 
-export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
-  const { currentStreamUrl, lockStatus } = usePlayerStore();
+export const PlayerWidget = ({ hideWhenIdle }: PlayerWidgetProps) => {
+  // --- GATHER INTELLIGENCE ---
+  // We get ALL the state we need from the stores.
+  const { lockStatus, requestLock, currentStreamUrl } = usePlayerStore();
   const { device, engine } = useEnvStore();
 
-  const apk = !!import.meta.env.VITE_APK;
-  const isMkv = currentStreamUrl?.includes('.mkv');
-  const handlePlayerError = useCallback(() => {
-    console.error('Player Error. Stopping stream.');
-    usePlayerStore.getState().stopStream();
-  }, []);
-  
-  // The simple, powerful command decision.
-  const shouldUseMpv = engine === 'native' && device === 'windows';
+  const onRequestTakeover = useCallback(() => {
+    if (lockStatus === 'LOCKED_BY_OTHER') {
+      requestLock();
+    }
+  }, [lockStatus, requestLock]);
 
-  // Your APK and Idle logic is unchanged and perfect.
-  
-  if (apk) {
+  const isAndroidNative = engine === 'native' && (device === 'android' || device === 'androidtv' || device === 'firetv');
+
+  // --- RENDER NATIVE ANDROID UI ---
+  if (isAndroidNative) {
     const statusMessage = () => {
       switch (lockStatus) {
         case 'ACQUIRED': return 'Playing stream in native player...';
@@ -40,7 +35,7 @@ export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
       }
     };
     return (
-      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle ? 'hidden' : 'block'}`}>
+      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle && lockStatus !== 'LOCKED_BY_OTHER' ? 'hidden' : 'block'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Native Player Mode</h2>
           <p className="text-gray-400">{statusMessage()}</p>
@@ -59,18 +54,21 @@ export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
       </div>
     );
   }
+
+  // --- RENDER IDLE / STATUS UI for all other platforms ---
   if (lockStatus !== 'ACQUIRED' || !currentStreamUrl) {
     const statusMessage = () => {
       switch (lockStatus) {
         case 'LOCKED_BY_OTHER': return 'Streaming on another device or tab.';
         case 'AVAILABLE': return 'Select a channel to play.';
         case 'REQUESTING': return 'Requesting stream lock...';
+        case 'PENDING': return 'Takeover initiated, awaiting release...';
         case 'ERROR': return 'An error occurred. Please try reloading.';
         default: return `Lock status: ${lockStatus}`;
       }
     };
     return (
-      <div className={`flex items-center justify-center w-full bg-black h-full`}>
+      <div className={`flex items-center justify-center w-full bg-black h-full ${hideWhenIdle && lockStatus !== 'LOCKED_BY_OTHER' ? 'hidden' : 'block'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-semibold">Player Idle</h2>
           <p className="text-gray-400">{statusMessage()}</p>
@@ -86,18 +84,7 @@ export const Player = ({ onRequestTakeover, hideWhenIdle }: PlayerProps) => {
     );
   }
 
-  // --- THE DEPLOYMENT ---
-  return (
-    <div className={`w-full h-full bg-black`}>
-      {shouldUseMpv ? ( null
-        // <MpvPlayer src={currentStreamUrl} onStop={handlePlayerError} />
-      ) : isMkv ? (
-        <MkvPlayer src={currentStreamUrl} onError={handlePlayerError} />
-      ) : (
-        <HlsPlayer src={currentStreamUrl} onPlayerError={handlePlayerError} />
-      )}
-    </div>
-  );
+  // If a stream is playing (and we're not on Android native), this widget's job is done.
+  // It renders nothing, because the "Ghost" (VideoPlayer.tsx) is in command.
+  return null;
 };
-
-export default Player;
