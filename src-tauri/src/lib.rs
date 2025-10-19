@@ -1,17 +1,28 @@
-// src-tauri/src/lib.rs
+// src-tauri/src-lib.rs
 
-// Keep these 'use' statements, they don't hurt anything
+// We can keep the use statements, they don't harm anything if unused.
 // use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // You can leave the port definition, it won't be used
-    // let port: u16 = 9527;
-
-    tauri::Builder::default()
+    // Start building our application.
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_libmpv::init())
-        .plugin(tauri_plugin_videoplayer::init())
+        .plugin(tauri_plugin_videoplayer::init());
+        // We do NOT add libmpv here by default.
+
+    // --- THIS IS THE SURGICAL STRIKE ---
+    // This `#[cfg(windows)]` attribute is a direct command to the compiler.
+    // This entire block of code will only exist when compiling for a Windows target.
+    #[cfg(windows)]
+    {
+        // If we are on Windows, we add the libmpv plugin to the builder.
+        builder = builder.plugin(tauri_plugin_libmpv::init());
+    }
+    // --- END OF STRIKE ---
+
+    // Now, we continue building with the potentially modified builder.
+    builder
         // 1. Comment out the localhost plugin initialization
         // .plugin(tauri_plugin_localhost::Builder::new(port).build())
         .setup(|app| {

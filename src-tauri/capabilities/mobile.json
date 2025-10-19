@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile-capability",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "platforms": ["iOS", "android"],
+  "remote": {
+    "urls": [
+      "http://*",
+      "https://*"
+    ]
+  },
+  "permissions": [
+    "core:default",
+    "videoplayer:default",
+    "os:default",
+    "core:window:allow-set-fullscreen"
+  ]
+}
