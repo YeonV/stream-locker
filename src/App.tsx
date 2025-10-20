@@ -20,6 +20,7 @@ import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 import { useEnvStore } from './store/envStore';
 import { VideoPlayer } from './components/VideoPlayer';
+import { RemoteEventLogger } from './components/RemoteEventLogger';
 
 
 function App() {
@@ -92,6 +93,7 @@ function App() {
   return (
     <div className={` ${isMpvActive ? 'bg-transparent' : 'bg-gray-900'} text-white min-h-screen ${isMpvActive ? 'in-mpv-mode' : ''}`}>
       <DebugConsole />
+      <RemoteEventLogger />
       <div className={`main-ui ${isMpvActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <Routes>
         <Route path="/download" element={<DownloadPage />} />
