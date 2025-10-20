@@ -1,7 +1,7 @@
 // src/components/MpvPlayer/ContextWidget.tsx
 
 import { useUiContextStore } from '../../store/uiContextStore';
-import { SerieInfoOverlay } from '../player/SerieInfoOverlay';
+import { SerieInfoOverlay } from './SerieInfoOverlay';
 import ChannelListOverlay from './ChannelListOverlay';
 import MovieInfoOverlay from './MovieInfoOverlay';
 
