@@ -94,8 +94,8 @@ export const PlaygroundLayout = () => {
   const handleLogout = () => supabase.auth.signOut();
 
   return (
-    <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
-      <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10`}>
+    <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
+      <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
           <nav className="flex items-center space-x-1 w-full ">
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
@@ -115,15 +115,15 @@ export const PlaygroundLayout = () => {
                     key={index}
                     to={path}
                     className={`max-md:portrait:hidden flex items-center space-x-2 pl-3 pr-4 py-2 rounded-md font-semibold text-sm transition-colors ${
-                        isGroupActive ? 'text-white border-b-1 border-white rounded-none' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                        isGroupActive ? 'text-text-primary border-b-1 border-primary rounded-none' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
                       }`
                     }
                   >
                     <Icon size={16} />
                     <span>{label}</span>
-                    {isGroupActive && <div className="ml-2 p-1 bg-gray-600 rounded-md flex" title="Switch View">
-                      <FiGrid size={16} className={`mr-1 ${pathname.includes('categories') ? 'text-gray-400' : 'text-white' }`} />
-                      <FaThList size={16} className={`${pathname.includes('categories') ? 'text-white' : 'text-gray-400' }`} />
+                    {isGroupActive && <div className="ml-2 p-1 px-2 bg-background-primary rounded-md flex" title="Switch View">
+                      <FiGrid size={16} className={`mr-1 ${pathname.includes('categories') ? 'text-text-secondary' : 'text-primary' }`} />
+                      <FaThList size={16} className={`${pathname.includes('categories') ? 'text-primary' : 'text-text-secondary' }`} />
                     </div>}
                   </NavLink>
                 )
@@ -137,7 +137,7 @@ export const PlaygroundLayout = () => {
                     to={path}
                     className={({ isActive }) =>
                       `max-md:portrait:hidden flex items-center space-x-2 pl-3 pr-4 py-2 rounded-md font-semibold text-sm transition-colors ${
-                        isActive ? 'text-white border-b-1 border-white rounded-none' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                        isActive ? 'text-text-primary border-b-1 border-primary rounded-none' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
                       }`
                     }
                   >
@@ -149,15 +149,15 @@ export const PlaygroundLayout = () => {
             
             <div className="ml-auto flex items-center space-x-4">
               {xtreamPlaylists.length > 1 && !isSettings && (
-                <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">
+                <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="px-3 py-2 text-text-primary bg-background-secondary border border-border-primary rounded-md">
                   {xtreamPlaylists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
               )}
-              {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><CgDebug size={24} /></button>}
-              {!isSettings && <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>}
-              {isSettings && <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>}
-              {!isSettings && <Link to="/dashboard" className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></Link>}
-              {isSettings && <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></button>}
+              {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-background-glass"><CgDebug size={24} /></button>}
+              {!isSettings && <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-background-glass"><FiSettings size={24} /></Link>}
+              {isSettings && <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-background-glass"><FiLogOut size={24} /></button>}
+              {!isSettings && <Link to="/dashboard" className="p-2 rounded-full hover:bg-background-glass"><FiX size={24} /></Link>}
+              {isSettings && <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-background-glass"><FiX size={24} /></button>}
             </div>
           </nav>
         </div>
@@ -165,14 +165,14 @@ export const PlaygroundLayout = () => {
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet />
       </main>
-      <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-gray-800 border-t border-gray-700 min-md:hidden landscape:hidden`}>
+      <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
         {mobileNavItems.map(({ path, label, Icon }) => (
           <NavLink
             key={path}
             to={path}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center space-y-1 px-3 py-2 rounded-md font-semibold text-sm transition-colors ${
-                isActive ? 'text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                isActive ? 'text-primary' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
               }`
             }
           >

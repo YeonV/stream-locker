@@ -13,6 +13,7 @@
   --color-primary: #D97706;        /* Amber-600 */
   --color-primary-hover: #B45309;  /* Amber-700 */
   --color-primary-focus: #F59E0B;  /* Amber-500 */
+  --color-on-primary: #FFFFFF;
 
   /* Other Semantic Colors */
   --color-border-primary: #374151; /* gray-700 */
