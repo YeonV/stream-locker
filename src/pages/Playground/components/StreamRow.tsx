@@ -32,9 +32,9 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   };
 
   return (
-    <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">{title} ({filteredStreams.length})</h2>
+    <div className="mt-4">
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-xl font-bold">{title} ({filteredStreams.length})</h2>
         <div className="flex items-center space-x-2">
           {/* --- Search UI (Now always uses `flex-shrink-0` for better responsiveness) --- */}
           <div className={`flex bg-gray-700 rounded-md p-1 transition-all duration-300 ${isSearchOpen ? 'flex-grow' : 'flex-shrink-0'}`}>
