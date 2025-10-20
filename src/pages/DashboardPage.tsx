@@ -95,11 +95,11 @@ const DashboardPage = () => {
     return channels.filter(channel => channel.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [searchTerm, channels]); 
 
-  const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newId = e.target.value;
-    setSelectedPlaylistId(newId);
-    localStorage.setItem('lastSelectedPlaylistId', newId);
-  };
+const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const newId = e.target.value;
+  setSelectedPlaylistId(newId);
+  localStorage.setItem('lastSelectedPlaylistId', newId);
+};
 
   const handleLogout = () => supabase.auth.signOut();
     const handleTakeover = useCallback(() => {

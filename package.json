@@ -17,6 +17,7 @@
     "dev:rust": "tauri dev"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.6",
     "@supabase/supabase-js": "^2.74.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tanstack/react-virtual": "^3.13.12",
