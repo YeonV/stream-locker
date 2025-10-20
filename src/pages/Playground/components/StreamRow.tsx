@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { FiGrid, FiSearch, FiX } from 'react-icons/fi';
 import { StreamCarousel } from './StreamCarousel';
-import { GridModal } from './GridModal'; // <-- Import the new modal
+import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
 
 interface StreamRowProps {
@@ -11,11 +11,10 @@ interface StreamRowProps {
 }
 
 export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => {
-  // We no longer need a `viewMode`. The Carousel is the default inline view.
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
-  
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredStreams = useMemo(() => {
     if (!searchTerm) {
@@ -32,58 +31,57 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   };
 
   return (
+    // The main container for the row
     <div className="mt-4">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-xl font-bold">{title} ({filteredStreams.length})</h2>
-        <div className="flex items-center space-x-2">
-          {/* --- Search UI (Now always uses `flex-shrink-0` for better responsiveness) --- */}
-          <div className={`flex bg-gray-700 rounded-md p-1 transition-all duration-300 ${isSearchOpen ? 'flex-grow' : 'flex-shrink-0'}`}>
-            {!isSearchOpen ? (
+      {/* --- Row Header --- */}
+      <div className="flex items-center justify-between mb-2 px-2">
+        <h2 className="text-xl font-bold text-text-primary">
+          {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
+        </h2>
+
+        {/* --- Row Controls --- */}
+        <div className="flex items-center gap-2">
+          {/* Search UI */}
+          <div className="relative">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => setIsSearchOpen(true)}
+              onBlur={() => { if (!searchTerm) setIsSearchOpen(false); }}
+              // Themed input with a transition for the width
+              className={`h-8.5 pl-8 pr-1 py-0 text-text-primary bg-background-secondary border border-border-primary rounded-md text-sm focus:ring-2 focus:ring-primary-focus focus:outline-none transition-all duration-300 ${isSearchOpen || searchTerm ? 'w-64' : 'w-9'}`}
+            />
+            <FiSearch className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isSearchOpen || searchTerm ? 'text-primary' : 'text-text-tertiary'}`} size={16} onClick={()=>{
+              setIsSearchOpen(true)
+              inputRef.current?.focus();
+              }} />
+            {(isSearchOpen || searchTerm) && (
               <button 
-                onClick={() => setIsSearchOpen(true)}
-                className="px-3 py-1 text-sm rounded-md cursor-pointer"
-                title="Search this row"
+                onClick={handleCloseSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary"
+                title="Clear search"
               >
-                <FiSearch size={16} />
+                <FiX size={16} />
               </button>
-            ) : (
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder={`Search in ${title}...`}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  autoFocus
-                  className="w-80 h-full px-3 py-0 text-white bg-gray-700 border-none rounded-md text-sm focus:ring-0"
-                />
-                <button 
-                  onClick={handleCloseSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                  title="Close search"
-                >
-                  <FiX size={16} />
-                </button>
-              </div>
             )}
           </div>
 
-          {/* --- The Grid Button now opens the modal --- */}
-          <div className="flex bg-gray-700 rounded-md p-1">
-            <button 
-              onClick={() => setIsGridModalOpen(true)}
-              className="px-3 py-1 text-sm rounded-md cursor-pointer"
-              title="Open Grid View"
-            >
-              <FiGrid size={16} />
-            </button>
-          </div>
+          {/* Grid Button */}
+          <button 
+            onClick={() => setIsGridModalOpen(true)}
+            className="flex-shrink-0 p-2 rounded-md bg-background-secondary border border-border-primary text-text-tertiary hover:bg-background-glass hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-focus"
+            title="Open Grid View"
+          >
+            <FiGrid size={16} />
+          </button>
         </div>
       </div>
       
-      {/* The Carousel is now the only inline view */}
       <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
 
-      {/* Conditionally render the new full-screen modal */}
       {isGridModalOpen && (
         <GridModal 
           title={title}

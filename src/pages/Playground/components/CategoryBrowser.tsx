@@ -4,7 +4,7 @@ import { CategoryList } from './CategoryList';
 import type { Category } from '../../../types/playlist';
 
 interface CategoryBrowserProps {
-  title: string;
+  title?: string;
   categories: Category[];
   onCategoryClick: (categoryId: string, categoryName: string) => void;
 }
@@ -34,7 +34,7 @@ export const CategoryBrowser = ({ title, categories, onCategoryClick }: Category
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
+      {title && <h2 className="text-2xl font-bold mb-4 text-text-primary">{title}</h2>}
       <FilterBar
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

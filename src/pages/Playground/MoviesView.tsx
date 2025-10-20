@@ -1,13 +1,12 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react'; // Added useCallback
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
-import { useElementSize } from '../../hooks/useElementSize'; // Import our measurement hook
-
-const ROW_GAP_PX = 48
+import { useElementSize } from '../../hooks/useElementSize';
+import { usePlaygroundContext } from '../../context/PlaygroundContext'; // Import our context hook
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -17,15 +16,18 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     return 0;
 };
 
+const ROW_GAP_UNIT = 12;
+const ROW_GAP_PX = ROW_GAP_UNIT * 4;
+const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
+
 // We no longer need ROW_ESTIMATED_HEIGHT or ROW_GAP constants.
 
 export const MoviesView = () => {
+    // --- All original state and memoization is unchanged ---
     const moviesStreams: Movie[] = useDataStore(state => state.movies);
     const moviesCategories: Category[] = useDataStore(state => state.moviesCategories);
     const [selectedMovie, setSelectedMovie] = useState<MovieInfo | null>(null);
     const xtreamApi = useApiStore((state) => state.xtreamApi);
-    
-    // --- NEW: Sizer Logic for Dynamic Row Height ---
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
@@ -62,26 +64,34 @@ export const MoviesView = () => {
     const handleMoviePosterClick = async (vodId: number) => { const info = await xtreamApi?.getMovieInfo(vodId); setSelectedMovie(info as MovieInfo); };
     const handleCloseModals = () => { setSelectedMovie(null);};
 
-    const parentRef = useRef<HTMLDivElement>(null);
+    // --- NEW: Connect to the Parent's Navigation System ---
+    const { registerContentRef } = usePlaygroundContext();
+    const virtualizerParentRef = useRef<HTMLDivElement>(null);
+
+    // This callback ref is the magic. It assigns the DOM node to BOTH refs.
+    const combinedRef = useCallback((node: HTMLDivElement | null) => {
+        // 1. Assign to the ref for the virtualizer
+        virtualizerParentRef.current = node;
+        // 2. Register this node with the parent layout
+        registerContentRef(node);
+    }, [registerContentRef]);
+    // --- END NEW ---
+
     const rowVirtualizer = useVirtualizer({
         count: moviesCategories.length,
-        getScrollElement: () => parentRef.current,
-        // THE FIX: Use the dynamically measured height, with a reasonable fallback.
-        estimateSize: () => isReady ? measuredRowHeight : 300, 
+        // The virtualizer now gets its ref from our local variable
+        getScrollElement: () => virtualizerParentRef.current,
+        estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
         overscan: 3,
-        // We will control the gap with padding on the virtual items
-        gap: ROW_GAP_PX, // Let's use the explicit gap property (space-y-8 = 2rem = 32px)
     });
     const virtualRows = rowVirtualizer.getVirtualItems();
 
-    // Use a sample category for the sizer, one that is likely to have items
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
     return (
-        // Added space-y-8 to the parent for consistent vertical gaps
-        <div ref={parentRef} className="h-full w-full px-4 overflow-auto space-y-12">
-            {/* The Sizer Row: Rendered but invisible, for measurement */}
+        // Assign the combinedRef and add tabIndex to make the container focusable
+        <div ref={combinedRef} tabIndex={-1} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (
                     <StreamRow
@@ -118,7 +128,7 @@ export const MoviesView = () => {
                                     onPosterClick={handleMoviePosterClick}
                                 />
                             </div>
-                        );
+                        )
                     })}
                 </div>
             )}

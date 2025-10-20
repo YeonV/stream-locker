@@ -1,4 +1,5 @@
 import CountryFlag from 'react-country-flag';
+import { FiSearch } from 'react-icons/fi';
 
 interface FilterBarProps {
   searchTerm: string;
@@ -15,40 +16,39 @@ export const FilterBar = ({
   selectedCountry,
   onCountryChange,
 }: FilterBarProps) => {
-  const country = selectedCountry.toLowerCase()
-  const flag =  (country === 'uk' ? 'gb' : country);
-  return (
-    
-    <div className="flex items-center space-x-4 bg-gray-800 p-4 rounded-lg mb-6">
-      
+  const country = selectedCountry.toLowerCase();
+  const flag =  (country === 'uk' ? 'gb' : country === 'en' ? 'us' : country);
 
-      {/* Country Filter Dropdown */}
-      <div className="flex-shrink-0 relative">
+  return (
+    <div className="flex items-center flex-wrap gap-4 bg-background-secondary p-4 rounded-lg border border-border-primary mb-6">
+      
+      <div className="relative flex-shrink-0">
         <select
           value={selectedCountry}
           onChange={(e) => onCountryChange(e.target.value)}
-          className="px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md"
+          className="pl-3 pr-10 py-2 text-text-primary bg-background-primary border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-focus appearance-none"
         >
           <option value="ALL">All Countries</option>
           {countries.map(country => (
-            <option key={country} value={country} className='relative'>
+            <option key={country} value={country}>
               {country}
             </option>
           ))}
         </select>
         
-      <div className="absolute top-1/2 right-6 transform -translate-y-1/2 pointer-events-none">
-        {selectedCountry !== 'ALL' && <CountryFlag countryCode={flag} svg style={{ width: '2em', height: '2em' }} />}
+        <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
+          {selectedCountry !== 'ALL' && <CountryFlag countryCode={flag} svg style={{ width: '1.5em', height: '1.5em' }} />}
+        </div>
       </div>
-      </div>
-      {/* Search Input */}
-      <div className="flex-grow">
+
+      <div className="flex-grow relative">
+        <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" />
         <input
           type="text"
           placeholder="Search categories by name..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md"
+          className="w-full pl-10 pr-3 py-2 text-text-primary bg-background-primary border border-border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary-focus"
         />
       </div>
     </div>

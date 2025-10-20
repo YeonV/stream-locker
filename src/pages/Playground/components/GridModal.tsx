@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import { StreamGrid } from './StreamGrid';
 import type { PosterItem } from '../../../types/playlist';
+import * as Dialog from '@radix-ui/react-dialog'; // Import Radix Dialog
 
 interface GridModalProps {
   title: string;
@@ -11,55 +11,34 @@ interface GridModalProps {
 }
 
 export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalProps) => {
-  // Hijack Escape key and Back button to close the modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.history.pushState({ modal: 'grid' }, '');
-    const handlePopState = () => {
-      onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('popstate', handlePopState);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('popstate', handlePopState);
-      if (window.history.state?.modal === 'grid') {
-        window.history.back();
-      }
-    };
-  }, [onClose]);
-
   return (
-    <div 
-      className="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex flex-col p-4 md:p-8"
-      onClick={onClose}
-    >
-      <div 
-        className="w-full h-full bg-gray-900 rounded-lg flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Modal Header */}
-        <div className="flex justify-between items-center p-4 border-b border-gray-700 flex-shrink-0">
-          <h2 className="text-2xl font-bold">{title} - Grid View ({streams.length})</h2>
-          <button 
-            onClick={onClose} 
-            className="p-2 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white"
-            title="Close grid view"
-          >
-            <FiX size={24} />
-          </button>
-        </div>
+    <Dialog.Root open onOpenChange={onClose}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in-0" />
+        <Dialog.Content 
+          className="fixed inset-4 z-50 bg-background-secondary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 flex flex-col animate-in fade-in-0 zoom-in-95"
+        >
+          {/* Modal Header */}
+          <div className="flex justify-between items-center p-4 border-b border-border-primary flex-shrink-0">
+            <Dialog.Title className="text-2xl font-bold text-text-primary">
+              {title} <span className="text-base font-normal text-text-tertiary">({streams.length})</span>
+            </Dialog.Title>
+            <Dialog.Close asChild>
+              <button 
+                className="p-2 rounded-full text-text-secondary hover:bg-background-glass hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-focus"
+                title="Close grid view"
+              >
+                <FiX size={24} />
+              </button>
+            </Dialog.Close>
+          </div>
 
-        {/* Modal Body - The Grid */}
-        <div className="flex-1 overflow-hidden">
-          {/* The StreamGrid component fits perfectly here */}
-          <StreamGrid streams={streams} onPosterClick={onPosterClick} />
-        </div>
-      </div>
-    </div>
+          {/* Modal Body - The Grid */}
+          <div className="flex-1 overflow-hidden">
+            <StreamGrid streams={streams} onPosterClick={onPosterClick} />
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };

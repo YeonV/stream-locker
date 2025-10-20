@@ -1,22 +1,30 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { PosterItem, Serie, Category, SeriesInfo } from '../../types/playlist';
+import { usePlaygroundContext } from '../../context/PlaygroundContext';
 
 export const SeriesCategoriesView = () => {
     const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);
     const series: Serie[] = useDataStore(state => state.series);
     const [selectedSeries, setSelectedSeries] = useState<SeriesInfo | null>(null);
     const [activeCategory, setActiveCategory] = useState<{ id: string; name: string; type: 'movie' | 'series' } | null>(null);
-
     const xtreamApi = useApiStore((state) => state.xtreamApi);
 
+    // --- CONTEXT IMPLEMENTATION ---
+    const { registerContentRef } = usePlaygroundContext();
+    const contentRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        registerContentRef(contentRef.current);
+        return () => registerContentRef(null);
+    }, [registerContentRef, activeCategory]);
+    // --- END CONTEXT IMPLEMENTATION ---
 
-    const handleCategoryClick = (categoryId: string, categoryName: string, type: 'movie' | 'series') => {
-        setActiveCategory({ id: categoryId, name: categoryName, type });
+    const handleCategoryClick = (categoryId: string, categoryName: string) => {
+        setActiveCategory({ id: categoryId, name: categoryName, type: 'series' });
     };
 
     const seriesItemsBase: PosterItem[] = useMemo(() => series.map(s => ({
@@ -44,6 +52,7 @@ export const SeriesCategoriesView = () => {
     if (activeCategory) {
         return (
             <CategoryView
+                ref={contentRef} // Pass the ref down
                 categoryName={activeCategory.name}
                 items={itemsForActiveCategory}
                 onBack={() => setActiveCategory(null)}
@@ -58,9 +67,9 @@ export const SeriesCategoriesView = () => {
     }
 
     return (
-        <div className="h-screen w-screen bg-gray-900 text-white p-8 overflow-auto">
+        <div ref={contentRef} tabIndex={-1} className="h-full w-full p-8 overflow-auto focus:outline-none bg-background-primary text-text-primary">
             <div className="max-w-md">
-                <CategoryBrowser title="Series Categories" categories={seriesCategoriesWithAll} onCategoryClick={(id, name) => handleCategoryClick(id, name, 'series')} />
+                <CategoryBrowser categories={seriesCategoriesWithAll} onCategoryClick={(id, name) => handleCategoryClick(id, name)} />
             </div>            
             {selectedSeries && <SeriesDetailModal series={selectedSeries} onClose={handleCloseModals} />}
         </div>

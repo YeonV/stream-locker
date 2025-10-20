@@ -3,24 +3,23 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { useAuthStore } from './store/authStore';
 import { usePlayerStore } from './store/playerStore';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import ProtectedRoute from './components/ProtectedRoute';
-import { SettingsPage } from './pages/SettingsPage';
 import { BUILT_IN_PLAYLISTS } from './config/playlists';
-import DownloadPage from './pages/DownloadPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { PlaygroundLayout } from './pages/Playground/PlaygroundLayout';
 import { GeneralView } from './pages/Playground/GeneralView';
 import { MoviesView } from './pages/Playground/MoviesView';
 import { MovieCategoriesView } from './pages/Playground/MovieCategoriesView';
 import { SeriesCategoriesView } from './pages/Playground/SeriesCategoriesView';
-import { PlaygroundPage } from './pages/PlaygroundPage';
+import { DevPage } from './pages/DevPage';
 import { SeriesView } from './pages/Playground/SeriesView';
 import { LiveTvView } from './pages/Playground/LiveTvView';
 import { DebugConsole } from './components/DebugConsole';
 import { useEnvStore } from './store/envStore';
 import { VideoPlayer } from './components/VideoPlayer';
-import { RemoteEventLogger } from './components/RemoteEventLogger';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import DownloadPage from './pages/DownloadPage';
 
 
 function App() {
@@ -93,7 +92,6 @@ function App() {
   return (
     <div className={` ${isMpvActive ? 'bg-transparent' : 'bg-gray-900'} text-white min-h-screen ${isMpvActive ? 'in-mpv-mode' : ''}`}>
       <DebugConsole />
-      <RemoteEventLogger />
       <div className={`main-ui ${isMpvActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <Routes>
         <Route path="/download" element={<DownloadPage />} />
@@ -111,7 +109,7 @@ function App() {
           <Route path="movies" element={<MoviesView />} />
           <Route path="movies-categories" element={<MovieCategoriesView />} />
           <Route path="series-categories" element={<SeriesCategoriesView />} />
-          <Route path="dev" element={<PlaygroundPage />} />
+          <Route path="dev" element={<DevPage />} />
           <Route path="series" element={<SeriesView />} />
           <Route path="livetv" element={<LiveTvView />} />
           <Route path="settings" element={<SettingsPage />} />

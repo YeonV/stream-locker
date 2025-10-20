@@ -1,39 +1,46 @@
 import { useMemo } from 'react';
 import ReactCountryFlag from "react-country-flag";
-import { SiNetflix, SiHbo, SiSky, SiF1 } from "react-icons/si";
+import { SiNetflix, SiHbo, SiSky, SiF1, SiParamountplus, SiZdf, SiDaserste } from "react-icons/si";
 import { TbBrandDisney } from "react-icons/tb";
 import { FaAmazon, FaGooglePlay, FaApple } from "react-icons/fa";
+import { FcBbc } from "react-icons/fc";
+
 import type { Category } from '../../../types/playlist';
 
 interface CategoryListProps {
   categories: Category[];
-  // --- THIS IS THE FIX ---
-  // The signature now correctly accepts both id and name.
   onCategoryClick: (categoryId: string, categoryName: string) => void;
 }
 
+// Badge configuration is unchanged and perfect
 const BADGE_CONFIG = [
   { key: 'netflix', keyword: 'netflix', Icon: SiNetflix, color: '#E50914' },
   { key: 'disney', keyword: 'disney', Icon: TbBrandDisney, color: '#0063E5' },
   { key: 'amazon', keyword: 'amazon', Icon: FaAmazon, color: '#FF9900' },
+  { key: 'prime', keyword: 'prime serien', Icon: FaAmazon, color: '#FF9900' },
   { key: 'google', keyword: 'google', Icon: FaGooglePlay, color: '#4285F4' },
   { key: 'apple', keyword: 'apple', Icon: FaApple, color: '#A2AAAD' },
-  { key: 'hbo', keyword: 'hbo', Icon: SiHbo, color: '#8A2BE2' },
+  { key: 'hbo', keyword: 'hbo', Icon: SiHbo, color: '#000000' },
   { key: 'sky', keyword: 'sky', Icon: SiSky, color: '#0070D2' },
-  { key: 'f1', keyword: 'f1', Icon: SiF1, color: '#E10600' },
+  { key: 'f1', keyword: 'f1', Icon: SiF1, color: '#fc240b' },
+  { key: 'paramount', keyword: 'paramount', Icon: SiParamountplus, color: '#0969ff' },
+  { key: 'bbc', keyword: 'bbc', Icon: FcBbc, color: '#000000' },
+  { key: 'zdf', keyword: 'zdf', Icon: SiZdf, color: '#fa7d19' },
+  { key: 'ard', keyword: 'ard', Icon: SiDaserste, color: '#083a84' },
 ];
 
 const Badge = ({ Icon, color }: { Icon: React.ElementType, color: string }) => (
   <span 
-    className="flex items-center justify-center w-10 h-6 rounded"
+    className="flex items-center justify-center w-8 h-5 rounded" // Slightly smaller badges
     style={{ backgroundColor: color }}
   >
-    <Icon className="w-4 h-4 text-white" />
+    <Icon className="w-3 h-3 text-white" />
   </span>
 );
 
 export const CategoryList = ({ categories, onCategoryClick }: CategoryListProps) => {
 
+  // Your data processing logic is unchanged
   const processedCategories = useMemo(() => {
     return categories
       .map(category => {
@@ -57,30 +64,31 @@ export const CategoryList = ({ categories, onCategoryClick }: CategoryListProps)
 
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Categories ({categories.length})</h2>
+    // Themed main container
+    <div className="bg-background-secondary p-4 rounded-lg border border-border-primary">
+      <h2 className="text-xl font-bold mb-4 text-text-primary">Categories <span className="text-text-tertiary">({categories.length})</span></h2>
       {categories.length > 0 ? (
         <ul className="space-y-2">
           {processedCategories.map(category => (
-            <li
-              key={category.category_id}
-              className="p-3 bg-gray-700 rounded hover:bg-gray-600 transition-colors flex justify-between items-center cursor-pointer"
-              // --- THIS IS THE FIX ---
-              // The onClick handler now passes both the ID and the original, full name.
-              onClick={() => onCategoryClick(category.category_id, category.category_name)}
-            >
-              <p className="font-semibold flex items-center">
-                <ReactCountryFlag countryCode={category.flag} svg style={{ width: '1.2em', height: '1.2em', marginRight: '0.75em' }} />
-                {category.displayName}
-              </p>
-              <div className="flex items-center space-x-1">
-                {category.badges}
-              </div>
+            // The list item is now a button for better accessibility and focus handling
+            <li key={category.category_id}>
+              <button
+                className="w-full p-3 bg-background-primary rounded-lg hover:bg-background-glass focus:outline-none focus:ring-2 focus:ring-primary-focus focus:scale-[1.02] transition-all duration-150 flex justify-between items-center text-left"
+                onClick={() => onCategoryClick(category.category_id, category.category_name)}
+              >
+                <p className="font-semibold flex items-center text-text-primary">
+                  <ReactCountryFlag countryCode={category.flag} svg style={{ width: '1.2em', height: '1.em', marginRight: '0.75em' }} />
+                  {category.displayName}
+                </p>
+                <div className="flex items-center space-x-1">
+                  {category.badges}
+                </div>
+              </button>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-gray-400">No categories found matching your filters.</p>
+        <p className="text-text-tertiary">No categories found matching your filters.</p>
       )}
     </div>
   );

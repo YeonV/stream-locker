@@ -1,96 +1,61 @@
-import { useRef, useState, useLayoutEffect } from 'react';
+import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Poster } from './Poster';
 import type { PosterItem } from '../../../types/playlist';
+import { useElementSize } from '../../../hooks/useElementSize';
 
 interface StreamGridProps {
   streams: PosterItem[];
   onPosterClick: (streamId: number) => void;
 }
 
-// --- CONFIGURATION CONSTANTS ---
-const POSTER_WIDTH = 300; // The base width of a poster
-const POSTER_GAP = 16;   // The space between posters
+// THIS IS THE SINGLE SOURCE OF TRUTH for poster sizing in the grid.
+const GRID_ITEM_CLASSES = "w-32 aspect-[2/3]";
 
 export const StreamGrid = ({ streams, onPosterClick }: StreamGridProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   
-  // State to hold the dynamically calculated number of columns
-  const [columns, setColumns] = useState(6);
+  // --- DYNAMIC MEASUREMENT ---
+  const [sizerRef, sizerMetrics] = useElementSize();
+  const posterWidth = sizerMetrics.width;
+  const posterHeight = sizerMetrics.height;
+  const posterGap = 16; // We can use a fixed gap for the grid (equivalent to gap-4)
 
-  // This effect runs before the browser paints to calculate how many columns can fit.
-  // This is the key to making the grid responsive AND virtualized correctly.
-  useLayoutEffect(() => {
-    const parent = parentRef.current;
-    if (!parent) return;
-
-    // A function to perform the calculation
-    const handleResize = () => {
-      const parentWidth = parent.clientWidth;
-      // Calculate how many full posters (plus their gap) can fit
-      const newCols = Math.floor(parentWidth / (POSTER_WIDTH + POSTER_GAP));
-      setColumns(Math.max(2, newCols)); // Always show at least 2 columns
-    };
-
-    handleResize(); // Run once on mount
-
-    // Set up a ResizeObserver to re-calculate whenever the container size changes
-    const resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(parent);
-
-    // Cleanup on unmount
-    return () => resizeObserver.disconnect();
-  }, []);
-
+  const columns = Math.max(2, posterWidth > 0 ? Math.floor((parentRef.current?.clientWidth || 0) / (posterWidth + posterGap)) : 3);
   const rowCount = Math.ceil(streams.length / columns);
+  
+  // --- END DYNAMIC MEASUREMENT ---
 
-  // The virtualizer for our rows (vertical scrolling)
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
-    // Calculate row height: Poster Height (width * 1.5) + Gap
-    estimateSize: () => (POSTER_WIDTH * 1.5) + POSTER_GAP,
-    overscan: 3, // Render 3 extra rows for smooth scrolling
+    estimateSize: () => posterHeight > 0 ? posterHeight + posterGap : 240 + posterGap,
+    overscan: 3,
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   return (
-    // The main scrollable container
-    <div
-      ref={parentRef}
-      className="h-[80vh] w-full overflow-auto"
-      style={{ scrollbarWidth: 'none' }}
-    >
-      {/* The giant virtual-height container */}
-      <div
-        className="relative w-full"
-        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-      >
-        {/* We only render the virtual rows */}
+    <div ref={parentRef} className="h-full w-full overflow-auto p-4">
+      {/* Sizer element for measurement */}
+      <div ref={sizerRef} className={`${GRID_ITEM_CLASSES} invisible absolute -z-10`} />
+
+      <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
         {virtualRows.map(virtualRow => (
           <div
             key={virtualRow.key}
             className="absolute top-0 left-0 w-full"
-            style={{
-              height: `${virtualRow.size}px`,
-              transform: `translateY(${virtualRow.start}px)`,
-            }}
+            style={{ height: `${virtualRow.size}px`, transform: `translateY(${virtualRow.start}px)` }}
           >
-            {/* This inner div is a flex container for the posters in the current row */}
-            <div className="flex justify-start" style={{ gap: `${POSTER_GAP}px`, padding: `0 ${POSTER_GAP / 2}px` }}>
+            <div className="flex justify-start" style={{ gap: `${posterGap}px` }}>
               {Array.from({ length: columns }).map((_, colIndex) => {
                 const itemIndex = virtualRow.index * columns + colIndex;
                 const item = streams[itemIndex];
-
-                // Render a placeholder div to maintain grid structure in the last row
                 if (!item) {
-                  return <div key={colIndex} style={{ width: `${POSTER_WIDTH}px` }} />;
+                  return <div key={colIndex} style={{ width: `${posterWidth}px` }} />;
                 }
-
-                // Render the actual poster
                 return (
-                  <div key={item.id} style={{ width: `${POSTER_WIDTH}px` }}>
+                  <div key={item.id} style={{ width: `${posterWidth}px` }}>
                     <Poster stream={item} onClick={() => onPosterClick(item.id)} />
                   </div>
                 );

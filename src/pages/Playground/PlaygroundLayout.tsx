@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { FiGrid, FiFilm, FiTv, FiCode, FiSettings, FiX, FiLogOut } from 'react-icons/fi';
 import { FaTv, FaThList } from 'react-icons/fa';
@@ -11,6 +11,7 @@ import { useDebugStore } from '../../store/debugStore';
 import { CgDebug } from "react-icons/cg";
 import { useEnvStore } from '../../store/envStore';
 import { supabase } from '../../lib/supabase';
+import { PlaygroundProvider } from '../../context/PlaygroundProvider';
 
 // Type definition for a single nav item
 type NavItem = { path: string; label: string; Icon: React.ElementType };
@@ -57,6 +58,18 @@ export const PlaygroundLayout = () => {
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
+  const headerRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLElement | null>(null);
+  const registerContentRef = useCallback((node: HTMLElement | null) => {
+    contentRef.current = node;
+  }, []);
+  useHotkeys('MediaRewind', () => {
+    headerRef.current?.querySelector('a')?.focus();
+  }, { preventDefault: true });
+  useHotkeys('MediaFastForward', () => {
+    contentRef.current?.focus();
+  }, { preventDefault: true });
+
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
       const allPlaylists = session.user.user_metadata.playlists as Playlist[];
@@ -97,7 +110,7 @@ export const PlaygroundLayout = () => {
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <nav className="flex items-center space-x-1 w-full ">
+          <nav ref={headerRef} className="flex items-center space-x-1 w-full ">
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
             
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {
@@ -163,7 +176,9 @@ export const PlaygroundLayout = () => {
         </div>
       </header>
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        <Outlet />
+        <PlaygroundProvider value={{ registerContentRef }}>
+          <Outlet />
+        </PlaygroundProvider>
       </main>
       <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
         {mobileNavItems.map(({ path, label, Icon }) => (
