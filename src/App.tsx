@@ -6,7 +6,7 @@ import { usePlayerStore } from './store/playerStore';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import SettingsPage from './pages/SettingsPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { BUILT_IN_PLAYLISTS } from './config/playlists';
 import DownloadPage from './pages/DownloadPage';
 import { PlaygroundLayout } from './pages/Playground/PlaygroundLayout';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { FiGrid, FiFilm, FiTv, FiCode, FiSettings, FiX } from 'react-icons/fi';
+import { FiGrid, FiFilm, FiTv, FiCode, FiSettings, FiX, FiLogOut } from 'react-icons/fi';
 import { FaTv } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import { useApiStore } from '../../store/apiStore';
@@ -10,6 +10,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useDebugStore } from '../../store/debugStore';
 import { CgDebug } from "react-icons/cg";
 import { useEnvStore } from '../../store/envStore';
+import { supabase } from '../../lib/supabase';
 
 const navItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
@@ -86,11 +87,14 @@ export const PlaygroundLayout = () => {
   const isSettings = pathname === '/playground/settings'
   const device = useEnvStore(state => state.device);
 
+  const handleLogout = () => supabase.auth.signOut();
+
   return (
     <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
       <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
           <nav className="flex items-center space-x-1 w-full ">
+            {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(item => item.path !== '/playground/dev')).map(({ path, label, Icon }) => (
               <NavLink
                 key={path}
@@ -107,7 +111,7 @@ export const PlaygroundLayout = () => {
             ))}
             
             <div className="ml-auto flex items-center space-x-4">
-              {xtreamPlaylists.length > 1 && (
+              {xtreamPlaylists.length > 1 && !isSettings && (
                 <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md">
                   {xtreamPlaylists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
@@ -115,7 +119,9 @@ export const PlaygroundLayout = () => {
 
               {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-gray-700"><CgDebug size={24} /></button>}
               {!isSettings && <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={24} /></Link>}
-              <Link to="/dashboard" className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></Link>
+              {isSettings && <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-gray-700"><FiLogOut size={24} /></button>}
+              {!isSettings && <Link to="/dashboard" className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></Link>}
+              {isSettings && <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-gray-700"><FiX size={24} /></button>}
             </div>
           </nav>
         </div>
