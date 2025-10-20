@@ -5,6 +5,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Serie, PosterItem, Category, SeriesInfo } from '../../types/playlist';
+import { useElementSize } from '../../hooks/useElementSize'; // Import our measurement hook
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -14,17 +15,23 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     return 0;
 };
 
-const ROW_GAP = 32;
-const ROW_ESTIMATED_HEIGHT = 450 + 36 + 32 + ROW_GAP;
+// --- SINGLE SOURCE OF TRUTH FOR SPACING ---
+const ROW_GAP_UNIT = 12; // Corresponds to space-y-12 (48px)
+const ROW_GAP_PX = ROW_GAP_UNIT * 4;
+const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
 
 export const SeriesView = () => {
     const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);
     const series: Serie[] = useDataStore(state => state.series);
     const [selectedSeries, setSelectedSeries] = useState<SeriesInfo | null>(null);
-
     const xtreamApi = useApiStore((state) => state.xtreamApi);
 
+    // --- Sizer Logic for Dynamic Row Height ---
+    const [rowSizerRef, rowSizerMetrics] = useElementSize();
+    const measuredRowHeight = rowSizerMetrics.height;
+    const isReady = measuredRowHeight > 0;
 
+    // Data memoization logic is unchanged
     const seriesById = useMemo(() => {
         const map = new Map<number, Serie>();
         for (const s of series) {
@@ -32,11 +39,10 @@ export const SeriesView = () => {
         }
         return map;
     }, [series]);
-    
     const seriesItemsBase: PosterItem[] = useMemo(() => series.map(s => ({
         id: s.series_id, name: s.name, imageUrl: s.cover, rating: parseFloat(s.rating_5based) || 0, added: s.last_modified,
     })), [series]);
-
+    
     const seriesByCategory = useMemo(() => {
         const map = new Map<string, PosterItem[]>();
         for (const category of seriesCategories) {
@@ -59,43 +65,60 @@ export const SeriesView = () => {
     const rowVirtualizer = useVirtualizer({
         count: seriesCategories.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => ROW_ESTIMATED_HEIGHT,
-        overscan: 5,
+        // Use the dynamically measured height
+        estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
+        overscan: 3,
     });
     const virtualRows = rowVirtualizer.getVirtualItems();
+    
+    // Use a sample category for the sizer
+    const sizerCategory = seriesCategories[0];
+    const sizerItems = sizerCategory ? (seriesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
     return (
-        <div ref={parentRef} className="h-full w-full px-4 overflow-auto">
-
-            <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                {virtualRows.map(virtualRow => {
-                    const category = seriesCategories[virtualRow.index];
-                    if (!category) return null;
-
-                    const items = seriesByCategory.get(category.category_id) || [];
-                    if (items.length === 0) return null;
-
-                    const sortedItems = [...items].sort(sortByImagePresence);
-
-                    return (
-                        <div
-                            key={category.category_id}
-                            className="absolute top-0 left-0 w-full pb-8"
-                            style={{
-                                height: `${virtualRow.size}px`,
-                                transform: `translateY(${virtualRow.start}px)`,
-                            }}
-                        >
-                            <StreamRow
-                                title={category.category_name}
-                                streams={sortedItems}
-                                onPosterClick={handleSeriesPosterClick}
-                            />
-                        </div>
-                    );
-                })}
+        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto ${ROW_GAP_CLASS}`}>
+            {/* The Sizer Row for measurement */}
+            <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
+                {sizerItems.length > 0 && (
+                    <StreamRow
+                        title="Sizer"
+                        streams={sizerItems}
+                        onPosterClick={() => {}}
+                    />
+                )}
             </div>
 
+            {isReady && (
+                <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+                    {virtualRows.map(virtualRow => {
+                        const category = seriesCategories[virtualRow.index];
+                        if (!category) return null;
+
+                        const items = seriesByCategory.get(category.category_id) || [];
+                        if (items.length === 0) return null;
+
+                        const sortedItems = [...items].sort(sortByImagePresence);
+
+                        return (
+                            <div
+                                key={category.category_id}
+                                className="absolute top-0 left-0 w-full"
+                                style={{
+                                    height: `${virtualRow.size}px`,
+                                    transform: `translateY(${virtualRow.start}px)`,
+                                }}
+                            >
+                                <StreamRow
+                                    title={category.category_name}
+                                    streams={sortedItems}
+                                    onPosterClick={handleSeriesPosterClick}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+            
             {selectedSeries && <SeriesDetailModal series={selectedSeries} onClose={handleCloseModals} />}
         </div>
     );
