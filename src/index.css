@@ -1,9 +1,16 @@
 @import "tailwindcss";
+@import "./themes/amber.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* This rule applies to all button elements in the app */
+  button {
+    @apply cursor-pointer;
+  }
+}
 
 /* Custom Scrollbar Styles using Webkit prefix */
 ::-webkit-scrollbar {
@@ -12,28 +19,30 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800; /* Use Tailwind colors */
+  background-color: var(--color-background-secondary); /* Use our new theme variables! */
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600;
+  background-color: var(--color-text-tertiary); /* Use our new theme variables! */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  background-color: var(--color-text-secondary); /* Use our new theme variables! */
 }
 
 /* For Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #4B5563 #1F2937; /* thumb color track color */
+  /* Use our new theme variables here too! */
+  scrollbar-color: var(--color-text-tertiary) var(--color-background-secondary);
   box-sizing: border-box;
-  
 }
+
 html, body, #root {
   background: transparent;
 }
+
 .main-ui {
   transition: opacity 0.3s ease-in-out;
 }

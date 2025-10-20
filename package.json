@@ -21,6 +21,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@tanstack/react-virtual": "^3.13.12",
     "@tauri-apps/plugin-os": "^2.3.1",
+    "framer-motion": "^12.23.24",
     "hls.js": "^1.6.13",
     "idb-keyval": "^6.2.2",
     "iptv-playlist-parser": "^0.15.0",

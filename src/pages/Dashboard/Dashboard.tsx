@@ -12,6 +12,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import ChannelList from '../../components/ChannelList';
 import logo from '../../assets/logo.png';
 import yz from '../../assets/yz.png';
+import { useEnvStore } from '../../store/envStore';
 
 interface ApkLandscapeLayoutProps {
   m3uPlaylists: M3uPlaylist[];
@@ -46,7 +47,7 @@ export const Dashboard: FC<ApkLandscapeLayoutProps> = (props) => {
   const headerRef = useRef<HTMLHeadElement>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
   const [lastFocusedIndex, setLastFocusedIndex] = useState(0);
-
+  const device = useEnvStore(state => state.device);
 
   const focusChannelList = useCallback(() => {
     const channelButtons = listContainerRef.current?.querySelectorAll('button');
@@ -77,12 +78,12 @@ export const Dashboard: FC<ApkLandscapeLayoutProps> = (props) => {
 
   return (
     <div
-      className="h-screen w-screen bg-gray-900 text-white flex flex-col overflow-hidden"
+      className={`h-screen w-screen bg-gray-900 text-white flex flex-col overflow-hidden`}
       onContextMenu={(e) => e.preventDefault()}
     >
       <header
         ref={headerRef}
-        className="flex items-center justify-between min-md:space-x-4 px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0"
+        className={`flex items-center justify-between min-md:space-x-4 px-4 py-2 ${device === 'android' ? 'pt-8' : ''} bg-gray-800 border-b border-gray-700 shrink-0`}
       >
         <div className="flex w-full items-center  space-x-4 max-md:flex-wrap">
         {/* Left Side */}
@@ -186,7 +187,7 @@ export const Dashboard: FC<ApkLandscapeLayoutProps> = (props) => {
         )}
       </div>
           {/* mobile portrait bottom navigation */}
-        <div className="flex justify-center items-center space-x-8 py-1 bg-gray-800 border-t border-gray-700 min-md:hidden landscape:hidden">
+        <div className={`flex justify-center items-center space-x-8 py-1 ${device === 'android' ? 'pb-3' : ''} bg-gray-800 border-t border-gray-700 min-md:hidden landscape:hidden`}>
           {lockStatus === 'ACQUIRED' && (
             <button onClick={stopAndRelease} title="Stop Stream" className="p-2 rounded-full text-yellow-400 hover:bg-gray-700 animate-pulse" onKeyDown={handleHeaderKeyDown}><FiStopCircle size={36} /></button>
           )}

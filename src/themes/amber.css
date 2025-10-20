@@ -1,0 +1,20 @@
+@theme {
+  /* Background Palette */
+  --color-background-primary: #111827;
+  --color-background-secondary: #1F2937;
+  --color-background-glass: rgba(31, 41, 55, 0.5);
+
+  /* Foreground / Text Palette */
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #9CA3AF;
+  --color-text-tertiary: #6B7280;
+
+  /* Primary Action Color Palette (The "Amber") */
+  --color-primary: #D97706;        /* Amber-600 */
+  --color-primary-hover: #B45309;  /* Amber-700 */
+  --color-primary-focus: #F59E0B;  /* Amber-500 */
+
+  /* Other Semantic Colors */
+  --color-border-primary: #374151; /* gray-700 */
+  --color-error: #F87171;          /* red-400 */
+}

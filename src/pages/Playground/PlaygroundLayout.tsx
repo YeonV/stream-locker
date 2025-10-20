@@ -9,13 +9,14 @@ import type { Playlist, XtreamPlaylist } from '../../types/playlist';
 import { useShallow } from 'zustand/react/shallow';
 import { useDebugStore } from '../../store/debugStore';
 import { CgDebug } from "react-icons/cg";
+import { useEnvStore } from '../../store/envStore';
 
 const navItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
   { path: '/playground/series', label: 'Series', Icon: FiTv },
-  { path: '/playground/livetv', label: 'Live TV', Icon: FaTv },
-  { path: '/playground/movies-categories', label: 'Movie Cat', Icon: FiFilm },
-  { path: '/playground/series-categories', label: 'Series Cat', Icon: FiTv },
+  { path: '/playground/livetv', label: 'LiveTV', Icon: FaTv },
+  { path: '/playground/movies-categories', label: 'MovieCat', Icon: FiFilm },
+  { path: '/playground/series-categories', label: 'SeriesCat', Icon: FiTv },
   { path: '/playground/general', label: 'General', Icon: FiGrid },
   { path: '/playground/dev', label: 'Dev', Icon: FiCode }
 ];
@@ -83,18 +84,19 @@ export const PlaygroundLayout = () => {
   };
   const { pathname} = useLocation();
   const isSettings = pathname === '/playground/settings'
+  const device = useEnvStore(state => state.device);
 
   return (
     <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
       <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <nav className="flex items-center space-x-1 w-full">
+          <nav className="flex items-center space-x-1 w-full ">
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(item => item.path !== '/playground/dev')).map(({ path, label, Icon }) => (
               <NavLink
                 key={path}
                 to={path}
                 className={({ isActive }) =>
-                  `flex items-center space-x-2 pl-3 pr-4 py-2 rounded-md font-semibold text-sm transition-colors ${
+                  `max-md:portrait:hidden flex items-center space-x-2 pl-3 pr-4 py-2 rounded-md font-semibold text-sm transition-colors ${
                     isActive ? 'text-white border-b-1 border-white rounded-none' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
                   }`
                 }
@@ -121,6 +123,22 @@ export const PlaygroundLayout = () => {
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet />
       </main>
+        <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-gray-800 border-t border-gray-700 min-md:hidden landscape:hidden`}>
+        {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(item => item.path !== '/playground/dev')).map(({ path, label, Icon }) => (
+          <NavLink
+            key={path}
+            to={path}
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center space-y-1 px-3 py-2 rounded-md font-semibold text-sm transition-colors ${
+                isActive ? 'text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+              }`
+            }
+          >
+            <Icon size={20} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </div>
     </div>
   );
 };
