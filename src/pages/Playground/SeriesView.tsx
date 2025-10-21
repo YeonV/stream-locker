@@ -1,12 +1,11 @@
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Serie, PosterItem, Category, SeriesInfo } from '../../types/playlist';
-import { useElementSize } from '../../hooks/useElementSize';
-import { usePlaygroundContext } from '../../context/PlaygroundContext';
+import { useElementSize } from '../../hooks/useElementSize'; // Import our measurement hook
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -16,7 +15,8 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     return 0;
 };
 
-const ROW_GAP_UNIT = 12;
+// --- SINGLE SOURCE OF TRUTH FOR SPACING ---
+const ROW_GAP_UNIT = 12; // Corresponds to space-y-12 (48px)
 const ROW_GAP_PX = ROW_GAP_UNIT * 4;
 const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
 
@@ -26,10 +26,12 @@ export const SeriesView = () => {
     const [selectedSeries, setSelectedSeries] = useState<SeriesInfo | null>(null);
     const xtreamApi = useApiStore((state) => state.xtreamApi);
 
+    // --- Sizer Logic for Dynamic Row Height ---
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
 
+    // Data memoization logic is unchanged
     const seriesById = useMemo(() => {
         const map = new Map<number, Serie>();
         for (const s of series) {
@@ -59,28 +61,23 @@ export const SeriesView = () => {
     const handleSeriesPosterClick = async (seriesId: number) => { const info = await xtreamApi?.getSeriesInfo(seriesId); setSelectedSeries(info as SeriesInfo); };
     const handleCloseModals = () => { setSelectedSeries(null);};
 
-    // --- CONTEXT IMPLEMENTATION ---
-    const { registerContentRef } = usePlaygroundContext();
-    const virtualizerParentRef = useRef<HTMLDivElement>(null);
-    const combinedRef = useCallback((node: HTMLDivElement | null) => {
-        virtualizerParentRef.current = node;
-        registerContentRef(node);
-    }, [registerContentRef]);
-    // --- END CONTEXT IMPLEMENTATION ---
-
+    const parentRef = useRef<HTMLDivElement>(null);
     const rowVirtualizer = useVirtualizer({
         count: seriesCategories.length,
-        getScrollElement: () => virtualizerParentRef.current,
+        getScrollElement: () => parentRef.current,
+        // Use the dynamically measured height
         estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
         overscan: 3,
     });
     const virtualRows = rowVirtualizer.getVirtualItems();
     
+    // Use a sample category for the sizer
     const sizerCategory = seriesCategories[0];
     const sizerItems = sizerCategory ? (seriesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
     return (
-        <div ref={combinedRef} tabIndex={-1} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
+        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto ${ROW_GAP_CLASS}`}>
+            {/* The Sizer Row for measurement */}
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (
                     <StreamRow

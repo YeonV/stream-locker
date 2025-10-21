@@ -1,11 +1,10 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useApiStore } from '../../store/apiStore';
-import { usePlaygroundContext } from '../../context/PlaygroundContext';
 
 export const MovieCategoriesView = () => {
     const moviesStreams: Movie[] = useDataStore(state => state.movies);
@@ -13,15 +12,6 @@ export const MovieCategoriesView = () => {
     const [selectedMovie, setSelectedMovie] = useState<MovieInfo | null>(null);
     const [activeCategory, setActiveCategory] = useState<{ id: string; name: string; type: 'movie' | 'series' } | null>(null);
     const xtreamApi = useApiStore((state) => state.xtreamApi);
-
-    // --- CONTEXT IMPLEMENTATION ---
-    const { registerContentRef } = usePlaygroundContext();
-    const contentRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        registerContentRef(contentRef.current);
-        return () => registerContentRef(null);
-    }, [registerContentRef, activeCategory]); // Re-register ref when activeCategory changes
-    // --- END CONTEXT IMPLEMENTATION ---
 
     const handleCategoryClick = (categoryId: string, categoryName: string) => {
         setActiveCategory({ id: categoryId, name: categoryName, type: 'movie' });
@@ -52,7 +42,6 @@ export const MovieCategoriesView = () => {
     if (activeCategory) {
         return (
             <CategoryView
-                ref={contentRef} // Pass the ref down
                 categoryName={activeCategory.name}
                 items={itemsForActiveCategory}
                 onBack={() => setActiveCategory(null)}
@@ -67,7 +56,7 @@ export const MovieCategoriesView = () => {
     }
 
     return (
-        <div ref={contentRef} tabIndex={-1} className="h-full w-full p-8 overflow-auto focus:outline-none bg-background-primary text-text-primary">
+        <div className="h-full w-full p-8 overflow-auto focus:outline-none bg-background-primary text-text-primary">
             <div className="max-w-md">
                 <CategoryBrowser categories={moviesCategoriesWithAll} onCategoryClick={(id, name) => handleCategoryClick(id, name)} />
             </div>

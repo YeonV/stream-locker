@@ -1,11 +1,10 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { CategoryBrowser } from './components/CategoryBrowser';
 import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { PosterItem, Serie, Category, SeriesInfo } from '../../types/playlist';
-import { usePlaygroundContext } from '../../context/PlaygroundContext';
 
 export const SeriesCategoriesView = () => {
     const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);
@@ -13,15 +12,6 @@ export const SeriesCategoriesView = () => {
     const [selectedSeries, setSelectedSeries] = useState<SeriesInfo | null>(null);
     const [activeCategory, setActiveCategory] = useState<{ id: string; name: string; type: 'movie' | 'series' } | null>(null);
     const xtreamApi = useApiStore((state) => state.xtreamApi);
-
-    // --- CONTEXT IMPLEMENTATION ---
-    const { registerContentRef } = usePlaygroundContext();
-    const contentRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        registerContentRef(contentRef.current);
-        return () => registerContentRef(null);
-    }, [registerContentRef, activeCategory]);
-    // --- END CONTEXT IMPLEMENTATION ---
 
     const handleCategoryClick = (categoryId: string, categoryName: string) => {
         setActiveCategory({ id: categoryId, name: categoryName, type: 'series' });
@@ -52,8 +42,7 @@ export const SeriesCategoriesView = () => {
     if (activeCategory) {
         return (
             <CategoryView
-                ref={contentRef} // Pass the ref down
-                categoryName={activeCategory.name}
+            categoryName={activeCategory.name}
                 items={itemsForActiveCategory}
                 onBack={() => setActiveCategory(null)}
                 onPosterClick={handleSeriesPosterClick}
@@ -67,7 +56,7 @@ export const SeriesCategoriesView = () => {
     }
 
     return (
-        <div ref={contentRef} tabIndex={-1} className="h-full w-full p-8 overflow-auto focus:outline-none bg-background-primary text-text-primary">
+        <div className="h-full w-full p-8 overflow-auto focus:outline-none bg-background-primary text-text-primary">
             <div className="max-w-md">
                 <CategoryBrowser categories={seriesCategoriesWithAll} onCategoryClick={(id, name) => handleCategoryClick(id, name)} />
             </div>            
