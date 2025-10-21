@@ -1,5 +1,3 @@
-// src/components/MpvPlayer/Controls.tsx
-
 import { useState } from 'react';
 import { FiPlay, FiPause, FiVolumeX, FiVolume2, FiMinimize, FiMaximize, FiRadio, FiMessageSquare, FiCheck, FiArrowLeft } from 'react-icons/fi';
 import { command, setProperty } from 'tauri-plugin-libmpv-api';
@@ -45,21 +43,26 @@ export const Controls = (props: ControlsProps) => {
   return (
     <>
       <div className="absolute top-4 left-4 z-10">
-        <button onClick={stopAndRelease} className="p-3 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors cursor-pointer" title="Go Back">
+        <button 
+          onClick={stopAndRelease} 
+          // THEMED
+          className="p-3 bg-black/50 rounded-full text-text-primary hover:bg-background-glass transition-colors cursor-pointer" 
+          title="Go Back"
+        >
           <FiArrowLeft size={24} />
         </button>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-white">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-text-primary">
         
-        {/* --- OBJECTIVE 1: REPOSITIONED TIME --- */}
         <div className="flex items-center space-x-4">
           <div className="w-full group/progress cursor-pointer" onClick={handleSeek}>
             <div className="w-full bg-white/20 h-1 group-hover/progress:h-2 transition-all">
-              <div className="h-full bg-blue-500" style={{ width: `${progressPercent}%` }} />
+              {/* THEMED */}
+              <div className="h-full bg-primary" style={{ width: `${progressPercent}%` }} />
             </div>
           </div>
-          <span className="font-mono text-xs">-{formatTime(remainingTime)}</span>
+          <span className="font-mono text-xs text-text-secondary">-{formatTime(remainingTime)}</span>
         </div>
 
         <div className="flex items-center space-x-2 mt-2">
@@ -67,43 +70,22 @@ export const Controls = (props: ControlsProps) => {
                 {isPlaying ? <FiPause /> : <FiPlay />}
               </button>
 
-              {/* --- OBJECTIVE 2 & 3: VOLUME SYMBIOSIS & ALIGNMENT --- */}
-             {/* --- THIS IS THE FINAL WEAPON, FORGED FROM YOUR COMMANDS --- */}
-              {/*
-                This is the main container. It is the GROUP.
-                It is positioned relative so its children can be absolute.
-                It is flex-container to center the button.
-              */}
+              {/* YOUR BRILLIANT VOLUME SLIDER LOGIC - ONLY COLORS CHANGED */}
               <div className="relative group/volume flex items-center justify-center p-2">
-                
-                {/* 
-                  ELEMENT 3: THE FUCKING OVERLAY AS A BACKGROUND.
-                  It is absolute, positioned to fill the space for BOTH the button and the slider.
-                  It appears on group-hover.
-                */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2
-                                w-10 h-44 bg-gray-800/80 rounded-xl
+                <div 
+                  // THEMED
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2
+                                w-10 h-44 bg-background-secondary/80 rounded-xl
                                 opacity-0 invisible group-hover/volume:opacity-100 group-hover/volume:visible
-                                transition-all duration-200">
+                                transition-all duration-200"
+                >
                 </div>
-
-                {/* 
-                  ELEMENT 2: THE BUTTON.
-                  It is relative + z-10 so it is ALWAYS on top and clickable.
-                  It is positioned at the bottom of the container.
-                */}
                 <button
                   onClick={() => command('cycle', ['mute'])}
                   className="relative z-10 text-2xl cursor-pointer"
                 >
                   {isMuted || volume === 0 ? <FiVolumeX /> : <FiVolume2 />}
                 </button>
-
-                {/* 
-                  ELEMENT 1: THE VERTICAL SLIDER.
-                  It is absolute, positioned inside the overlay area.
-                  It also appears on group-hover.
-                */}
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2
                                 h-32 flex justify-center items-center
                                 opacity-0 invisible group-hover/volume:opacity-100 group-hover/volume:visible
@@ -117,12 +99,12 @@ export const Controls = (props: ControlsProps) => {
                       setProperty('volume', Number((e.target as HTMLInputElement).value));
                       if (isMuted) command('cycle', ['mute']);
                     }}
-                    className="w-24 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer transform -rotate-90"
+                    // THEMED
+                    className="w-24 h-2 bg-background-primary rounded-lg  [accent-color:var(--color-accent)] cursor-pointer transform -rotate-90"
                   />
                 </div>
               </div>
               
-              {/* Spacer to push remaining controls to the right */}
               <div className="flex-grow" />
 
               <div className="flex items-center space-x-2">
@@ -143,14 +125,15 @@ export const Controls = (props: ControlsProps) => {
         </div>
       </div>
       
-            {/* --- AUDIO TRACK DIALOG --- */}
+      {/* --- AUDIO TRACK DIALOG --- */}
       {isAudioMenuOpen && (
-        <div className="absolute bottom-20 right-4 bg-gray-800/90 rounded-md shadow-lg p-2 max-h-64 overflow-y-auto">
+        // THEMED
+        <div className="absolute bottom-20 right-4 bg-background-secondary/90 rounded-md shadow-lg p-2 max-h-64 overflow-y-auto border border-border-primary">
           <ul className="text-sm">
             {audioTracks.map(track => (
-              <li key={track.id} onClick={() => { setProperty('aid', track.id); setIsAudioMenuOpen(false); }} className="px-3 py-2 hover:bg-blue-600 rounded cursor-pointer flex items-center justify-between">
+              <li key={track.id} onClick={() => { setProperty('aid', track.id); setIsAudioMenuOpen(false); }} className="px-3 py-2 hover:bg-primary rounded cursor-pointer flex items-center justify-between">
                 <span>{track.title || track.lang || `Track ${track.id}`} ({track.codec})</span>
-                {track.id === selectedAid && <FiCheck className="ml-4" />}
+                {track.id === selectedAid && <FiCheck className="ml-4 text-primary-focus" />}
               </li>
             ))}
           </ul>
@@ -159,16 +142,17 @@ export const Controls = (props: ControlsProps) => {
 
       {/* --- SUBTITLE TRACK DIALOG --- */}
       {isSubMenuOpen && (
-        <div className="absolute bottom-20 right-4 bg-gray-800/90 rounded-md shadow-lg p-2 max-h-64 overflow-y-auto">
+        // THEMED
+        <div className="absolute bottom-20 right-4 bg-background-secondary/90 rounded-md shadow-lg p-2 max-h-64 overflow-y-auto border border-border-primary">
           <ul className="text-sm">
-            <li onClick={() => { setProperty('sid', 'no'); setIsSubMenuOpen(false); }} className="px-3 py-2 hover:bg-blue-600 rounded cursor-pointer flex items-center justify-between">
+            <li onClick={() => { setProperty('sid', 'no'); setIsSubMenuOpen(false); }} className="px-3 py-2 hover:bg-primary rounded cursor-pointer flex items-center justify-between">
               <span>Disable Subtitles</span>
-              {selectedSid === null && <FiCheck className="ml-4" />}
+              {selectedSid === null && <FiCheck className="ml-4 text-primary-focus" />}
             </li>
             {subTracks.map(track => (
-              <li key={track.id} onClick={() => { setProperty('sid', track.id); setIsSubMenuOpen(false); }} className="px-3 py-2 hover:bg-blue-600 rounded cursor-pointer flex items-center justify-between">
+              <li key={track.id} onClick={() => { setProperty('sid', track.id); setIsSubMenuOpen(false); }} className="px-3 py-2 hover:bg-primary rounded cursor-pointer flex items-center justify-between">
                 <span>{track.title || track.lang || `Track ${track.id}`}</span>
-                {track.id === selectedSid && <FiCheck className="ml-4" />}
+                {track.id === selectedSid && <FiCheck className="ml-4 text-primary-focus" />}
               </li>
             ))}
           </ul>
