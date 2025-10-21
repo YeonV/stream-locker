@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FiGrid, FiFilm, FiTv, FiCode, FiSettings, FiX, FiLogOut } from 'react-icons/fi';
 import { FaTv, FaThList } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
@@ -102,9 +102,28 @@ export const PlaygroundLayout = () => {
     setSelectedPlaylistId(e.target.value);
   };
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const isSettings = pathname === '/playground/settings'
   const device = useEnvStore(state => state.device);
   const handleLogout = () => supabase.auth.signOut();
+  const isMoviesSection = pathname.startsWith('/playground/movies');
+  const isSeriesSection = pathname.startsWith('/playground/series');
+
+  const handleViewSwitch = () => {
+    if (isMoviesSection) {
+      if (pathname === '/playground/movies') {
+        navigate('/playground/movies-categories');
+      } else {
+        navigate('/playground/movies');
+      }
+    } else if (isSeriesSection) {
+      if (pathname === '/playground/series') {
+        navigate('/playground/series-categories');
+      } else {
+        navigate('/playground/series');
+      }
+    }
+  }
 
   return (
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
@@ -114,8 +133,7 @@ export const PlaygroundLayout = () => {
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
             
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {
-              const isMoviesSection = pathname.startsWith('/playground/movies');
-              const isSeriesSection = pathname.startsWith('/playground/series');
+
               if (nav.type === 'group') {
                 const isMoviesGroup = nav.items[0].path.startsWith('/playground/movies');
                 const isSeriesGroup = nav.items[0].path.startsWith('/playground/series');
@@ -159,7 +177,11 @@ export const PlaygroundLayout = () => {
                   </NavLink>
               );
             })}
-            
+
+              {(isMoviesSection || isSeriesSection) && <div className="ml-2 p-1 px-2 bg-background-primary rounded-md flex min-md:hidden landscape:hidden" title="Switch View" onClick={()=>handleViewSwitch()}>
+                <FiGrid size={16} className={`mr-1 ${pathname.includes('categories') ? 'text-text-secondary' : 'text-primary' }`} />
+                <FaThList size={16} className={`${pathname.includes('categories') ? 'text-primary' : 'text-text-secondary' }`} />
+              </div>}
             <div className="ml-auto flex items-center space-x-4">
               {xtreamPlaylists.length > 1 && !isSettings && (
                 <select value={selectedPlaylistId || ''} onChange={handlePlaylistChange} className="px-3 py-2 text-text-primary bg-background-secondary border border-border-primary rounded-md">
@@ -181,21 +203,27 @@ export const PlaygroundLayout = () => {
         </PlaygroundProvider>
       </main>
       <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
-        {mobileNavItems.map(({ path, label, Icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center space-y-1 px-3 py-2 rounded-md font-semibold text-sm transition-colors ${
-                isActive ? 'text-primary' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
-              }`
-            }
-          >
-            <Icon size={20} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </div>
+        {mobileNavItems.map(({ path, label, Icon }) => {
+            // This is the new logic. For 'Movies' and 'Series', we check if the pathname starts with their base path.
+            // For all others, we use the default strict 'isActive' check.
+            const isSectionActive = (path === '/playground/movies' && pathname.startsWith('/playground/movies')) ||
+                                    (path === '/playground/series' && pathname.startsWith('/playground/series')) ||
+                                    (pathname === path); // Fallback for LiveTV and General
+
+            return (
+                <NavLink
+                    key={path}
+                    to={path}
+                    className={`flex flex-col items-center justify-center space-y-1 px-3 py-2 rounded-md font-semibold text-sm transition-colors ${
+                        isSectionActive ? 'text-primary' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
+                    }`}
+                >
+                    <Icon size={20} />
+                    <span>{label}</span>
+                </NavLink>
+            );
+        })}
+    </div>
     </div>
   );
 };

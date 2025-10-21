@@ -102,9 +102,10 @@ const handlePlaylistChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 };
 
   const handleLogout = () => supabase.auth.signOut();
-    const handleTakeover = useCallback(() => {
-      if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
-    }, [lockStatus, requestLock]);
+  
+  const handleTakeover = useCallback(() => {
+    if (lockStatus === 'LOCKED_BY_OTHER') requestLock();
+  }, [lockStatus, requestLock]);
 
   const handleChannelClick = (channelUrl: string) => {
     if (lockStatus === 'ACQUIRED') { usePlayerStore.getState().playStream(channelUrl); } 

@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect, forwardRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { FiArrowLeft, FiPlay, FiLoader } from 'react-icons/fi';
+import { FiArrowLeft, FiLoader } from 'react-icons/fi';
 import { useApiStore } from '../../../store/apiStore';
 import type { LiveStream, EpgListing } from '../../../types/playlist';
 import { usePlayback } from '../../../hooks/usePlayback';
 import placeholderLogo from '../../../assets/yz.png';
+import { SmartPlayButton } from './SmartPlayButton'; // Assuming correct path
 
 interface LiveCategoryViewProps {
   categoryName: string;
@@ -47,6 +48,33 @@ export const LiveCategoryView = forwardRef<HTMLDivElement, LiveCategoryViewProps
       e.currentTarget.src = placeholderLogo;
     };
 
+    const EpgPanel = (
+      // The EPG Panel is now a reusable JSX variable
+      <div className="w-full md:w-2/3 h-1/2 md:h-full overflow-y-auto p-4">
+        {isLoadingEpg ? (
+          <div className="flex items-center justify-center h-full gap-2 text-text-secondary">
+            <FiLoader className="animate-spin" /> Loading EPG...
+          </div>
+        ) : epgData.length > 0 ? (
+          <div className="space-y-3">
+            {epgData.map(listing => (
+              <div key={listing.id} className="p-4 bg-background-secondary rounded-lg border border-border-primary">
+                <div className="flex items-baseline gap-3">
+                  <p className="font-mono text-base text-text-secondary">{listing.start.substring(11, 16)} - {listing.end.substring(11, 16)}</p>
+                  <p className="font-bold text-lg text-text-primary">{listing.title}</p>
+                </div>
+                {listing.description && (
+                  <p className="mt-2 text-sm text-text-secondary border-l-2 border-border-primary pl-3">{listing.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-text-secondary">No EPG data available for this channel.</div>
+        )}
+      </div>
+    );
+
     return (
       <div ref={ref} tabIndex={-1} className="w-full h-full flex flex-col focus:outline-none bg-background-primary">
         <header className="flex items-center p-4 border-b border-border-primary bg-background-secondary flex-shrink-0 z-10">
@@ -56,9 +84,13 @@ export const LiveCategoryView = forwardRef<HTMLDivElement, LiveCategoryViewProps
           <h1 className="text-xl font-bold mx-auto text-text-primary">{categoryName} ({channels.length})</h1>
         </header>
 
-        <main className="flex-1 flex overflow-hidden">
-          {/* Channel List */}
-          <div ref={parentRef} className="w-1/3 h-full overflow-y-auto border-r border-border-primary">
+        {/* --- THE FIX: Responsive Flex Direction --- */}
+        <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* EPG Panel (Top on mobile, Right on desktop) */}
+          {EpgPanel}
+          
+          {/* Channel List (Bottom on mobile, Left on desktop) */}
+          <div ref={parentRef} className="w-full md:w-1/3 h-1/2 md:h-full overflow-y-auto border-t md:border-t-0 md:border-r border-border-primary md:order-first">
             <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
               {virtualItems.map(virtualItem => {
                 const channel = channels[virtualItem.index];
@@ -74,39 +106,12 @@ export const LiveCategoryView = forwardRef<HTMLDivElement, LiveCategoryViewProps
                         {channel.stream_icon && <img src={channel.stream_icon} alt="" className="w-10 h-10 object-contain flex-shrink-0" onError={handleImageError} />}
                         <span className="font-semibold truncate text-sm">{channel.name}</span>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); onChannelClick(channel); play({ type: 'livetv', channel }); }} className="p-2 rounded-full hover:bg-white/20" title={`Play ${channel.name}`}>
-                        <FiPlay className="text-2xl text-text-secondary" />
-                      </button>
+                      <SmartPlayButton variant='icon' onPlay={() => {onChannelClick(channel); play({ type: 'livetv', channel }); }} />
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          {/* EPG Data */}
-          <div className="w-2/3 h-full overflow-y-auto p-4">
-            {isLoadingEpg ? (
-              <div className="flex items-center justify-center h-full gap-2 text-text-secondary">
-                <FiLoader className="animate-spin" /> Loading EPG...
-              </div>
-            ) : epgData.length > 0 ? (
-              <div className="space-y-3">
-                {epgData.map(listing => (
-                  <div key={listing.id} className="p-4 bg-background-secondary rounded-lg border border-border-primary">
-                    <div className="flex items-baseline gap-3">
-                      <p className="font-mono text-base text-text-secondary">{listing.start.substring(11, 16)} - {listing.end.substring(11, 16)}</p>
-                      <p className="font-bold text-lg text-text-primary">{listing.title}</p>
-                    </div>
-                    {listing.description && (
-                      <p className="mt-2 text-sm text-text-secondary border-l-2 border-border-primary pl-3">{listing.description}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-text-secondary">No EPG data available for this channel.</div>
-            )}
           </div>
         </main>
       </div>

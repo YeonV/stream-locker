@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
-import { TrailerPlayerModal } from './TrailerPlayerModal';
+import { FiX } from 'react-icons/fi';
 import { usePlayback } from '../../../hooks/usePlayback';
-import type { Movie, MovieInfo } from '../../../types/playlist';
-// import { PlayerWidget } from '../../../components/PlayerWidget';
 import { useUiContextStore } from '../../../store/uiContextStore';
+import { SmartPlayButton } from './SmartPlayButton';
+import { WatchTrailerButton } from './WatchTrailerButton';
 import * as Dialog from '@radix-ui/react-dialog';
+import type { Movie, MovieInfo } from '../../../types/playlist';
 
 interface MovieDetailModalProps {
   movie: MovieInfo;
@@ -16,7 +15,6 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const { info, movie_data } = movie;
   const backdropUrl = info.backdrop_path?.[0];
 
-  const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
   const setUiContext = useUiContextStore(state => state.setContext);
   const { play } = usePlayback();
 
@@ -35,7 +33,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in-0" />
         <Dialog.Content 
-          className="fixed inset-4 z-50 bg-background-primary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 animate-in fade-in-0 zoom-in-95"
+          className="fixed inset-4 z-50 bg-background-primary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 animate-in fade-in-0 zoom-in-95 max-w-desktop"
         >
           <Dialog.Close asChild>
             <button className="absolute top-3 right-3 z-20 p-2 bg-black/50 rounded-full text-text-primary hover:bg-white hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-primary-focus">
@@ -45,7 +43,6 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
 
           <div className="h-full w-full overflow-y-auto">
             {/* --- SECTION 1: VISUALS --- */}
-            {/* FURTHER REDUCED backdrop height. This is the biggest change. */}
             <div className="relative h-[25vh] md:h-[30vh]">
               {backdropUrl && (
                 <img src={backdropUrl} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
@@ -54,25 +51,13 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             </div>
 
             {/* --- SECTION 2: CONTENT --- */}
-            {/* FURTHER REDUCED negative margin */}
             <div className="relative -mt-20 px-4 pb-8 sm:px-6 md:flex md:gap-6">
               {/* Left Side: Poster and Actions */}
-              {/* FURTHER REDUCED width of the poster container */}
               <div className="w-full md:w-48 lg:w-56 flex-shrink-0 text-center">
                 <img src={info.cover_big} alt={info.name} className="rounded-lg shadow-lg w-1/2 md:w-full mx-auto" />
                 <div className="mt-4 space-y-2">
-                  {/* FURTHER REDUCED padding and text size */}
-                  <button onClick={handlePlayClick} className="w-full flex items-center justify-center p-2 bg-primary text-on-primary rounded-lg font-bold text-sm hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background-primary focus:ring-primary-focus">
-                    <FiPlay className="mr-2" /> Play
-                  </button>
-                  {info.youtube_trailer && (
-                    <button 
-                      onClick={() => setIsTrailerPlaying(true)}
-                      className="w-full flex items-center justify-center p-2 bg-background-secondary rounded-lg font-semibold text-xs hover:bg-background-glass transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background-primary focus:ring-primary-focus"
-                    >
-                      <FiYoutube className="mr-2 text-red-500" /> Watch Trailer
-                    </button>
-                  )}
+                  <SmartPlayButton onPlay={handlePlayClick} />
+                  <WatchTrailerButton youtubeId={info.youtube_trailer} />
                 </div>
               </div>
 
@@ -99,17 +84,9 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                 </div>
               </div>
             </div>
-            
-            {/* <PlayerWidget /> */}
           </div>
         </Dialog.Content>
       </Dialog.Portal>
-      {isTrailerPlaying && (
-        <TrailerPlayerModal 
-          youtubeId={info.youtube_trailer}
-          onClose={() => setIsTrailerPlaying(false)}
-        />
-      )}
     </Dialog.Root>
   );
 };

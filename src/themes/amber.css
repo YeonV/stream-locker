@@ -15,6 +15,12 @@
   --color-primary-focus: #F59E0B;  /* Amber-500 */
   --color-on-primary: #FFFFFF;
 
+  /* Dedicated Play Button Colors */
+  /* By default, 'play' IS 'primary'. */
+  --color-play: var(--color-primary);
+  --color-play-hover: var(--color-primary-hover);
+  --color-on-play: var(--color-on-primary);
+
   /* Other Semantic Colors */
   --color-border-primary: #374151; /* gray-700 */
   --color-error: #F87171;          /* red-400 */

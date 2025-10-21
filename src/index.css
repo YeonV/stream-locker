@@ -46,3 +46,23 @@ html, body, #root {
 .main-ui {
   transition: opacity 0.3s ease-in-out;
 }
+
+@media (min-resolution: 1dppx) and (max-resolution: 1.5dppx) {
+  .max-w-desktop {
+    /* 
+      We use max-width in 'ch' units. 'ch' is a typographic unit that represents
+      the width of the "0" character. A line length of 65-75ch is considered
+      optimal for readability. This is better than a fixed pixel width.
+      Let's use 80ch as a generous max-width for our media-centric app.
+    */
+    max-width: 150ch;
+
+    /* 
+      Since our modal is `fixed inset-4`, we need to override the `left` and `right`
+      properties and use transforms to keep it centered once max-width is applied.
+    */
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+}

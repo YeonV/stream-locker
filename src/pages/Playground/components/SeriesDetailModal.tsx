@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { FiPlay, FiX, FiYoutube } from 'react-icons/fi';
-import { TrailerPlayerModal } from './TrailerPlayerModal';
-import type { SeriesInfo, Episode } from '../../../types/playlist';
+import { FiX } from 'react-icons/fi';
 import { usePlayback } from '../../../hooks/usePlayback';
 import { useUiContextStore } from '../../../store/uiContextStore';
+import { WatchTrailerButton } from './WatchTrailerButton';
+import { SmartPlayButton } from './SmartPlayButton';
 import * as Dialog from '@radix-ui/react-dialog';
+import type { SeriesInfo, Episode } from '../../../types/playlist';
 
 interface SeriesDetailModalProps {
   series: SeriesInfo;
@@ -19,7 +20,6 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
   const currentEpisodes = episodes[selectedSeason] || [];
 
   const [activeBackdropIndex, setActiveBackdropIndex] = useState(0);
-  const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
   const { play } = usePlayback();
   const setContext = useUiContextStore(state => state.setContext);
 
@@ -42,8 +42,10 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in-0" />
         <Dialog.Content 
-          className="fixed inset-4 z-50 bg-background-primary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 flex flex-col animate-in fade-in-0 zoom-in-95"
+          className="fixed inset-8 z-50 bg-background-primary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 flex flex-col animate-in fade-in-0 zoom-in-95 max-w-desktop"
         >
+          <Dialog.Title className="sr-only">Series Details: {info.name}</Dialog.Title>
+          <Dialog.Description className="sr-only">Details and episodes for the series {info.name}</Dialog.Description>
           <Dialog.Close asChild>
             <button className="absolute top-3 right-3 z-30 p-2 bg-black/50 rounded-full text-text-primary hover:bg-white hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-primary-focus">
               <FiX size={20} />
@@ -78,16 +80,7 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
                       </span>
                     </div>
                     <p className="mt-4 text-sm text-text-secondary max-w-3xl leading-relaxed line-clamp-3">{info.plot}</p>
-                    {info.youtube_trailer && (
-                      <div className="mt-4 max-w-xs">
-                        <button
-                          onClick={() => setIsTrailerPlaying(true)}
-                          className="w-full flex items-center justify-center p-2.5 bg-background-secondary rounded-lg font-semibold text-sm hover:bg-background-glass transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background-primary focus:ring-primary-focus"
-                        >
-                          <FiYoutube className="mr-2 text-red-500" /> Watch Trailer
-                        </button>
-                      </div>
-                    )}
+                    <WatchTrailerButton youtubeId={info.youtube_trailer} className="max-w-xs" />
                   </div>
                 </div>
               </div>
@@ -110,8 +103,8 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
                 </div>
                 <div className="space-y-2 pr-2 mt-4">
                   {currentEpisodes.map(episode => (
-                    <button 
-                      onClick={() => handleEpisodePlay(episode)}
+                    <>
+                    <div 
                       key={episode.id} 
                       className="w-full text-left p-2 bg-background-secondary/80 rounded-lg hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary-focus transition-colors flex items-center gap-4"
                     >
@@ -119,8 +112,10 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm text-text-primary truncate">{episode.episode_num}. {episode.title}</p>
                       </div>
-                      <FiPlay className="text-2xl text-text-tertiary" />
-                    </button>
+                      <SmartPlayButton variant='icon' onPlay={() => handleEpisodePlay(episode)} />
+                    </div>
+                    
+                    </>
                   ))}
                 </div>
               </div>
@@ -128,13 +123,6 @@ export const SeriesDetailModal = ({ series, onClose }: SeriesDetailModalProps) =
           </div>
         </Dialog.Content>
       </Dialog.Portal>
-      
-      {isTrailerPlaying && info.youtube_trailer && (
-        <TrailerPlayerModal
-          youtubeId={info.youtube_trailer}
-          onClose={() => setIsTrailerPlaying(false)}
-        />
-      )}
     </Dialog.Root>
   );
 };
