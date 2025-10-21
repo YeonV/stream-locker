@@ -12,6 +12,7 @@ import { CgDebug } from "react-icons/cg";
 import { useEnvStore } from '../../store/envStore';
 import { supabase } from '../../lib/supabase';
 import { PlaygroundProvider } from '../../context/PlaygroundProvider';
+import { SmartStopButton } from '../../components/SmartStopButton';
 
 // Type definition for a single nav item
 type NavItem = { path: string; label: string; Icon: React.ElementType };
@@ -189,6 +190,7 @@ export const PlaygroundLayout = () => {
                 </select>
               )}
               {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-background-glass"><CgDebug size={24} /></button>}
+              <SmartStopButton />
               {!isSettings && <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-background-glass"><FiSettings size={24} /></Link>}
               {isSettings && <button onClick={handleLogout} title="Logout" className="p-2 rounded-full hover:bg-background-glass"><FiLogOut size={24} /></button>}
               {!isSettings && <Link to="/dashboard" className="p-2 rounded-full hover:bg-background-glass"><FiX size={24} /></Link>}

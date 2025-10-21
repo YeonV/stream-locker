@@ -1,13 +1,13 @@
-import { useRef, useState, useCallback, useEffect, type FC } from 'react';
 import type { Channel, M3uPlaylist, GroupedChannels } from '../../types/playlist';
-import AutoSizer from 'react-virtualized-auto-sizer';
-import VirtualList from 'react-tiny-virtual-list';
+import { useRef, useState, useCallback, useEffect, type FC } from 'react';
 import { DashboardHeader } from './components/DashboardHeader';
-import ChannelList from '../../components/ChannelList';
 import { FaUserShield, FaUnlockAlt } from 'react-icons/fa';
 import { FiStopCircle, FiSettings } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useEnvStore } from '../../store/envStore';
+import ChannelList from '../../components/ChannelList';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import VirtualList from 'react-tiny-virtual-list';
 import yz from '../../assets/yz.png';
 
 const ITEM_HEIGHT = 44;
@@ -164,19 +164,7 @@ export const Dashboard: FC<DashboardProps> = (props) => {
         )}
       </main>
       
-      {/* --- Restored Mobile Bottom Navigation --- */}
       <div className={`flex justify-center items-center space-x-8 py-1 ${device === 'android' ? 'pb-3' : ''} bg-gray-800 border-t border-gray-700 min-md:hidden landscape:hidden`}>
-        {lockStatus === 'ACQUIRED' && (
-          <button onClick={stopAndRelease} title="Stop Stream" className="p-2 rounded-full text-primary-focus hover:bg-gray-700 animate-pulse"><FiStopCircle size={36} /></button>
-        )}
-        {lockStatus === 'LOCKED_BY_OTHER' && <button
-          onClick={handleTakeover}
-          autoFocus
-          title="Play Here"
-          className={`p-2 rounded-full hover:bg-gray-700 text-primary-focus animate-pulse`}
-        >
-          <FaUnlockAlt size={36} />
-        </button>}
         <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-gray-700"><FiSettings size={36} /></Link>
         {hasXtreamPlaylists && <Link to="/playground" className="p-2 rounded-full hover:bg-gray-700"><img src={yz} alt="Playground" width={36} /></Link>}
       </div>
