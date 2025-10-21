@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Poster } from './Poster';
 import type { PosterItem } from '../../../types/playlist';
@@ -7,25 +7,22 @@ import { useElementSize } from '../../../hooks/useElementSize';
 interface StreamGridProps {
   streams: PosterItem[];
   onPosterClick: (streamId: number) => void;
+  onFocusLeaveUp: () => void; // New prop for the "return journey"
 }
 
-// THIS IS THE SINGLE SOURCE OF TRUTH for poster sizing in the grid.
 const GRID_ITEM_CLASSES = "w-32 aspect-[2/3]";
 
-export const StreamGrid = ({ streams, onPosterClick }: StreamGridProps) => {
+export const StreamGrid = ({ streams, onPosterClick, onFocusLeaveUp }: StreamGridProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   
-  // --- DYNAMIC MEASUREMENT ---
   const [sizerRef, sizerMetrics] = useElementSize();
   const posterWidth = sizerMetrics.width;
   const posterHeight = sizerMetrics.height;
-  const posterGap = 16; // We can use a fixed gap for the grid (equivalent to gap-4)
+  const posterGap = 16;
 
   const columns = Math.max(2, posterWidth > 0 ? Math.floor((parentRef.current?.clientWidth || 0) / (posterWidth + posterGap)) : 3);
   const rowCount = Math.ceil(streams.length / columns);
   
-  // --- END DYNAMIC MEASUREMENT ---
-
   const rowVirtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => parentRef.current,
@@ -35,9 +32,18 @@ export const StreamGrid = ({ streams, onPosterClick }: StreamGridProps) => {
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
+  // --- "RETURN JOURNEY" KEYDOWN HANDLER ---
+  const handleGridKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>, itemIndex: number) => {
+    // If the user is on any poster in the first row (index < number of columns)
+    // and they press ArrowUp, trigger the callback to leave the grid.
+    if (event.key === 'ArrowUp' && itemIndex < columns) {
+      event.preventDefault();
+      onFocusLeaveUp();
+    }
+  }, [columns, onFocusLeaveUp]);
+
   return (
-    <div ref={parentRef} className="h-full w-full overflow-auto p-4">
-      {/* Sizer element for measurement */}
+    <div ref={parentRef} className="h-full w-full overflow-auto p-4 focus:outline-none" tabIndex={-1}>
       <div ref={sizerRef} className={`${GRID_ITEM_CLASSES} invisible absolute -z-10`} />
 
       <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
@@ -55,7 +61,12 @@ export const StreamGrid = ({ streams, onPosterClick }: StreamGridProps) => {
                   return <div key={colIndex} style={{ width: `${posterWidth}px` }} />;
                 }
                 return (
-                  <div key={item.id} style={{ width: `${posterWidth}px` }}>
+                  <div 
+                    key={item.id} 
+                    style={{ width: `${posterWidth}px` }}
+                    // Add the onKeyDown listener to each poster's container
+                    onKeyDown={(e) => handleGridKeyDown(e, itemIndex)}
+                  >
                     <Poster stream={item} onClick={() => onPosterClick(item.id)} />
                   </div>
                 );

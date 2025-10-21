@@ -54,12 +54,12 @@ export const Dashboard: FC<DashboardProps> = (props) => {
     }
   }, [lastFocusedIndex]);
 
-  // const handleListKeyDown = useCallback((event: React.KeyboardEvent) => {
-  //   if (event.key === 'ArrowLeft') {
-  //     event.preventDefault();
-  //     headerRef.current?.querySelector('select')?.focus();
-  //   }
-  // }, []);
+  const handleListKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      headerRef.current?.querySelector('select')?.focus();
+    }
+  }, []);
 
   const onChannelButtonClick = (url: string, index: number) => {
     setLastFocusedIndex(index);
@@ -105,7 +105,7 @@ export const Dashboard: FC<DashboardProps> = (props) => {
         <DashboardHeader {...headerProps} />
       </div>
 
-      <main ref={listContainerRef} className="flex-1 overflow-y-hidden relative" tabIndex={-1}>
+      <main ref={listContainerRef} onKeyDown={handleListKeyDown} className="flex-1 overflow-y-hidden relative" tabIndex={-1}>
         {lockActions}
         
         {isLoading && <div className="p-4">Loading playlist...</div>}

@@ -1,30 +1,6 @@
 import { useEffect, useState } from "react"
-import { FaApple, FaLinux, FaAndroid, FaWindows } from "react-icons/fa";
-import logo from '../assets/logo.png';
-
-export type ReleaseType = {
-  name: string
-  assets: {
-    browser_download_url: string
-    name: string
-  }[]
-  tag_name: string
-  prerelease: boolean
-}
-
-const DownloadButton = ({ asset, name }: { asset: ReleaseType['assets'][number], name: string }) => 
-    <div key={asset.name}>
-        <a href={asset.browser_download_url} download>
-        <button className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 w-full cursor-pointer" title={asset.name}>
-            {name === "MacOS" && <FaApple className="inline-block mr-2" />}
-            {name === "Windows" && <FaWindows className="inline-block mr-2" />}
-            {name === "Linux" && <FaLinux className="inline-block mr-2" />}
-            {name === "Android" && <FaAndroid className="inline-block mr-2" />}
-            {name}
-        </button>
-        </a>
-    </div>
-          
+import logo from '../assets/logo.png';         
+import { DownloadBinary, type ReleaseType } from "../components/DownloadBinary";
 
 const DownloadPage = () => {
     const [releases, setReleases] = useState<ReleaseType[]>([])
@@ -48,16 +24,16 @@ const DownloadPage = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-1 lg:grid-cols-4 mt-20">
       {releases[0].assets.map(asset => {
         if (asset.name.toLowerCase().includes('win') || asset.name.toLowerCase().includes('msi')) {
-          return <DownloadButton asset={asset} name="Windows" key={asset.name} />;
+          return <DownloadBinary asset={asset} name="Windows" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('mac') || asset.name.toLowerCase().includes('dmg')) {
-          return <DownloadButton asset={asset} name="MacOS" key={asset.name} />;
+          return <DownloadBinary asset={asset} name="MacOS" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('linux') || asset.name.toLowerCase().includes('appimage')) {
-          return <DownloadButton asset={asset} name="Linux" key={asset.name} />;
+          return <DownloadBinary asset={asset} name="Linux" key={asset.name} />;
         }
         if (asset.name.toLowerCase().includes('apk')) {
-          return <DownloadButton asset={asset} name="Android" key={asset.name} />;
+          return <DownloadBinary asset={asset} name="Android" key={asset.name} />;
         }
       })}
       </div>
