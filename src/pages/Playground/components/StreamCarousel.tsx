@@ -8,6 +8,7 @@ import { useElementSize } from '../../../hooks/useElementSize';
 interface StreamCarouselProps {
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
+  rowIndex?: number;
 }
 
 // === CONFIGURATION ===
@@ -17,7 +18,7 @@ const ITEM_CLASSES = "w-40 aspect-[2/3] mx-2";
 const widthMatch = ITEM_CLASSES.match(/w-(\d+)/);
 const INITIAL_WIDTH_GUESS = widthMatch ? parseInt(widthMatch[1], 10) * 4 : 160; // 160px is w-40
 
-export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) => {
+export const StreamCarousel = ({ streams, onPosterClick, rowIndex }: StreamCarouselProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const [sizerRef, sizerMetrics] = useElementSize();
 
@@ -84,7 +85,7 @@ export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) 
         style={{ scrollbarWidth: 'none' }}
       >
         {isReady && (
-          <div className="relative w-full" style={innerContainerStyle}>
+          <div className="relative w-full" style={innerContainerStyle} tabIndex={rowIndex}>
             {virtualItems.map((virtualItem) => {
               const item = streams[virtualItem.index];
               if (!item) return null;
@@ -96,7 +97,7 @@ export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) 
                   style={{ transform: `translateX(${virtualItem.start}px)` }}
                 >
                   <div className={ITEM_CLASSES}>
-                    <Poster stream={item} onClick={() => onPosterClick(item.id)} />
+                    <Poster stream={item} onClick={() => onPosterClick(item.id)} rowIndex={rowIndex} />
                   </div>
                 </div>
               );

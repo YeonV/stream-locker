@@ -8,9 +8,10 @@ interface StreamRowProps {
   title: string;
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
+  rowIndex?: number;
 }
 
-export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => {
+export const StreamRow = ({ title, streams, onPosterClick, rowIndex }: StreamRowProps) => {
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +81,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
         </div>
       </div>
       
-      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
+      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} rowIndex={rowIndex} />
 
       {isGridModalOpen && (
         <GridModal 
