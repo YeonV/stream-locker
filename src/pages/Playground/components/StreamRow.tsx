@@ -3,6 +3,7 @@ import { FiGrid, FiSearch, FiX } from 'react-icons/fi';
 import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
+import type FocusTrap from 'focus-trap-react';
 
 interface StreamRowProps {
   title: string;
@@ -15,6 +16,8 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
   const filteredStreams = useMemo(() => {
     if (!searchTerm) {
@@ -31,17 +34,19 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   };
 
   return (
-    // The main container for the row
     <div className="mt-4">
-      {/* --- Row Header --- */}
       <div className="flex items-center justify-between mb-2 px-2">
         <h2 className="text-xl font-bold text-text-primary">
           {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
         </h2>
-
-        {/* --- Row Controls --- */}
         <div className="flex items-center gap-2">
-          {/* Search UI */}
+          <button 
+            onClick={() => setIsFocusTrapActive(!isFocusTrapActive)}
+            className={`px-3 py-1 text-xs rounded-md ${isFocusTrapActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+          >
+            {isFocusTrapActive ? 'TRAP ON' : 'TRAP OFF'}
+          </button>
+
           <div className="relative">
             <input
               ref={inputRef}
@@ -51,10 +56,9 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setIsSearchOpen(true)}
               onBlur={() => { if (!searchTerm) setIsSearchOpen(false); }}
-              // Themed input with a transition for the width
-              className={`h-8.5 pl-8 pr-1 py-0 text-text-primary bg-background-secondary border border-border-primary rounded-md text-sm focus:ring-2 focus:ring-primary-focus focus:outline-none transition-all duration-300 ${isSearchOpen || searchTerm ? 'w-64' : 'w-9'}`}
+              className={`h-9 pl-8 pr-3 py-0 text-text-primary bg-background-secondary border border-border-primary rounded-md text-sm focus:ring-2 focus:ring-primary-focus focus:outline-none transition-all duration-300 ${isSearchOpen || searchTerm ? 'w-64' : 'w-9'}`}
             />
-            <FiSearch className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isSearchOpen || searchTerm ? 'text-primary' : 'text-text-tertiary'}`} size={16} onClick={()=>{
+            <FiSearch className={`absolute left-2 top-1/2 -translate-y-1/2 transition-colors ${isSearchOpen || searchTerm ? 'text-primary' : 'text-text-tertiary'}`} size={16} onClick={()=>{
               setIsSearchOpen(true)
               inputRef.current?.focus();
               }} />
@@ -69,7 +73,6 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
             )}
           </div>
 
-          {/* Grid Button */}
           <button 
             onClick={() => setIsGridModalOpen(true)}
             className="flex-shrink-0 p-2 rounded-md bg-background-secondary border border-border-primary text-text-tertiary hover:bg-background-glass hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-focus"
@@ -80,7 +83,22 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
         </div>
       </div>
       
-      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
+      <FocusTrap
+        active={isFocusTrapActive}
+        focusTrapOptions={{
+          onDeactivate: () => setIsFocusTrapActive(false),
+          initialFocus: () => {
+            const container = document.querySelector(`[data-row-title="${title}"]`);
+            return container?.querySelector('button') as HTMLElement;
+          },
+          // Allow clicks outside to deactivate, useful for debugging with a mouse
+          clickOutsideDeactivates: true, 
+        }}
+      >
+        <div data-row-title={title}>
+          <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
+        </div>
+      </FocusTrap>
 
       {isGridModalOpen && (
         <GridModal 

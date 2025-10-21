@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react'; // Added useCallback
+import { useState, useMemo, useRef } from 'react'; // Added useCallback
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -6,7 +6,6 @@ import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
-import { usePlaygroundContext } from '../../context/PlaygroundContext'; // Import our context hook
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -65,22 +64,15 @@ export const MoviesView = () => {
     const handleCloseModals = () => { setSelectedMovie(null);};
 
     // --- NEW: Connect to the Parent's Navigation System ---
-    const { registerContentRef } = usePlaygroundContext();
-    const virtualizerParentRef = useRef<HTMLDivElement>(null);
+    const parentRef = useRef<HTMLDivElement>(null);
 
-    // This callback ref is the magic. It assigns the DOM node to BOTH refs.
-    const combinedRef = useCallback((node: HTMLDivElement | null) => {
-        // 1. Assign to the ref for the virtualizer
-        virtualizerParentRef.current = node;
-        // 2. Register this node with the parent layout
-        registerContentRef(node);
-    }, [registerContentRef]);
+    // This callback ref is the magic. It assigns the DOM node to BOTH refs
     // --- END NEW ---
 
     const rowVirtualizer = useVirtualizer({
         count: moviesCategories.length,
         // The virtualizer now gets its ref from our local variable
-        getScrollElement: () => virtualizerParentRef.current,
+        getScrollElement: () => parentRef.current,
         estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
         overscan: 3,
     });
@@ -91,7 +83,7 @@ export const MoviesView = () => {
 
     return (
         // Assign the combinedRef and add tabIndex to make the container focusable
-        <div ref={combinedRef} tabIndex={-1} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
+        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (
                     <StreamRow
