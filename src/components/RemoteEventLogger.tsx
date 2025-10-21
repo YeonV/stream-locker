@@ -15,9 +15,9 @@ export const RemoteEventLogger = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // We prevent default behavior for some keys to stop the browser from scrolling, etc.
       // This helps ensure we can capture the event cleanly.
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(event.key)) {
-        event.preventDefault();
-      }
+      // if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(event.key)) {
+      //   event.preventDefault();
+      // }
 
       // Log the full event to the console for deep inspection
       console.log('Keydown Event:', event);

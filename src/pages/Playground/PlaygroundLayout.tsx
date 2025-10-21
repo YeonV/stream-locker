@@ -71,19 +71,6 @@ export const PlaygroundLayout = () => {
     contentRef.current?.focus();
   }, { preventDefault: true });
 
-  useHotkeys('MediaPlayPause', () => {
-    if (contentRef.current) {
-      const firstFocusable = contentRef.current.querySelector(
-        'a, button, input, select, [tabindex]:not([tabindex="-1"])'
-      ) as HTMLElement | null;
-
-      if (firstFocusable) {
-        firstFocusable.focus();
-      } else {
-        contentRef.current.focus();
-      }
-    }
-  }, { preventDefault: true });
 
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {

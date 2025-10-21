@@ -54,12 +54,12 @@ export const Dashboard: FC<DashboardProps> = (props) => {
     }
   }, [lastFocusedIndex]);
 
-  const handleListKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      headerRef.current?.querySelector('select')?.focus();
-    }
-  }, []);
+  // const handleListKeyDown = useCallback((event: React.KeyboardEvent) => {
+  //   if (event.key === 'ArrowLeft') {
+  //     event.preventDefault();
+  //     headerRef.current?.querySelector('select')?.focus();
+  //   }
+  // }, []);
 
   const onChannelButtonClick = (url: string, index: number) => {
     setLastFocusedIndex(index);

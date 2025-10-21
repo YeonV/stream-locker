@@ -2,7 +2,7 @@ import { FiPlay } from 'react-icons/fi';
 import type { PosterItem } from '../../../types/playlist';
 import { FaStar } from 'react-icons/fa';
 
-export const Poster = ({ stream, onClick, rowIndex }: { stream: PosterItem, onClick: () => void; rowIndex?: number; }) => {
+export const Poster = ({ stream, onClick }: { stream: PosterItem, onClick: () => void; }) => {
     const content = (dummy?: boolean) => {
         return (
             <>
@@ -38,10 +38,9 @@ export const Poster = ({ stream, onClick, rowIndex }: { stream: PosterItem, onCl
     }
     return (
         <button
-            tabIndex={rowIndex}
             onClick={onClick}
             // FOCUS: Converted to a button for better accessibility
-            className="dpad-focusable relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
+            className="relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
                      hover:-translate-y-1 transition-transform duration-200 cursor-pointer shadow-lg 
                      focus:outline-none focus:ring-4 focus:ring-primary-focus focus:z-10"
         >
