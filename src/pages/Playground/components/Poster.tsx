@@ -38,6 +38,7 @@ export const Poster = ({ stream, onClick }: { stream: PosterItem, onClick: () =>
     }
     return (
         <button
+            tabIndex={0}
             onClick={onClick}
             // FOCUS: Converted to a button for better accessibility
             className="relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
