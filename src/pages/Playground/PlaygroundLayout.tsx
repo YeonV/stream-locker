@@ -61,27 +61,6 @@ export const PlaygroundLayout = () => {
   const headerNavRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const navElement = headerNavRef.current;
-    if (!navElement) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
-        if (firstRowTitleButton) {
-          firstRowTitleButton.focus();
-        }
-      }
-    };
-
-    navElement.addEventListener('keydown', handleKeyDown);
-    return () => {
-      navElement.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []); 
-
-
-  useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
       const allPlaylists = session.user.user_metadata.playlists as Playlist[];
       const xtream = allPlaylists.filter(p => p.type === 'xtream') as XtreamPlaylist[];
@@ -114,6 +93,27 @@ export const PlaygroundLayout = () => {
   };
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const navElement = headerNavRef.current;
+    if (!navElement) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowDown' && (pathname === '/playground/movies' || pathname === '/playground/series')) {
+        event.preventDefault();
+        const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
+        if (firstRowTitleButton) {
+          firstRowTitleButton.focus();
+        }
+      }
+    };
+
+    navElement.addEventListener('keydown', handleKeyDown);
+    return () => {
+      navElement.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [pathname]);
+
   const isSettings = pathname === '/playground/settings'
   const device = useEnvStore(state => state.device);
   const handleLogout = () => supabase.auth.signOut();

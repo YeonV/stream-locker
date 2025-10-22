@@ -39,7 +39,7 @@ export const useEnvStore = create<EnvState>((set, get) => ({
       let specificDevice: Device = 'unknown';
       if (osType === 'android') {
         const userAgent = navigator.userAgent.toLowerCase();
-        specificDevice = (userAgent.includes('tv') || userAgent.includes('firetv')) 
+        specificDevice = (userAgent.includes('tv') || userAgent.includes('aftkm')) 
           ? (userAgent.includes('firetv') ? 'firetv' : 'androidtv') 
           : 'android';
       } else {
