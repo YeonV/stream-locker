@@ -8,7 +8,6 @@ import type { Movie, MovieInfo } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
 import { useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { usePlayerStore } from '../../../store/playerStore';
 
 interface MovieDetailModalProps {
   movie: MovieInfo;
@@ -18,10 +17,11 @@ interface MovieDetailModalProps {
 export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const { info, movie_data } = movie;
   const backdropUrl = info.backdrop_path?.[0];
-  const isPlayerActive = usePlayerStore(state => !!state.currentStreamUrl); 
 
   const setUiContext = useUiContextStore(state => state.setContext);
   const { play } = usePlayback();
+  const lockFocus = useUiContextStore(state => state.lockFocus);
+  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const actionsContainerRef = useRef<HTMLDivElement>(null);
 
   useHotkeys('MediaRewind', onClose, {
@@ -31,6 +31,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
 
   const handlePlayClick = () => {
     if (typeof movie_data.stream_id === 'number') {
+      lockFocus();
       setUiContext({ type: 'movie', movie: movie_data as Movie, movieInfo: info });
       play({ type: 'movie', movie: { ...(movie_data as Movie) } });
       onClose();
@@ -49,7 +50,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
           <Dialog.Title className="sr-only">Movie Details: {info.name}</Dialog.Title>
           <Dialog.Description className="sr-only">Details and actions for the selected movie.</Dialog.Description>
           <FocusTrap
-            active={!isPlayerActive}
+            active={!isFocusLocked} 
             focusTrapOptions={{
               initialFocus: () => actionsContainerRef.current?.querySelector('button') as HTMLElement,
               onDeactivate: onClose,

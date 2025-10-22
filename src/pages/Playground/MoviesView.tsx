@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'; // --- NEW: Added useEffect ---
+import { useState, useMemo, useRef, useEffect, useCallback  } from 'react'; // --- NEW: Added useEffect ---
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -77,19 +77,67 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
-    useEffect(() => {
-        if (isReady && moviesCategories.length > 0) {
-            const firstCategoryName = moviesCategories[0].category_name;
-            const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
-            const selector = `[data-testid="trap-button-${sanitizedName}"]`;
+    // useEffect(() => {
+    //     if (isReady && moviesCategories.length > 0) {
+    //         const firstCategoryName = moviesCategories[0].category_name;
+    //         const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
+    //         const selector = `[data-testid="trap-button-${sanitizedName}"]`;
             
-            const firstTrapButton = document.querySelector(selector) as HTMLElement;
+    //         const firstTrapButton = document.querySelector(selector) as HTMLElement;
 
-            if (firstTrapButton) {
-                firstTrapButton.focus();
-            }
-        }
-    }, [isReady, moviesCategories]);
+    //         if (firstTrapButton) {
+    //             firstTrapButton.focus();
+    //         }
+    //     }
+    // }, [isReady, moviesCategories]);
+
+    const [needsFocus, setNeedsFocus] = useState(false);
+  
+    const handleHeaderKeyDown = useCallback((event: KeyboardEvent) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setNeedsFocus(true);
+      }
+    }, []);
+
+    useEffect(() => {
+      const headerNavElement = document.getElementById('main-nav');
+      if (!headerNavElement) return;
+
+      headerNavElement.addEventListener('keydown', handleHeaderKeyDown);
+      return () => {
+        headerNavElement.removeEventListener('keydown', handleHeaderKeyDown);
+      };
+    }, [handleHeaderKeyDown]);
+
+    // This is the "effector" useEffect, now using the correct ref.
+    useEffect(() => {
+      if (needsFocus) {
+        const timer = setTimeout(() => {
+          // --- CHANGE IS HERE: Use the existing parentRef ---
+          const targetElement = parentRef.current?.querySelector('[data-testid^="trap-button-"]') as HTMLElement | null;
+          
+          if (targetElement) {
+            targetElement.focus();
+          }
+          setNeedsFocus(false);
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+    }, [needsFocus]);
+
+    // This is your original useEffect for initial focus on load.
+    // Let's now COMBINE it with the needsFocus logic to avoid conflicts.
+    // We can set needsFocus to true on initial load.
+
+    // --- REVISED INITIAL FOCUS ---
+    useEffect(() => {
+      if (isReady && moviesCategories.length > 0) {
+        // Instead of focusing directly, we trigger our robust Dashboard-style mechanism.
+        setNeedsFocus(true);
+      }
+    // We remove the direct focus logic from here.
+    }, [isReady, moviesCategories.length]);
 
     return (
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>

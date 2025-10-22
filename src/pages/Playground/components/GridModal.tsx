@@ -5,6 +5,7 @@ import type { PosterItem } from '../../../types/playlist';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { FocusTrap } from 'focus-trap-react';
+import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface GridModalProps {
   title: string;
@@ -16,7 +17,7 @@ interface GridModalProps {
 export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalProps) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
-
+  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   useHotkeys('MediaRewind', onClose, {
     enableOnContentEditable: true,
     enableOnFormTags: ['input', 'select', 'textarea'],
@@ -42,7 +43,7 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
           <Dialog.Title className="sr-only">{title} Grid View</Dialog.Title>
           <Dialog.Description className="sr-only">A grid view of all available streams for {title}.</Dialog.Description>
           <FocusTrap
-            active={true} // The trap is always active when the modal is open
+            active={!isFocusLocked} // The trap is always active when the modal is open
             focusTrapOptions={{
               // Set the initial focus to the first poster in the grid
               initialFocus: () => gridContainerRef.current?.querySelector('button') as HTMLElement,

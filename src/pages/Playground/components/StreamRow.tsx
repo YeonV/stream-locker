@@ -5,6 +5,7 @@ import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface StreamRowProps {
   title: string;
@@ -21,6 +22,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
 
   const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
+  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const filteredStreams = useMemo(() => {
     if (!searchTerm) {
       return streams;
@@ -91,7 +93,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
       </div>
       
       <FocusTrap
-        active={isFocusTrapActive}
+        active={!isFocusLocked && isFocusTrapActive}
         focusTrapOptions={{
           onDeactivate: () => setIsFocusTrapActive(false),
           initialFocus: () => {
