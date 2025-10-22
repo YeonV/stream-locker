@@ -7,7 +7,9 @@ import { DataSyncPanel } from './components/DataSyncPanel';
 import { FiCpu, FiHardDrive, FiMonitor, FiLoader } from 'react-icons/fi';
 
 export const GeneralView = () => {
-  const { device, engine, mode } = useEnvStore();
+  const device = useEnvStore(state => state.device);
+  const engine = useEnvStore(state => state.engine);
+  const mode = useEnvStore(state => state.mode);
   const { xtreamApi } = useApiStore();
   
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -27,11 +29,6 @@ export const GeneralView = () => {
     };
     fetchProfile();
   }, [xtreamApi]);
-
-  const appInfo = 
-    engine === 'web' 
-      ? { title: 'Platform', value: device, Icon: FiMonitor }
-      : { title: 'Mode', value: mode, Icon: FiHardDrive };
 
   // Loading and Error states are now handled within the main layout
   if (isLoadingProfile) {
@@ -73,6 +70,13 @@ export const GeneralView = () => {
            <div className="space-y-3 text-sm">
              <div className="flex justify-between items-center">
                <div className="flex items-center gap-3">
+                 <FiMonitor className="text-text-tertiary" />
+                 <span className="text-text-secondary">Device:</span>
+               </div>
+               <span className="font-mono">{device}</span>
+             </div>
+             <div className="flex justify-between items-center">
+               <div className="flex items-center gap-3">
                  <FiCpu className="text-text-tertiary" />
                  <span className="text-text-secondary">Engine:</span>
                </div>
@@ -80,11 +84,12 @@ export const GeneralView = () => {
              </div>
              <div className="flex justify-between items-center">
                <div className="flex items-center gap-3">
-                 <appInfo.Icon className="text-text-tertiary" />
-                 <span className="text-text-secondary">{appInfo.title}:</span>
+                 <FiHardDrive className="text-text-tertiary" />
+                 <span className="text-text-secondary">Mode:</span>
                </div>
-               <span className="font-mono">{appInfo.value}</span>
+               <span className="font-mono">{mode}</span>
              </div>
+
            </div>
         </div>
       </div>

@@ -58,14 +58,19 @@ export const PlaygroundLayout = () => {
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
-  // const headerRef = useRef<HTMLElement>(null);
-  // const contentRef = useRef<HTMLElement | null>(null);
-  // useHotkeys('MediaRewind', () => {
-  //   headerRef.current?.querySelector('a')?.focus();
-  // }, { preventDefault: true });
-  // useHotkeys('MediaFastForward', () => {
-  //   contentRef.current?.focus();
-  // }, { preventDefault: true });
+//   const headerRef = useRef<HTMLElement>(null);
+//   const contentRef = useRef<HTMLElement | null>(null);
+// const registerContentRef = useCallback((node: HTMLElement | null) => {
+//     contentRef.current = node;
+//   }, []);  
+
+// useHotkeys('MediaRewind', () => {
+//   headerRef.current?.querySelector('a')?.focus();
+// }, { preventDefault: true });
+
+// useHotkeys('MediaFastForward', () => {
+//   contentRef.current?.focus();
+// }, { preventDefault: true });
 
 
   useEffect(() => {

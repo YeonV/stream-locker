@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'; // Added useCallback
+import { useState, useMemo, useRef, useEffect } from 'react'; // --- NEW: Added useEffect ---
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -7,6 +7,7 @@ import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
 
+// --- No changes to this section ---
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
     const bHasValidImage = b.imageUrl && (b.imageUrl.endsWith('.jpg') || b.imageUrl.endsWith('.png')) && !b.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -18,11 +19,11 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
 const ROW_GAP_UNIT = 12;
 const ROW_GAP_PX = ROW_GAP_UNIT * 4;
 const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
+// --- End of unchanged section ---
 
-// We no longer need ROW_ESTIMATED_HEIGHT or ROW_GAP constants.
 
 export const MoviesView = () => {
-    // --- All original state and memoization is unchanged ---
+    // --- All state and memoization is unchanged ---
     const moviesStreams: Movie[] = useDataStore(state => state.movies);
     const moviesCategories: Category[] = useDataStore(state => state.moviesCategories);
     const [selectedMovie, setSelectedMovie] = useState<MovieInfo | null>(null);
@@ -63,15 +64,10 @@ export const MoviesView = () => {
     const handleMoviePosterClick = async (vodId: number) => { const info = await xtreamApi?.getMovieInfo(vodId); setSelectedMovie(info as MovieInfo); };
     const handleCloseModals = () => { setSelectedMovie(null);};
 
-    // --- NEW: Connect to the Parent's Navigation System ---
     const parentRef = useRef<HTMLDivElement>(null);
-
-    // This callback ref is the magic. It assigns the DOM node to BOTH refs
-    // --- END NEW ---
 
     const rowVirtualizer = useVirtualizer({
         count: moviesCategories.length,
-        // The virtualizer now gets its ref from our local variable
         getScrollElement: () => parentRef.current,
         estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
         overscan: 3,
@@ -81,8 +77,32 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
+    // --- NEW: useEffect to set initial focus ---
+    useEffect(() => {
+        // This effect runs when the component has measured row heights (`isReady`)
+        // and has categories to display.
+        if (isReady && moviesCategories.length > 0) {
+            // Because of virtualization, the first row (index 0) will always be
+            // mounted initially. We can reliably select its button.
+            const firstCategoryName = moviesCategories[0].category_name;
+            const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
+            const selector = `[data-testid="trap-button-${sanitizedName}"]`;
+            
+            const firstTrapButton = document.querySelector(selector) as HTMLElement;
+
+            if (firstTrapButton) {
+                // We've found the button, now focus it to bridge the gap
+                // from the sidebar/header into our content area.
+                firstTrapButton.focus();
+            }
+        }
+    // We depend on `isReady` and `moviesCategories` to ensure this runs
+    // only when the UI is ready and data is available.
+    }, [isReady, moviesCategories]);
+    // --- END NEW ---
+
+
     return (
-        // Assign the combinedRef and add tabIndex to make the container focusable
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (

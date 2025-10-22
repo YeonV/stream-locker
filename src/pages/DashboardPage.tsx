@@ -5,7 +5,7 @@ import { usePlayerStore } from '../store/playerStore';
 import { playVideo } from 'tauri-plugin-videoplayer-api';
 import { Dashboard } from './Dashboard/Dashboard';
 import { useUiContextStore } from '../store/uiContextStore';
-import { useOrientation } from '../hooks/useOrientation';
+// import { useOrientation } from '../hooks/useOrientation';
 import type { Playlist, XtreamPlaylist, Channel, GroupedChannels, M3uPlaylist } from '../types/playlist';
 import parser from 'iptv-playlist-parser';
 
@@ -33,8 +33,7 @@ const DashboardPage = () => {
   const [viewMode, setViewMode] = useState<'grouped' | 'flat'>('flat');
   const [searchTerm, setSearchTerm] = useState('');
   const apk = !!import.meta.env.VITE_APK;
-  const orientation = useOrientation();
-  console.log('Current orientation:', orientation);
+
   const setUiContext = useUiContextStore(state => state.setContext);
 
   useEffect(() => {

@@ -4,6 +4,7 @@ import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 interface StreamRowProps {
   title: string;
@@ -16,6 +17,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
@@ -32,6 +34,9 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
     setSearchTerm('');
     setIsSearchOpen(false);
   };
+  useHotkeys(['MediaFastForward', 'ctrl+alt+f'], () => {
+    buttonRef.current?.focus();
+  }, { preventDefault: true });
 
   return (
     <div className="mt-4">
@@ -40,9 +45,11 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
           {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
         </h2>
         <div className="flex items-center gap-2">
-          <button 
+          <button
+            ref={buttonRef}
             onClick={() => setIsFocusTrapActive(!isFocusTrapActive)}
             className={`px-3 py-1 text-xs rounded-md ${isFocusTrapActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+            data-testid={`trap-button-${title.replace(/\s+/g, '-')}`}
           >
             {isFocusTrapActive ? 'TRAP ON' : 'TRAP OFF'}
           </button>
