@@ -3,7 +3,7 @@ import { FiGrid, FiSearch, FiX } from 'react-icons/fi';
 import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
-import type FocusTrap from 'focus-trap-react';
+import { FocusTrap } from 'focus-trap-react';
 
 interface StreamRowProps {
   title: string;
