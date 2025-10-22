@@ -77,13 +77,8 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
-    // --- NEW: useEffect to set initial focus ---
     useEffect(() => {
-        // This effect runs when the component has measured row heights (`isReady`)
-        // and has categories to display.
         if (isReady && moviesCategories.length > 0) {
-            // Because of virtualization, the first row (index 0) will always be
-            // mounted initially. We can reliably select its button.
             const firstCategoryName = moviesCategories[0].category_name;
             const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
             const selector = `[data-testid="trap-button-${sanitizedName}"]`;
@@ -91,16 +86,10 @@ export const MoviesView = () => {
             const firstTrapButton = document.querySelector(selector) as HTMLElement;
 
             if (firstTrapButton) {
-                // We've found the button, now focus it to bridge the gap
-                // from the sidebar/header into our content area.
                 firstTrapButton.focus();
             }
         }
-    // We depend on `isReady` and `moviesCategories` to ensure this runs
-    // only when the UI is ready and data is available.
     }, [isReady, moviesCategories]);
-    // --- END NEW ---
-
 
     return (
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>

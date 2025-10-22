@@ -41,19 +41,22 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between mb-2 px-2">
-        <h2 className="text-xl font-bold text-text-primary">
-          {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
-        </h2>
+        <button
+          ref={buttonRef}
+          onClick={() => setIsFocusTrapActive(!isFocusTrapActive)}
+          data-testid={`trap-button-${title.replace(/\s+/g, '-')}`}
+          // Basic styling to make it behave like a text block, plus focus styles
+          className="text-left focus:outline-none focus:ring-2 focus:ring-primary-focus rounded-md -ml-2 p-2"
+        >
+          <h2 className="text-xl font-bold text-text-primary">
+            {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
+          </h2>
+          {/* Add a visual indicator for the active trap state */}
+          {isFocusTrapActive && (
+            <div className="w-1/2 h-1 bg-primary mt-1 rounded-full"></div>
+          )}
+        </button>
         <div className="flex items-center gap-2">
-          <button
-            ref={buttonRef}
-            onClick={() => setIsFocusTrapActive(!isFocusTrapActive)}
-            className={`px-3 py-1 text-xs rounded-md ${isFocusTrapActive ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
-            data-testid={`trap-button-${title.replace(/\s+/g, '-')}`}
-          >
-            {isFocusTrapActive ? 'TRAP ON' : 'TRAP OFF'}
-          </button>
-
           <div className="relative">
             <input
               ref={inputRef}
