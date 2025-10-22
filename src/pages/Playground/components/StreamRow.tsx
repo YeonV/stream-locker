@@ -100,9 +100,22 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
           },
           // Allow clicks outside to deactivate, useful for debugging with a mouse
           clickOutsideDeactivates: true, 
+          returnFocusOnDeactivate: true,
         }}
       >
-        <div data-row-title={title}>
+        <div data-row-title={title} onKeyDown={(e) => {
+          // If the trap is active and the user presses Up or Down...
+          if (isFocusTrapActive && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+            // ...prevent the default browser behavior...
+            e.preventDefault();
+            // ...and deactivate the trap.
+            setIsFocusTrapActive(false);
+          }
+        }}
+        // We need to make this div focusable for the keydown event to reliably fire
+        // when its children have focus. -1 removes it from the natural tab order.
+        tabIndex={-1} 
+        className="focus:outline-none">
           <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
         </div>
       </FocusTrap>

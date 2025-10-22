@@ -17,12 +17,32 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
   const gridContainerRef = useRef<HTMLDivElement>(null);
 
   // --- "HISTORY HIJACK" FOR BACK BUTTON ---
+    const isMountedGuard = useRef(false);
+
+  // --- REVISED "HISTORY HIJACK" FOR BACK BUTTON ---
   useEffect(() => {
+    // Push the state as before.
     window.history.pushState({ modal: 'grid' }, '');
-    const handlePopState = () => onClose();
+
+    const handlePopState = () => {
+      // CRITICAL CHECK: Use the ref defined at the top level of the component.
+      if (isMountedGuard.current) {
+        onClose();
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
+    
+    // Use a tiny timeout to set the guard flag's .current property.
+    const timeoutId = setTimeout(() => {
+      isMountedGuard.current = true;
+    }, 100);
+
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener('popstate', handlePopState);
+      
+      // The cleanup logic for going back remains the same.
       if (window.history.state?.modal === 'grid') {
         window.history.back();
       }
