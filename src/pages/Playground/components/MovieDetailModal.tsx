@@ -8,6 +8,7 @@ import type { Movie, MovieInfo } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
 import { useRef } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { usePlayerStore } from '../../../store/playerStore';
 
 interface MovieDetailModalProps {
   movie: MovieInfo;
@@ -17,6 +18,7 @@ interface MovieDetailModalProps {
 export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const { info, movie_data } = movie;
   const backdropUrl = info.backdrop_path?.[0];
+  const isPlayerActive = usePlayerStore(state => !!state.currentStreamUrl); 
 
   const setUiContext = useUiContextStore(state => state.setContext);
   const { play } = usePlayback();
@@ -44,8 +46,10 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
         <Dialog.Content 
           className="fixed inset-4 z-50 bg-background-primary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 animate-in fade-in-0 zoom-in-95 max-w-desktop"
         >
+          <Dialog.Title className="sr-only">Movie Details: {info.name}</Dialog.Title>
+          <Dialog.Description className="sr-only">Details and actions for the selected movie.</Dialog.Description>
           <FocusTrap
-            active={true}
+            active={!isPlayerActive}
             focusTrapOptions={{
               initialFocus: () => actionsContainerRef.current?.querySelector('button') as HTMLElement,
               onDeactivate: onClose,

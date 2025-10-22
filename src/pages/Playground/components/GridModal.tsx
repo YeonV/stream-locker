@@ -39,7 +39,8 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
         <Dialog.Content 
           className="fixed inset-4 z-50 bg-background-secondary rounded-lg overflow-hidden shadow-2xl shadow-primary/20 flex flex-col animate-in fade-in-0 zoom-in-95"
         >
-          {/* --- NEW: Wrap the content in FocusTrap --- */}
+          <Dialog.Title className="sr-only">{title} Grid View</Dialog.Title>
+          <Dialog.Description className="sr-only">A grid view of all available streams for {title}.</Dialog.Description>
           <FocusTrap
             active={true} // The trap is always active when the modal is open
             focusTrapOptions={{

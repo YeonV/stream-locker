@@ -66,12 +66,9 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setIsSearchOpen(true)}
               onBlur={() => { if (!searchTerm) setIsSearchOpen(false); }}
-              className={`h-9 pl-8 pr-3 py-0 text-text-primary bg-background-secondary border border-border-primary rounded-md text-sm focus:ring-2 focus:ring-primary-focus focus:outline-none transition-all duration-300 ${isSearchOpen || searchTerm ? 'w-64' : 'w-9'}`}
+              className={`h-8.5 pr-3 py-0 text-text-primary bg-background-secondary border border-border-primary rounded-md text-sm focus:ring-2 focus:ring-primary-focus focus:outline-none transition-all duration-300 ${isSearchOpen || searchTerm ? 'w-64 pl-8 ' : 'w-7 pl-5 '} `}
             />
-            <FiSearch className={`absolute left-2 top-1/2 -translate-y-1/2 transition-colors ${isSearchOpen || searchTerm ? 'text-primary' : 'text-text-tertiary'}`} size={16} onClick={()=>{
-              setIsSearchOpen(true)
-              inputRef.current?.focus();
-              }} />
+            <FiSearch className={`absolute pointer-events-none left-2 top-1/2 -translate-y-1/2 transition-colors ${isSearchOpen || searchTerm ? 'text-primary' : 'text-text-tertiary'}`} size={16} />
             {(isSearchOpen || searchTerm) && (
               <button 
                 onClick={handleCloseSearch}

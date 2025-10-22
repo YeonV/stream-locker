@@ -89,10 +89,27 @@ export const GeneralView = () => {
                </div>
                <span className="font-mono">{mode}</span>
              </div>
-
            </div>
         </div>
       </div>
+
+      <div className="p-6 bg-background-secondary rounded-lg border border-border-primary">
+           <h2 className="text-xl font-bold mb-4">Dev Diagnostics</h2>
+           <div className="space-y-3 text-sm">
+            <div className="flex justify-between items-center">
+              <span className="text-text-secondary">User Agent:</span>
+              <span className="font-mono">{navigator.userAgent}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-text-secondary">Vendor:</span>
+              <span className="font-mono">{navigator.vendor}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-text-secondary">Product:</span>
+              <span className="font-mono">{navigator.product}</span>
+            </div>
+           </div>
+        </div>
     </div>
   );
 };

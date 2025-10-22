@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FiGrid, FiFilm, FiTv, FiCode, FiSettings, FiX, FiLogOut } from 'react-icons/fi';
 import { FaTv, FaThList } from 'react-icons/fa';
@@ -58,19 +58,27 @@ export const PlaygroundLayout = () => {
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
-//   const headerRef = useRef<HTMLElement>(null);
-//   const contentRef = useRef<HTMLElement | null>(null);
-// const registerContentRef = useCallback((node: HTMLElement | null) => {
-//     contentRef.current = node;
-//   }, []);  
+  const headerNavRef = useRef<HTMLElement>(null);
 
-// useHotkeys('MediaRewind', () => {
-//   headerRef.current?.querySelector('a')?.focus();
-// }, { preventDefault: true });
+  useEffect(() => {
+    const navElement = headerNavRef.current;
+    if (!navElement) return;
 
-// useHotkeys('MediaFastForward', () => {
-//   contentRef.current?.focus();
-// }, { preventDefault: true });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
+        if (firstRowTitleButton) {
+          firstRowTitleButton.focus();
+        }
+      }
+    };
+
+    navElement.addEventListener('keydown', handleKeyDown);
+    return () => {
+      navElement.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); 
 
 
   useEffect(() => {
@@ -132,7 +140,7 @@ export const PlaygroundLayout = () => {
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <header className={`flex items-center justify-between ${apk ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <nav className="flex items-center space-x-1 w-full ">
+          <nav ref={headerNavRef} id="main-nav" className="flex items-center space-x-1 w-full ">
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
             
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {
