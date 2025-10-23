@@ -6,8 +6,8 @@ import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
+import { useHotkeys } from 'react-hotkeys-hook';
 
-// --- No changes to this section ---
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
     const bHasValidImage = b.imageUrl && (b.imageUrl.endsWith('.jpg') || b.imageUrl.endsWith('.png')) && !b.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -19,11 +19,11 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
 const ROW_GAP_UNIT = 12;
 const ROW_GAP_PX = ROW_GAP_UNIT * 4;
 const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
-// --- End of unchanged section ---
 
 
 export const MoviesView = () => {
     // --- All state and memoization is unchanged ---
+    const parentRef = useRef<HTMLDivElement>(null);
     const moviesStreams: Movie[] = useDataStore(state => state.movies);
     const moviesCategories: Category[] = useDataStore(state => state.moviesCategories);
     const [selectedMovie, setSelectedMovie] = useState<MovieInfo | null>(null);
@@ -31,7 +31,8 @@ export const MoviesView = () => {
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
-    // --- END NEW ---
+    const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
+
 
     // Data memoization logic is unchanged and correct
     const moviesStreamsById = useMemo(() => {
@@ -64,7 +65,6 @@ export const MoviesView = () => {
     const handleMoviePosterClick = async (vodId: number) => { const info = await xtreamApi?.getMovieInfo(vodId); setSelectedMovie(info as MovieInfo); };
     const handleCloseModals = () => { setSelectedMovie(null);};
 
-    const parentRef = useRef<HTMLDivElement>(null);
 
     const rowVirtualizer = useVirtualizer({
         count: moviesCategories.length,
@@ -78,41 +78,59 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
-    // useEffect(() => {
-    //     if (isReady && moviesCategories.length > 0) {
-    //         const firstCategoryName = moviesCategories[0].category_name;
-    //         const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
-    //         const selector = `[data-testid="trap-button-${sanitizedName}"]`;
-            
-    //         const firstTrapButton = document.querySelector(selector) as HTMLElement;
+    useHotkeys('arrowup', (e) => {
+        e.preventDefault();
+        setActiveRowIndex(prev => {
+            if (prev === null || prev === 0) return null; // Exit to header
+            return prev - 1;
+        });
+    }, { enableOnFormTags: true });
 
-    //         if (firstTrapButton) {
-    //             firstTrapButton.focus();
-    //         }
-    //     }
-    // }, [isReady, moviesCategories]);
+    // useHotkeys('arrowdown', (e) => {
+    //     e.preventDefault();
+    //     setActiveRowIndex(prev => {
+    //         if (prev === null) return 0; // Enter from header
+    //         const maxIndex = moviesCategories.length - 1;
+    //         if (prev >= maxIndex) return maxIndex; // Don't go past the end
+    //         return prev + 1;
+    //     });
+    // }, { enableOnFormTags: true });
+    useEffect(() => {
+        const handleFocusRequest = () => setActiveRowIndex(0);
+        window.addEventListener('focus-content', handleFocusRequest);
+        return () => window.removeEventListener('focus-content', handleFocusRequest);
+    }, []);
+    
+    // --- NEW: EFFECT to handle focus changes and scrolling ---
+    useEffect(() => {
+        if (activeRowIndex === null) {
+            // Focus should return to the header
+            const headerNavElement = document.getElementById('main-nav');
+            const activeLink = headerNavElement?.querySelector('[aria-current="page"]') as HTMLElement;
+            (activeLink || headerNavElement?.querySelector('a'))?.focus();
+            return;
+        }
 
-   useEffect(() => {
-        // We add a setTimeout to ensure the DOM is fully ready.
-        // This helps defeat race conditions.
-        const timer = setTimeout(() => {
-            if (isReady && moviesCategories.length > 0) {
-                const firstCategoryName = moviesCategories[0].category_name;
-                const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
-                const selector = `[data-testid="trap-button-${sanitizedName}"]`;
-                
-                // Use the parentRef to scope the search. More reliable.
-                const firstTrapButton = parentRef.current?.querySelector(selector) as HTMLElement;
+        // Find the container of the newly active row
+        const activeRowTitle = moviesCategories[activeRowIndex]?.category_name;
+        if (!activeRowTitle) return;
 
-                if (firstTrapButton) {
-                    firstTrapButton.focus();
-                }
-            }
-        }, 100); // 100ms delay for safety
+        const rowElement = parentRef.current?.querySelector(`[data-row-title="${activeRowTitle}"]`) as HTMLElement;
+        if (rowElement) {
+            // Scroll the element into view smoothly
+            rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus is handled by the FocusTrap's initialFocus, so we don't need to do it here.
+        }
+    }, [activeRowIndex, moviesCategories]);
+    
+    // --- REVISED INITIAL FOCUS ---
+    useEffect(() => {
+      // On initial load, set the first row as active.
+      if (isReady && moviesCategories.length > 0) {
+        setActiveRowIndex(0);
+      }
+    }, [isReady, moviesCategories.length]);
 
-        return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isReady, moviesCategories.length]); 
 
     return (
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
@@ -122,6 +140,7 @@ export const MoviesView = () => {
                         title="Sizer"
                         streams={sizerItems}
                         onPosterClick={() => {}}
+                        isActive={false}
                     />
                 )}
             </div>
@@ -150,6 +169,7 @@ export const MoviesView = () => {
                                     title={category.category_name}
                                     streams={sortedItems}
                                     onPosterClick={handleMoviePosterClick}
+                                    isActive={virtualRow.index === activeRowIndex}
                                 />
                             </div>
                         )

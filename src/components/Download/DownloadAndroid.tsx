@@ -70,7 +70,7 @@ const DownloadAndroid = () => {
   const copyDownloaderCode = useCallback(async (releaseBody: string) => {
     const downloaderCode = extractDownloaderCode(releaseBody);
     
-    if (downloaderCode) {
+    if (downloaderCode && downloaderCode !== "00000000") {
       try {
         await writeText(downloaderCode);
         console.log("Downloader Code copied to clipboard:", downloaderCode);

@@ -4,7 +4,6 @@ import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { useUiContextStore } from '../../../store/uiContextStore';
 import { useEnvStore } from '../../../store/envStore';
 
@@ -12,16 +11,18 @@ interface StreamRowProps {
   title: string;
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
+  isActive: boolean;
 }
 
-export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => {
+export const StreamRow = ({ title, streams, onPosterClick, isActive }: StreamRowProps) => {
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  // const inputRef = useRef<HTMLInputElement>(null);
+  // const buttonRef = useRef<HTMLButtonElement>(null);
+  const rowContainerRef = useRef<HTMLDivElement>(null);
 
-  const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
+  // const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
   const device = useEnvStore(state => state.device);
   const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
@@ -38,32 +39,27 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
     setSearchTerm('');
     setIsSearchOpen(false);
   };
-  useHotkeys(['MediaFastForward', 'ctrl+alt+f'], () => {
-    buttonRef.current?.focus();
-  }, { preventDefault: true });
+  // useHotkeys(['MediaFastForward', 'ctrl+alt+f'], () => {
+  //   buttonRef.current?.focus();
+  // }, { preventDefault: true });
 
   return (
-    <div className="mt-4">
+    <div ref={rowContainerRef} data-row-title={title} className="mt-4">
       <div className="flex items-center justify-between mb-2 px-2">
-        <button
-          ref={buttonRef}
-          onClick={() => setIsFocusTrapActive(!isFocusTrapActive)}
-          data-testid={`trap-button-${title.replace(/\s+/g, '-')}`}
-          // Basic styling to make it behave like a text block, plus focus styles
-          className="text-left focus:outline-none focus:ring-2 focus:ring-primary-focus rounded-md -ml-2 p-2"
-        >
+         {/* The title is no longer a button */}
+        <div className="text-left p-2">
           <h2 className="text-xl font-bold text-text-primary">
             {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
           </h2>
-          {/* Add a visual indicator for the active trap state */}
-          {isFocusTrapActive && (
+          {/* The visual indicator is now controlled by the isActive prop */}
+          {isActive && (
             <div className="w-1/2 h-1 bg-primary mt-1 rounded-full"></div>
           )}
-        </button>
+        </div>
         {device !== 'firetv' && <div className="flex items-center gap-2">
           <div className="relative">
             <input
-              ref={inputRef}
+              // ref={inputRef}
               type="text"
               placeholder="Search..."
               value={searchTerm}
@@ -95,32 +91,13 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
       </div>
       
       <FocusTrap
-        active={!isFocusLocked && isFocusTrapActive}
+        active={!isFocusLocked && isActive}
         focusTrapOptions={{
-          // onDeactivate: () => setIsFocusTrapActive(false),
-          initialFocus: () => {
-            const container = document.querySelector(`[data-row-title="${title}"]`);
-            return container?.querySelector('button') as HTMLElement;
-          },
+          initialFocus: () => rowContainerRef.current?.querySelector('button') as HTMLElement,
           returnFocusOnDeactivate: false
-          // Allow clicks outside to deactivate, useful for debugging with a mouse
-          // clickOutsideDeactivates: true, 
-          // returnFocusOnDeactivate: true,
         }}
       >
-        <div data-row-title={title} onKeyDown={(e) => {
-          // If the trap is active and the user presses Up or Down...
-          if (isFocusTrapActive && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-            // ...prevent the default browser behavior...
-            e.preventDefault();
-            // ...and deactivate the trap.
-            setIsFocusTrapActive(false);
-          }
-        }}
-        // We need to make this div focusable for the keydown event to reliably fire
-        // when its children have focus. -1 removes it from the natural tab order.
-        tabIndex={-1} 
-        className="focus:outline-none">
+        <div>
           <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
         </div>
       </FocusTrap>

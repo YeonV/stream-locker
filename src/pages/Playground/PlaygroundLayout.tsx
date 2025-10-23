@@ -57,7 +57,14 @@ export const PlaygroundLayout = () => {
 
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
-
+  useHotkeys('arrowdown', (e) => {
+      const isFocusInHeader = document.activeElement?.closest('#main-nav') !== null;
+      if (isFocusInHeader) {
+          e.preventDefault();
+          // Fire a custom event that the child view can listen for.
+          window.dispatchEvent(new CustomEvent('focus-content'));
+      }
+  }, { enableOnFormTags: true });
 
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {
