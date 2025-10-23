@@ -7,7 +7,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import type { Movie, MovieInfo } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
 import { useRef } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
+// import { useHotkeys } from 'react-hotkeys-hook';
 
 interface MovieDetailModalProps {
   movie: MovieInfo;
@@ -24,10 +24,10 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
   const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const actionsContainerRef = useRef<HTMLDivElement>(null);
 
-  useHotkeys('MediaRewind', onClose, {
-    enableOnContentEditable: true,
-    enableOnFormTags: true,
-  });
+  // useHotkeys('MediaRewind', onClose, {
+  //   enableOnContentEditable: true,
+  //   enableOnFormTags: true,
+  // });
 
   const handlePlayClick = () => {
     if (typeof movie_data.stream_id === 'number') {

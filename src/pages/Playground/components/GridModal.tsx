@@ -3,7 +3,7 @@ import { FiX } from 'react-icons/fi';
 import { StreamGrid } from './StreamGrid';
 import type { PosterItem } from '../../../types/playlist';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useHotkeys } from 'react-hotkeys-hook';
+// import { useHotkeys } from 'react-hotkeys-hook';
 import { FocusTrap } from 'focus-trap-react';
 import { useUiContextStore } from '../../../store/uiContextStore';
 
@@ -18,10 +18,10 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
-  useHotkeys('MediaRewind', onClose, {
-    enableOnContentEditable: true,
-    enableOnFormTags: ['input', 'select', 'textarea'],
-  });
+  // useHotkeys('MediaRewind', onClose, {
+  //   enableOnContentEditable: true,
+  //   enableOnFormTags: ['input', 'select', 'textarea'],
+  // });
   
   // The 'history hijack' can now be safely removed as it was unreliable.
   // The 'manual bridge' from the close button is also no longer needed,

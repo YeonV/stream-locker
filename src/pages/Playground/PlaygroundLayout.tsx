@@ -58,19 +58,32 @@ export const PlaygroundLayout = () => {
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
-  useHotkeys('arrowdown', (e) => {
-      // --- THIS IS THE MODIFIED LOGIC ---
-      
-      // Define pages where we DON'T want the jump behavior.
-      const isExcludedPage = pathname.startsWith('/playground/settings');
-      
-      // Check if the currently focused element is inside our header.
-      const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
+  // useHotkeys('arrowdown', (e) => {
+  //     const isExcludedPage = false // pathname.startsWith('/playground/settings');
+  //     const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
+  //     console.log('isExcludedPage:', isExcludedPage, 'isFocusInHeader:', isFocusInHeader);
 
-      if (!isExcludedPage && isFocusInHeader) {
+  //     if (!isExcludedPage && isFocusInHeader) {
+  //       e.preventDefault();
+  //       // Find the FIRST focusable element in the <main> content area.
+  //       // This is a more generic and robust selector that will work for any page.
+  //       const mainContent = document.querySelector('main');
+  //       const firstFocusableElement = mainContent?.querySelector(
+  //         'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  //       ) as HTMLElement;
+
+  //       if (firstFocusableElement) {
+  //         firstFocusableElement.focus();
+  //       }
+  //     }
+  //   }, {
+  //     enableOnFormTags: true
+  // });
+
+  useHotkeys('ArrowDown', (e) => {
+      const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
+      if (isFocusInHeader) {
         e.preventDefault();
-        // Find the FIRST focusable element in the <main> content area.
-        // This is a more generic and robust selector that will work for any page.
         const mainContent = document.querySelector('main');
         const firstFocusableElement = mainContent?.querySelector(
           'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
@@ -82,7 +95,67 @@ export const PlaygroundLayout = () => {
       }
     }, {
       enableOnFormTags: true
-    });
+  });
+
+  useHotkeys('MediaFastForward', (e) => {
+        e.preventDefault();
+        const mainContent = document.querySelector('main');
+        const firstFocusableElement = mainContent?.querySelector(
+          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+        ) as HTMLElement;
+
+        if (firstFocusableElement) {
+          firstFocusableElement.focus();
+        }
+      
+    }, {
+      enableOnFormTags: true
+  });
+
+  useHotkeys('MediaRewind', (e) => {
+        e.preventDefault();
+        const header = document.querySelector('#main-nav');
+        const firstFocusableElement = header?.querySelector(
+          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+        ) as HTMLElement;
+
+        if (firstFocusableElement) {
+          firstFocusableElement.focus();
+        }
+      
+    }, {
+      enableOnFormTags: true
+  });
+
+  useHotkeys('MediaPlayPause', (e) => {
+        e.preventDefault();
+        const header = document.querySelector('#main-nav');
+        const mainContent = document.querySelector('main');
+        // Determine where the focus currently is
+        const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
+        
+        if (isFocusInHeader) {
+          // Move focus to main content
+          const firstFocusableElement = mainContent?.querySelector(
+            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+          ) as HTMLElement;
+
+          if (firstFocusableElement) {
+            firstFocusableElement.focus();
+          }
+        } else {
+          // Move focus to header
+          const firstFocusableElement = header?.querySelector(
+            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+          ) as HTMLElement;
+
+          if (firstFocusableElement) {
+            firstFocusableElement.focus();
+          }
+        }
+    }, {
+      enableOnFormTags: true
+  });
 
 
   useEffect(() => {
@@ -145,7 +218,7 @@ export const PlaygroundLayout = () => {
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <header className={`flex items-center justify-between ${device === 'android' ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <nav id="main-nav" className="flex items-center space-x-1 w-full" onKeyDown={(e) => {
+          <div id="main-nav" className="flex items-center space-x-1 w-full" onKeyDown={(e) => {
              const isContentPage = pathname.startsWith('/playground/movies') || pathname.startsWith('/playground/series');
 
               if (isContentPage) {
@@ -224,13 +297,13 @@ export const PlaygroundLayout = () => {
               {!isSettings && <Link to="/dashboard" className="p-2 rounded-full hover:bg-background-glass"><FiX size={24} /></Link>}
               {isSettings && <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-background-glass"><FiX size={24} /></button>}
             </div>
-          </nav>
+          </div>
         </div>
       </header>
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
       </main>
-      <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
+      {device !== 'firetv' &&<div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
         {mobileNavItems.map(({ path, label, Icon }) => {
             // This is the new logic. For 'Movies' and 'Series', we check if the pathname starts with their base path.
             // For all others, we use the default strict 'isActive' check.
@@ -251,7 +324,7 @@ export const PlaygroundLayout = () => {
                 </NavLink>
             );
         })}
-    </div>
+    </div>}
     </div>
   );
 };
