@@ -1,8 +1,24 @@
 import { FiPlay } from 'react-icons/fi';
 import type { PosterItem } from '../../../types/playlist';
 import { FaStar } from 'react-icons/fa';
+import { useEffect, useRef } from 'react';
 
-export const Poster = ({ stream, onClick }: { stream: PosterItem, onClick: () => void; }) => {
+interface PosterProps {
+    stream: PosterItem;
+    onClick: () => void;
+    rowIndex?: number;
+    colIndex?: number;
+}
+
+export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => {
+    const postRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (rowIndex === 0 && colIndex === 0) {
+            postRef?.current?.focus();
+        }
+    }, [rowIndex, colIndex]);
+    
     const content = (dummy?: boolean) => {
         return (
             <>
@@ -39,7 +55,7 @@ export const Poster = ({ stream, onClick }: { stream: PosterItem, onClick: () =>
     return (
         <button
             onClick={onClick}
-            // FOCUS: Converted to a button for better accessibility
+            ref={postRef}
             className="relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
                      hover:-translate-y-1 transition-transform duration-200 cursor-pointer shadow-lg 
                      focus:outline-none focus:ring-4 focus:ring-primary-focus focus:z-10"

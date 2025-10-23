@@ -90,7 +90,7 @@ export const MoviesView = () => {
 
             {isReady && (
                 <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                    {virtualRows.map((virtualRow) => {
+                    {virtualRows.map((virtualRow, rowIndex) => {
                         const category = moviesCategories[virtualRow.index];
                         if (!category) return null;
 
@@ -112,6 +112,7 @@ export const MoviesView = () => {
                                     title={category.category_name}
                                     streams={sortedItems}
                                     onPosterClick={handleMoviePosterClick}
+                                    rowIndex={rowIndex}
                                 />
                             </div>
                         )
