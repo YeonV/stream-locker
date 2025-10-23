@@ -56,7 +56,7 @@ const Footer = () => {
     const [isForwardActive, setIsForwardActive] = useState(false);
     const [currentFocusedElement, setCurrentFocusedElement] = useState<Element | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [currentFocus, setCurrentFocus] = useState<'main' | 'header' | null>(null);
+    // const [currentFocus, setCurrentFocus] = useState<'main' | 'header' | null>(null);
 
     // const [showFullRemote, setShowFullRemote] = useState(false);
     // const sendMediaKeyEvent = (action: 'MediaRewind' | 'MediaPlayPause' | 'MediaFastForward') => {
@@ -98,16 +98,13 @@ const Footer = () => {
             setCurrentFocusedElement(document.activeElement);
             if (document.activeElement.closest('main')) {
                 console.log('Focus is inside <main>');
-                setCurrentFocus('main');
                 setPlay('Focus Header');
             }
             else if (document.activeElement.closest('header')) {
                 console.log('Focus is inside <header>');
-                setCurrentFocus('header');
                 setPlay('Focus Main');
             } else {
                 console.log('Focused Element Changed:', document.activeElement);
-                setCurrentFocus(null);
             }
         }
       };
