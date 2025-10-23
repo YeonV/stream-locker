@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect  } from 'react'; // --- NEW: Added useEffect ---
+import { useState, useMemo, useRef } from 'react';
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -6,7 +6,6 @@ import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -31,7 +30,6 @@ export const MoviesView = () => {
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
-    const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
 
 
     // Data memoization logic is unchanged and correct
@@ -78,46 +76,6 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
-    useHotkeys('arrowup', (e) => {
-        e.preventDefault();
-        setActiveRowIndex(prev => {
-            if (prev === null || prev === 0) return null; // Exit to header
-            return prev - 1;
-        });
-    }, { enableOnFormTags: true });
-
-    
-    // --- NEW: EFFECT to handle focus changes and scrolling ---
-    useEffect(() => {
-        if (activeRowIndex === null) {
-            // Focus should return to the header
-            const headerNavElement = document.getElementById('main-nav');
-            const activeLink = headerNavElement?.querySelector('[aria-current="page"]') as HTMLElement;
-            (activeLink || headerNavElement?.querySelector('a'))?.focus();
-            return;
-        }
-
-        // Find the container of the newly active row
-        const activeRowTitle = moviesCategories[activeRowIndex]?.category_name;
-        if (!activeRowTitle) return;
-
-        const rowElement = parentRef.current?.querySelector(`[data-row-title="${activeRowTitle}"]`) as HTMLElement;
-        if (rowElement) {
-            // Scroll the element into view smoothly
-            rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Focus is handled by the FocusTrap's initialFocus, so we don't need to do it here.
-        }
-    }, [activeRowIndex, moviesCategories]);
-    
-    // --- REVISED INITIAL FOCUS ---
-    useEffect(() => {
-      // On initial load, set the first row as active.
-      if (isReady && moviesCategories.length > 0) {
-        setActiveRowIndex(0);
-      }
-    }, [isReady, moviesCategories.length]);
-
-
     return (
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
@@ -126,7 +84,6 @@ export const MoviesView = () => {
                         title="Sizer"
                         streams={sizerItems}
                         onPosterClick={() => {}}
-                        isActive={false}
                     />
                 )}
             </div>
@@ -155,7 +112,6 @@ export const MoviesView = () => {
                                     title={category.category_name}
                                     streams={sortedItems}
                                     onPosterClick={handleMoviePosterClick}
-                                    isActive={virtualRow.index === activeRowIndex}
                                 />
                             </div>
                         )

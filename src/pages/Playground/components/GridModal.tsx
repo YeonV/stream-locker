@@ -4,8 +4,6 @@ import { StreamGrid } from './StreamGrid';
 import type { PosterItem } from '../../../types/playlist';
 import * as Dialog from '@radix-ui/react-dialog';
 // import { useHotkeys } from 'react-hotkeys-hook';
-import { FocusTrap } from 'focus-trap-react';
-import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface GridModalProps {
   title: string;
@@ -17,7 +15,6 @@ interface GridModalProps {
 export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalProps) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const gridContainerRef = useRef<HTMLDivElement>(null);
-  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   // useHotkeys('MediaRewind', onClose, {
   //   enableOnContentEditable: true,
   //   enableOnFormTags: ['input', 'select', 'textarea'],
@@ -42,20 +39,7 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
         >
           <Dialog.Title className="sr-only">{title} Grid View</Dialog.Title>
           <Dialog.Description className="sr-only">A grid view of all available streams for {title}.</Dialog.Description>
-          <FocusTrap
-            active={!isFocusLocked} // The trap is always active when the modal is open
-            focusTrapOptions={{
-              // Set the initial focus to the first poster in the grid
-              initialFocus: () => gridContainerRef.current?.querySelector('button') as HTMLElement,
-              returnFocusOnDeactivate: false
-              // When the trap is deactivated (e.g., by the component unmounting),
-              // it will try to return focus to whatever opened it.
-              // onDeactivate: onClose,
-              // // Allow clicking outside to close, useful for desktop testing
-              // clickOutsideDeactivates: true,
-            }}
-          >
-            {/* We need a container div for the trap to attach to */}
+
             <div className="flex flex-col h-full">
               <div className="flex justify-between items-center p-4 border-b border-border-primary flex-shrink-0">
                 <Dialog.Title className="text-2xl font-bold text-text-primary">
@@ -80,7 +64,6 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
                 />
               </div>
             </div>
-          </FocusTrap>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

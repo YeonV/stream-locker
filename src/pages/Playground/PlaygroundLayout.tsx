@@ -91,6 +91,16 @@ export const PlaygroundLayout = () => {
 
         if (firstFocusableElement) {
           firstFocusableElement.focus();
+        } else {
+          const firstRow = mainContent?.querySelector('[data-testid="stream-row"]');
+          const firstFocusableElementInRow = firstRow?.querySelector(
+              'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+          ) as HTMLElement;
+
+          if (firstFocusableElementInRow) {
+              firstFocusableElementInRow.focus();
+          }
+
         }
       }
     }, {

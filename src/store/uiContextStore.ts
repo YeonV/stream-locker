@@ -15,9 +15,9 @@ interface UiContextState {
   context: PlaybackContext;
   setContext: (context: PlaybackContext) => void;
   clearContext: () => void;
-  isFocusLocked: boolean; // Is focus locked by a high-priority element (e.g., player)?
-  lockFocus: () => void;   // Call this right BEFORE showing a player
-  unlockFocus: () => void; // Call this right AFTER hiding a player
+  // isFocusLocked: boolean; // Is focus locked by a high-priority element (e.g., player)?
+  // lockFocus: () => void;   // Call this right BEFORE showing a player
+  // unlockFocus: () => void; // Call this right AFTER hiding a player
 }
 
 export const useUiContextStore = create<UiContextState>((set) => ({
@@ -28,7 +28,7 @@ export const useUiContextStore = create<UiContextState>((set) => ({
   clearContext: () => {
     set({ context: null });
   },
-  isFocusLocked: false,
-  lockFocus: () => set({ isFocusLocked: true }),
-  unlockFocus: () => set({ isFocusLocked: false }),
+  // isFocusLocked: false,
+  // lockFocus: () => set({ isFocusLocked: true }),
+  // unlockFocus: () => set({ isFocusLocked: false }),
 }));

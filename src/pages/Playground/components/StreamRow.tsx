@@ -1,31 +1,31 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { FiGrid, FiSearch, FiX } from 'react-icons/fi';
 import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
 import type { PosterItem } from '../../../types/playlist';
-import { FocusTrap } from 'focus-trap-react';
-import { useUiContextStore } from '../../../store/uiContextStore';
+// import { FocusTrap } from 'focus-trap-react';
+// import { useUiContextStore } from '../../../store/uiContextStore';
 import { useEnvStore } from '../../../store/envStore';
 
 interface StreamRowProps {
   title: string;
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
-  isActive?: boolean;
+  // isActive?: boolean;
 }
 
-export const StreamRow = ({ title, streams, onPosterClick, isActive }: StreamRowProps) => {
+export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => {
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   // const inputRef = useRef<HTMLInputElement>(null);
   // const buttonRef = useRef<HTMLButtonElement>(null);
-  const rowContainerRef = useRef<HTMLDivElement>(null);
+  // const rowContainerRef = useRef<HTMLDivElement>(null);
 
   // const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
   const device = useEnvStore(state => state.device);
-  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
+  // const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const filteredStreams = useMemo(() => {
     if (!searchTerm) {
       return streams;
@@ -44,17 +44,13 @@ export const StreamRow = ({ title, streams, onPosterClick, isActive }: StreamRow
   // }, { preventDefault: true });
 
   return (
-    <div ref={rowContainerRef} data-row-title={title} className="mt-4">
+    <div data-testid="stream-row" className="mt-4">
       <div className="flex items-center justify-between mb-2 px-2">
          {/* The title is no longer a button */}
         <div className="text-left p-2">
           <h2 className="text-xl font-bold text-text-primary">
             {title} <span className="text-sm font-normal text-text-tertiary">({filteredStreams.length})</span>
           </h2>
-          {/* The visual indicator is now controlled by the isActive prop */}
-          {isActive && (
-            <div className="w-1/2 h-1 bg-primary mt-1 rounded-full"></div>
-          )}
         </div>
         {device !== 'firetv' && <div className="flex items-center gap-2">
           <div className="relative">
@@ -90,17 +86,8 @@ export const StreamRow = ({ title, streams, onPosterClick, isActive }: StreamRow
         </div>}
       </div>
       
-      <FocusTrap
-        active={!isFocusLocked && isActive}
-        focusTrapOptions={{
-          initialFocus: () => rowContainerRef.current?.querySelector('button') as HTMLElement,
-          returnFocusOnDeactivate: false
-        }}
-      >
-        <div>
-          <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
-        </div>
-      </FocusTrap>
+      
+      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} />
 
       {isGridModalOpen && (
         <GridModal 

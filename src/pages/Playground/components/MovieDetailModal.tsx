@@ -5,8 +5,8 @@ import { SmartPlayButton } from './SmartPlayButton';
 import { WatchTrailerButton } from './WatchTrailerButton';
 import * as Dialog from '@radix-ui/react-dialog';
 import type { Movie, MovieInfo } from '../../../types/playlist';
-import { FocusTrap } from 'focus-trap-react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { FaStar } from 'react-icons/fa';
 // import { useHotkeys } from 'react-hotkeys-hook';
 
 interface MovieDetailModalProps {
@@ -20,23 +20,21 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
 
   const setUiContext = useUiContextStore(state => state.setContext);
   const { play } = usePlayback();
-  const lockFocus = useUiContextStore(state => state.lockFocus);
-  const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const actionsContainerRef = useRef<HTMLDivElement>(null);
-
-  // useHotkeys('MediaRewind', onClose, {
-  //   enableOnContentEditable: true,
-  //   enableOnFormTags: true,
-  // });
-
   const handlePlayClick = () => {
     if (typeof movie_data.stream_id === 'number') {
-      lockFocus();
       setUiContext({ type: 'movie', movie: movie_data as Movie, movieInfo: info });
       play({ type: 'movie', movie: { ...(movie_data as Movie) } });
-      onClose();
+      // onClose();
     }
   };
+
+   useEffect(() => {
+    const timer = setTimeout(() => {
+      actionsContainerRef.current?.querySelector('button')?.focus();
+    }, 50); // Small delay to ensure modal is rendered
+    return () => clearTimeout(timer);
+  }, []);
 
   if (!movie || !info) return null;
 
@@ -49,15 +47,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
         >
           <Dialog.Title className="sr-only">Movie Details: {info.name}</Dialog.Title>
           <Dialog.Description className="sr-only">Details and actions for the selected movie.</Dialog.Description>
-          <FocusTrap
-            active={!isFocusLocked} 
-            focusTrapOptions={{
-              initialFocus: () => actionsContainerRef.current?.querySelector('button') as HTMLElement,
-              returnFocusOnDeactivate: false
-              // onDeactivate: onClose,
-              // clickOutsideDeactivates: true,
-            }}
-          >
+
             <div className="h-full w-full"> 
               <Dialog.Close asChild>
                 <button className="absolute top-3 right-3 z-20 p-2 bg-black/50 rounded-full text-text-primary hover:bg-white hover:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-primary-focus">
@@ -75,7 +65,6 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                 </div>
                   
                 {/* --- SECTION 2: CONTENT --- */}
-                {/* This is the Flex container that lays out the two columns */}
                 <div className="relative -mt-20 px-4 pb-8 sm:px-6 md:flex md:gap-6">
                   
                   {/* Left Side: Poster and Actions */}
@@ -87,8 +76,7 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                     </div>
                   </div>
 
-                  {/* --- FIX IS HERE --- */}
-                  {/* Right Side: Details. This was moved back INSIDE the md:flex container. */}
+                  {/* Right Side: Details. */}
                   <div className="flex-1 mt-6 md:mt-0 text-text-primary">
                     <h1 className="text-3xl font-extrabold">{info.name}</h1>
                     <div className="flex items-center flex-wrap gap-x-3 text-sm text-text-secondary mt-2">
@@ -96,8 +84,8 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                       <span>•</span>
                       <span>{info.duration}</span>
                       <span>•</span>
-                      <span className="font-bold text-primary-focus flex items-center gap-1">
-                        <svg /* ... */ ></svg>
+                      <span className="font-bold text-yellow-400 flex items-center gap-1">
+                        <FaStar className="text-yellow-400" />
                         {parseFloat(info.rating).toFixed(1)}
                       </span>
                     </div>
@@ -109,13 +97,9 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
                       <div className="flex"><strong className="w-20 flex-shrink-0 text-text-tertiary">Details:</strong> <span className="font-mono">{info.video?.width}x{info.video?.height} | {info.audio?.channel_layout} | {movie_data.container_extension?.toUpperCase()}</span></div>
                     </div>
                   </div>
-                  {/* --- END OF FIX --- */}
-
                 </div>
-                {/* The "Right Side: Details" div was previously here by mistake. */}
               </div>
             </div>
-          </FocusTrap>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
