@@ -107,35 +107,35 @@ export const PlaygroundLayout = () => {
       enableOnFormTags: true
   });
 
-  useHotkeys('MediaFastForward', (e) => {
-        e.preventDefault();
-        const mainContent = document.querySelector('main');
-        const firstFocusableElement = mainContent?.querySelector(
-          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-        ) as HTMLElement;
+  // useHotkeys('MediaFastForward', (e) => {
+  //       e.preventDefault();
+  //       const mainContent = document.querySelector('main');
+  //       const firstFocusableElement = mainContent?.querySelector(
+  //         'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  //       ) as HTMLElement;
 
-        if (firstFocusableElement) {
-          firstFocusableElement.focus();
-        }
+  //       if (firstFocusableElement) {
+  //         firstFocusableElement.focus();
+  //       }
       
-    }, {
-      enableOnFormTags: true
-  });
+  //   }, {
+  //     enableOnFormTags: true
+  // });
 
-  useHotkeys('MediaRewind', (e) => {
-        e.preventDefault();
-        const header = document.querySelector('#main-nav');
-        const firstFocusableElement = header?.querySelector(
-          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
-        ) as HTMLElement;
+  // useHotkeys('MediaRewind', (e) => {
+  //       e.preventDefault();
+  //       const header = document.querySelector('#main-nav');
+  //       const firstFocusableElement = header?.querySelector(
+  //         'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+  //       ) as HTMLElement;
 
-        if (firstFocusableElement) {
-          firstFocusableElement.focus();
-        }
+  //       if (firstFocusableElement) {
+  //         firstFocusableElement.focus();
+  //       }
       
-    }, {
-      enableOnFormTags: true
-  });
+  //   }, {
+  //     enableOnFormTags: true
+  // });
 
   useHotkeys('MediaPlayPause', (e) => {
         e.preventDefault();

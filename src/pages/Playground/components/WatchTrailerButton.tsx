@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { FiYoutube } from 'react-icons/fi';
 import { TrailerPlayerModal } from './TrailerPlayerModal';
-import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface WatchTrailerButtonProps {
   youtubeId: string | null;
@@ -11,16 +10,12 @@ interface WatchTrailerButtonProps {
 export const WatchTrailerButton = ({ youtubeId, className }: WatchTrailerButtonProps) => {
   // --- STATE and LOGIC are now encapsulated here ---
   const [isTrailerPlaying, setIsTrailerPlaying] = useState(false);
-  const lockFocus = useUiContextStore((state) => state.lockFocus);
-  const unlockFocus = useUiContextStore((state) => state.unlockFocus);
 
   const handleOpenTrailer = () => {
-    lockFocus(); // Lock focus BEFORE showing the trailer modal
     setIsTrailerPlaying(true);
   };
 
   const handleCloseTrailer = () => {
-    unlockFocus(); // Unlock focus AFTER the trailer is closed
     setIsTrailerPlaying(false);
   };
 

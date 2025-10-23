@@ -7,6 +7,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import type { Movie, MovieInfo } from '../../../types/playlist';
 import { useEffect, useRef } from 'react';
 import { FaStar } from 'react-icons/fa';
+import { useHotkeys } from 'react-hotkeys-hook';
 // import { useHotkeys } from 'react-hotkeys-hook';
 
 interface MovieDetailModalProps {
@@ -29,12 +30,24 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
     }
   };
 
-   useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       actionsContainerRef.current?.querySelector('button')?.focus();
     }, 50); // Small delay to ensure modal is rendered
     return () => clearTimeout(timer);
   }, []);
+
+  useHotkeys('MediaRewind', onClose, {
+    enableOnContentEditable: true,
+    enableOnFormTags: true,
+  });
+  
+  useHotkeys('MediaFastForward', () => {
+      actionsContainerRef.current?.querySelector('button')?.focus();
+    }, {
+    enableOnContentEditable: true,
+    enableOnFormTags: true,
+  });
 
   if (!movie || !info) return null;
 
