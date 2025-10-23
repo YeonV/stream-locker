@@ -82,6 +82,7 @@ export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) 
       
       <div
         ref={parentRef}
+        data-testid="stream-row" 
         className="w-full overflow-x-auto py-2" // This py-2 provides the vertical padding
         style={{ scrollbarWidth: 'none' }}
       >

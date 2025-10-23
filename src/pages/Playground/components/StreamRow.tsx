@@ -44,7 +44,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
   // }, { preventDefault: true });
 
   return (
-    <div data-testid="stream-row" className="mt-4">
+    <div className="mt-4">
       <div className="flex items-center justify-between mb-2 px-2">
          {/* The title is no longer a button */}
         <div className="text-left p-2">
