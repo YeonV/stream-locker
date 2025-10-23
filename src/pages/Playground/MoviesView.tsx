@@ -30,7 +30,15 @@ export const MoviesView = () => {
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
+    const [focusedCoordinate, setFocusedCoordinate] = useState<{ row: number; col: number } | null>(null);
 
+    const handleContainerFocus = () => {
+        // When the container gets focus, if no poster is already selected,
+        // we activate the coordinate system by focusing the first poster.
+        if (focusedCoordinate === null) {
+            setFocusedCoordinate({ row: 0, col: 0 });
+        }
+    };
 
     // Data memoization logic is unchanged and correct
     const moviesStreamsById = useMemo(() => {
@@ -77,13 +85,18 @@ export const MoviesView = () => {
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
     return (
-        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
+        <div ref={parentRef}
+            tabIndex={-1} // Makes the div programmatically focusable
+            onFocus={handleContainerFocus}
+            className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}
+        >
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (
                     <StreamRow
                         title="Sizer"
                         streams={sizerItems}
                         onPosterClick={() => {}}
+                        focusedCoordinate={focusedCoordinate}
                     />
                 )}
             </div>

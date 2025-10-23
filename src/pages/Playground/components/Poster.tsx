@@ -6,19 +6,18 @@ import { useEffect, useRef } from 'react';
 interface PosterProps {
     stream: PosterItem;
     onClick: () => void;
-    rowIndex?: number;
-    colIndex?: number;
+    isFocused?: boolean;
 }
 
-export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => {
+export const Poster = ({ stream, onClick, isFocused }: PosterProps) => {
     const postRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (rowIndex === 0 && colIndex === 0) {
+        if (isFocused) {
             postRef?.current?.focus();
         }
-    }, [rowIndex, colIndex]);
-    
+    }, [isFocused]);
+
     const content = (dummy?: boolean) => {
         return (
             <>

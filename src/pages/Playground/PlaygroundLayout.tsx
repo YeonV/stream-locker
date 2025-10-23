@@ -90,22 +90,24 @@ export const PlaygroundLayout = () => {
       if (isFocusInHeader) {
         e.preventDefault();
         const mainContent = document.querySelector('main');
-        const firstFocusableElement = mainContent?.querySelector(
-          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+        
+        // First, try to find stream-row elements
+        const firstRow = mainContent?.querySelector('[data-testid="stream-row"]');
+        const firstFocusableElementInRow = firstRow?.querySelector(
+            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
         ) as HTMLElement;
 
-        if (firstFocusableElement) {
-          firstFocusableElement.focus();
+        if (firstFocusableElementInRow) {
+            firstFocusableElementInRow.focus();
         } else {
-          const firstRow = mainContent?.querySelector('[data-testid="stream-row"]');
-          const firstFocusableElementInRow = firstRow?.querySelector(
-              'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+          // Fall back to general focusable elements
+          const firstFocusableElement = mainContent?.querySelector(
+            'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
           ) as HTMLElement;
 
-          if (firstFocusableElementInRow) {
-              firstFocusableElementInRow.focus();
+          if (firstFocusableElement) {
+            firstFocusableElement.focus();
           }
-
         }
       }
     }, {
@@ -145,7 +147,7 @@ export const PlaygroundLayout = () => {
   useEffect(() => {
   setPlay('Toggle Focus');
   setRewind('');
-  setForward(''); // No global forward action
+  setForward('');
 }, [setPlay, setRewind, setForward]);
 
   useHotkeys('MediaPlayPause', (e) => {
