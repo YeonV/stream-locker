@@ -13,6 +13,8 @@ import { useEnvStore } from '../../store/envStore';
 import { supabase } from '../../lib/supabase';
 import { SmartStopButton } from '../../components/SmartStopButton';
 import DownloadAndroid from '../../components/Download/DownloadAndroid';
+import Footer from './components/Footer';
+import { useFooterStore } from '../../store/footerStore';
 
 // Type definition for a single nav item
 type NavItem = { path: string; label: string; Icon: React.ElementType };
@@ -55,6 +57,9 @@ export const PlaygroundLayout = () => {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [devMode, setDevMode] = useState(false);
 
+  const setPlay = useFooterStore(state => state.setPlay);
+  const setRewind = useFooterStore(state => state.setRewind);
+  const setForward = useFooterStore(state => state.setForward);
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
@@ -136,6 +141,12 @@ export const PlaygroundLayout = () => {
   //   }, {
   //     enableOnFormTags: true
   // });
+
+  useEffect(() => {
+  setPlay('Toggle Focus');
+  setRewind('');
+  setForward(''); // No global forward action
+}, [setPlay, setRewind, setForward]);
 
   useHotkeys('MediaPlayPause', (e) => {
         e.preventDefault();
@@ -313,7 +324,8 @@ export const PlaygroundLayout = () => {
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
       </main>
-      {device !== 'firetv' &&<div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
+      {device !== 'firetv' && <Footer />}
+      {device !== 'firetv' && <div className={`flex justify-around items-center py-1 ${device === 'android' ? 'pb-3' : ''} bg-background-secondary border-t border-border-primary min-md:hidden landscape:hidden`}>
         {mobileNavItems.map(({ path, label, Icon }) => {
             // This is the new logic. For 'Movies' and 'Series', we check if the pathname starts with their base path.
             // For all others, we use the default strict 'isActive' check.

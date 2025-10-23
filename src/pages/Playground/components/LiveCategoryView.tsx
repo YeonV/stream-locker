@@ -50,7 +50,11 @@ export const LiveCategoryView = forwardRef<HTMLDivElement, LiveCategoryViewProps
 
     const EpgPanel = (
       // The EPG Panel is now a reusable JSX variable
-      <div className="w-full md:w-2/3 h-1/2 md:h-full overflow-y-auto p-4">
+      <div onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') {
+          parentRef.current?.focus()
+        }
+      }} className="w-full md:w-2/3 h-1/2 md:h-full overflow-y-auto p-4">
         {isLoadingEpg ? (
           <div className="flex items-center justify-center h-full gap-2 text-text-secondary">
             <FiLoader className="animate-spin" /> Loading EPG...
