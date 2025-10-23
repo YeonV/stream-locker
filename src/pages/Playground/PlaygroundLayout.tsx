@@ -57,14 +57,33 @@ export const PlaygroundLayout = () => {
 
   const { toggleConsole } = useDebugStore();
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
+
   useHotkeys('arrowdown', (e) => {
-      const isFocusInHeader = document.activeElement?.closest('#main-nav') !== null;
-      if (isFocusInHeader) {
-          e.preventDefault();
-          // Fire a custom event that the child view can listen for.
-          window.dispatchEvent(new CustomEvent('focus-content'));
+      // --- THIS IS THE MODIFIED LOGIC ---
+      
+      // Define pages where we DON'T want the jump behavior.
+      const isExcludedPage = pathname.startsWith('/playground/settings');
+      
+      // Check if the currently focused element is inside our header.
+      const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
+
+      if (!isExcludedPage && isFocusInHeader) {
+        e.preventDefault();
+        // Find the FIRST focusable element in the <main> content area.
+        // This is a more generic and robust selector that will work for any page.
+        const mainContent = document.querySelector('main');
+        const firstFocusableElement = mainContent?.querySelector(
+          'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+        ) as HTMLElement;
+
+        if (firstFocusableElement) {
+          firstFocusableElement.focus();
+        }
       }
-  }, { enableOnFormTags: true });
+    }, {
+      enableOnFormTags: true
+    });
+
 
   useEffect(() => {
     if (session?.user?.user_metadata?.playlists) {

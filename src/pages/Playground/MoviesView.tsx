@@ -86,20 +86,6 @@ export const MoviesView = () => {
         });
     }, { enableOnFormTags: true });
 
-    // useHotkeys('arrowdown', (e) => {
-    //     e.preventDefault();
-    //     setActiveRowIndex(prev => {
-    //         if (prev === null) return 0; // Enter from header
-    //         const maxIndex = moviesCategories.length - 1;
-    //         if (prev >= maxIndex) return maxIndex; // Don't go past the end
-    //         return prev + 1;
-    //     });
-    // }, { enableOnFormTags: true });
-    useEffect(() => {
-        const handleFocusRequest = () => setActiveRowIndex(0);
-        window.addEventListener('focus-content', handleFocusRequest);
-        return () => window.removeEventListener('focus-content', handleFocusRequest);
-    }, []);
     
     // --- NEW: EFFECT to handle focus changes and scrolling ---
     useEffect(() => {
