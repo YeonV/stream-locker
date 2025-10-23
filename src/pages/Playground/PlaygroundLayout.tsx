@@ -118,7 +118,18 @@ export const PlaygroundLayout = () => {
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <header className={`flex items-center justify-between ${device === 'android' ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <nav id="main-nav" className="flex items-center space-x-1 w-full ">
+          <nav id="main-nav" className="flex items-center space-x-1 w-full" onKeyDown={(e) => {
+             const isContentPage = pathname.startsWith('/playground/movies') || pathname.startsWith('/playground/series');
+
+              if (isContentPage) {
+                e.preventDefault();
+                // Use the exact same selector as MoviesView to find the target.
+                const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
+                if (firstRowTitleButton) {
+                  firstRowTitleButton.focus();
+                }
+              }
+          }}>
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
             
             {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {

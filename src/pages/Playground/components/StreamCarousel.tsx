@@ -4,6 +4,7 @@ import { Poster } from './Poster';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import type { PosterItem } from '../../../types/playlist';
 import { useElementSize } from '../../../hooks/useElementSize';
+import { useEnvStore } from '../../../store/envStore';
 
 interface StreamCarouselProps {
   streams: PosterItem[];
@@ -20,6 +21,7 @@ const INITIAL_WIDTH_GUESS = widthMatch ? parseInt(widthMatch[1], 10) * 4 : 160; 
 export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const [sizerRef, sizerMetrics] = useElementSize();
+  const device = useEnvStore(state => state.device);
 
   const itemWidth = sizerMetrics.width;
   const itemGap = sizerMetrics.marginLeft + sizerMetrics.marginRight;
@@ -105,7 +107,7 @@ export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) 
         )}
       </div>
 
-      <>
+      {device !== 'firetv' && <>
         <button
           onClick={() => handleScrollByPage('prev')}
           disabled={isAtStart}
@@ -120,7 +122,7 @@ export const StreamCarousel = ({ streams, onPosterClick }: StreamCarouselProps) 
         >
           <FiChevronRight size={52} className="transition-transform duration-200 group-hover:scale-125" />
         </button>
-      </>
+      </>}
 
       <>
         <div className={`absolute top-0 left-0 w-16 h-full bg-gradient-to-r from-background-primary to-transparent transition-opacity duration-300 pointer-events-none ${isAtStart ? 'opacity-0' : 'opacity-100 group-hover/fades:opacity-0'}`} />

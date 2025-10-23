@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback  } from 'react'; // --- NEW: Added useEffect ---
+import { useState, useMemo, useRef, useEffect  } from 'react'; // --- NEW: Added useEffect ---
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -72,6 +72,7 @@ export const MoviesView = () => {
         estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
         overscan: 3,
     });
+
     const virtualRows = rowVirtualizer.getVirtualItems();
 
     const sizerCategory = moviesCategories[0];
@@ -91,53 +92,27 @@ export const MoviesView = () => {
     //     }
     // }, [isReady, moviesCategories]);
 
-    const [needsFocus, setNeedsFocus] = useState(false);
-  
-    const handleHeaderKeyDown = useCallback((event: KeyboardEvent) => {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setNeedsFocus(true);
-      }
-    }, []);
-
-    useEffect(() => {
-      const headerNavElement = document.getElementById('main-nav');
-      if (!headerNavElement) return;
-
-      headerNavElement.addEventListener('keydown', handleHeaderKeyDown);
-      return () => {
-        headerNavElement.removeEventListener('keydown', handleHeaderKeyDown);
-      };
-    }, [handleHeaderKeyDown]);
-
-    // This is the "effector" useEffect, now using the correct ref.
-    useEffect(() => {
-      if (needsFocus) {
+   useEffect(() => {
+        // We add a setTimeout to ensure the DOM is fully ready.
+        // This helps defeat race conditions.
         const timer = setTimeout(() => {
-          // --- CHANGE IS HERE: Use the existing parentRef ---
-          const targetElement = parentRef.current?.querySelector('[data-testid^="trap-button-"]') as HTMLElement | null;
-          
-          if (targetElement) {
-            targetElement.focus();
-          }
-          setNeedsFocus(false);
-        }, 50);
+            if (isReady && moviesCategories.length > 0) {
+                const firstCategoryName = moviesCategories[0].category_name;
+                const sanitizedName = firstCategoryName.replace(/\s+/g, '-');
+                const selector = `[data-testid="trap-button-${sanitizedName}"]`;
+                
+                // Use the parentRef to scope the search. More reliable.
+                const firstTrapButton = parentRef.current?.querySelector(selector) as HTMLElement;
+
+                if (firstTrapButton) {
+                    firstTrapButton.focus();
+                }
+            }
+        }, 100); // 100ms delay for safety
+
         return () => clearTimeout(timer);
-      }
-    }, [needsFocus]);
-
-    // This is your original useEffect for initial focus on load.
-    // Let's now COMBINE it with the needsFocus logic to avoid conflicts.
-    // We can set needsFocus to true on initial load.
-
-    // --- REVISED INITIAL FOCUS ---
-    useEffect(() => {
-      if (isReady && moviesCategories.length > 0) {
-        // Instead of focusing directly, we trigger our robust Dashboard-style mechanism.
-        setNeedsFocus(true);
-      }
-    // We remove the direct focus logic from here.
-    }, [isReady, moviesCategories.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isReady, moviesCategories.length]); 
 
     return (
         <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>

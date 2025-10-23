@@ -40,7 +40,7 @@ export const useEnvStore = create<EnvState>((set, get) => ({
       if (osType === 'android') {
         const userAgent = navigator.userAgent.toLowerCase();
         specificDevice = (userAgent.includes('tv') || userAgent.includes('aftkm')) 
-          ? (userAgent.includes('firetv') ? 'firetv' : 'androidtv') 
+          ? (userAgent.includes('firetv') || userAgent.includes('aftkm') ? 'firetv' : 'androidtv') 
           : 'android';
       } else {
         specificDevice = osType as Device;
@@ -63,8 +63,8 @@ export const useEnvStore = create<EnvState>((set, get) => ({
       else if (userAgent.includes('linux')) specificDevice = 'linux';
       else if (userAgent.includes('iphone') || userAgent.includes('ipad')) specificDevice = 'ios';
       else if (userAgent.includes('android')) {
-        specificDevice = (userAgent.includes('tv') || userAgent.includes('firetv')) 
-          ? (userAgent.includes('firetv') ? 'firetv' : 'androidtv') 
+        specificDevice = (userAgent.includes('tv') || userAgent.includes('firetv') || userAgent.includes('aftkm')) 
+          ? (userAgent.includes('firetv') || userAgent.includes('aftkm') ? 'firetv' : 'androidtv') 
           : 'android';
       } else {
         specificDevice = 'web'; // Final fallback for web

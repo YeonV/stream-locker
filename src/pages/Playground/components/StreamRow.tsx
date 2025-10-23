@@ -6,6 +6,7 @@ import type { PosterItem } from '../../../types/playlist';
 import { FocusTrap } from 'focus-trap-react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUiContextStore } from '../../../store/uiContextStore';
+import { useEnvStore } from '../../../store/envStore';
 
 interface StreamRowProps {
   title: string;
@@ -22,6 +23,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
 
   const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
+  const device = useEnvStore(state => state.device);
   const isFocusLocked = useUiContextStore(state => state.isFocusLocked);
   const filteredStreams = useMemo(() => {
     if (!searchTerm) {
@@ -58,7 +60,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
             <div className="w-1/2 h-1 bg-primary mt-1 rounded-full"></div>
           )}
         </button>
-        <div className="flex items-center gap-2">
+        {device !== 'firetv' && <div className="flex items-center gap-2">
           <div className="relative">
             <input
               ref={inputRef}
@@ -89,7 +91,7 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
           >
             <FiGrid size={16} />
           </button>
-        </div>
+        </div>}
       </div>
       
       <FocusTrap
