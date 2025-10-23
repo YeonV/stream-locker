@@ -11,7 +11,7 @@ interface StreamRowProps {
   title: string;
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
-  isActive: boolean;
+  isActive?: boolean;
 }
 
 export const StreamRow = ({ title, streams, onPosterClick, isActive }: StreamRowProps) => {
