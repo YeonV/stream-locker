@@ -16,6 +16,7 @@
     "core:default",
     "videoplayer:default",
     "os:default",
-    "core:window:allow-set-fullscreen"
+    "core:window:allow-set-fullscreen",
+    "clipboard-manager:allow-write-text"
   ]
 }

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from "react"
 import { DownloadBinary, type ReleaseType } from "../DownloadBinary"
 import { version } from "../../../package.json"
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import semver from "semver"
+import { useEnvStore } from "../../store/envStore";
+
 
 interface DownloadAndroidState {
   releases: ReleaseType[]
@@ -10,6 +13,7 @@ interface DownloadAndroidState {
 }
 
 const DownloadAndroid = () => {
+  const device = useEnvStore(state => state.device);
   const [state, setState] = useState<DownloadAndroidState>({
     releases: [],
     isLoading: true,
@@ -51,6 +55,47 @@ const DownloadAndroid = () => {
 
   const { releases, isLoading, error } = state
 
+  // Extract downloader code from release body
+  const extractDownloaderCode = useCallback((releaseBody: string): string | null => {
+    const regex = /!\[downloadercode\]\([^)]*\)\s*```\s*(\d+)\s*```/;
+    const matchResult = releaseBody.match(regex);
+    
+    if (matchResult && matchResult[1]) {
+      return matchResult[1];
+    }
+    return null;
+  }, []);
+
+  // Copy downloader code to clipboard
+  const copyDownloaderCode = useCallback(async (releaseBody: string) => {
+    const downloaderCode = extractDownloaderCode(releaseBody);
+    
+    if (downloaderCode) {
+      try {
+        await writeText(downloaderCode);
+        console.log("Downloader Code copied to clipboard:", downloaderCode);
+      } catch (error) {
+        console.error("Failed to copy downloader code to clipboard:", error);
+      }
+    } else {
+      console.log("Downloader Code not found in the release description.");
+    }
+  }, [extractDownloaderCode]);
+
+  // Auto-copy downloader code when releases are fetched and there's an update
+  useEffect(() => {
+    if (releases.length > 0) {
+      const latestRelease = releases[0];
+      const currentVersion = version;
+      const latestVersion = latestRelease.tag_name.replace(/^v/, '');
+      const hasUpdate = semver.gt(latestVersion, currentVersion);
+      
+      if (hasUpdate && latestRelease.body) {
+        copyDownloaderCode(latestRelease.body);
+      }
+    }
+  }, [releases, copyDownloaderCode]);
+
   if (isLoading) {
     return null
   }
@@ -82,19 +127,28 @@ const DownloadAndroid = () => {
     return null
   }
 
+  if (device === 'android') {
+    return (
+      <div className="space-y-2">
+        {androidAssets.map(asset => (
+          <DownloadBinary
+            key={asset.name}
+            asset={asset}
+            name="Android"
+            variant="icon"
+          />
+        ))}
+      </div>
+    )
+  } else {
+    // Update available, Downloader Code copied to clipboard
+    return (
+      <div className="px-4 py-2 rounded-md text-color-on-primary bg-background-primary hover:bg-background-glass cursor-default w-max text-sm">
+        Update Code in clipboard
+      </div>
+    )
+  }
 
-  return (
-    <div className="space-y-2">
-      {androidAssets.map(asset => (
-        <DownloadBinary
-          key={asset.name}
-          asset={asset}
-          name="Android"
-          variant="icon"
-        />
-      ))}
-    </div>
-  )
 }
 
 export default DownloadAndroid

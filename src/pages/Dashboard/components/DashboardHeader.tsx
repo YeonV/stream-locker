@@ -79,7 +79,7 @@ export const DashboardHeader = (props: DashboardHeaderProps) => {
       {/* === ZONE 2: ACTIONS (RIGHT) === */}
       {/* Hidden below md breakpoint, flex-shrink-0 to prevent squishing */}
       <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-        <DownloadAndroid />
+        {(device === 'android' || device === 'firetv' || device === 'androidtv') && <DownloadAndroid />}
         <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-background-glass"><FiSettings size={24} /></Link>
         {hasXtreamPlaylists && <Link to="/playground" title="Go to Playground" className="p-2 rounded-full hover:bg-background-glass"><img src={yz} alt="Playground" width={24} /></Link>}
       </div>

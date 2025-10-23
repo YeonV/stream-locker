@@ -12,6 +12,7 @@ import { CgDebug } from "react-icons/cg";
 import { useEnvStore } from '../../store/envStore';
 import { supabase } from '../../lib/supabase';
 import { SmartStopButton } from '../../components/SmartStopButton';
+import DownloadAndroid from '../../components/Download/DownloadAndroid';
 
 // Type definition for a single nav item
 type NavItem = { path: string; label: string; Icon: React.ElementType };
@@ -188,6 +189,8 @@ export const PlaygroundLayout = () => {
                   {xtreamPlaylists.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
               )}
+              
+              {(device === 'android' || device === 'firetv' || device === 'androidtv') && <DownloadAndroid />}
               {import.meta.env.PROD && <button onClick={toggleConsole} title="toggleConsole" className="cursor-pointer p-2 rounded-full hover:bg-background-glass"><CgDebug size={24} /></button>}
               <SmartStopButton />
               {!isSettings && <Link to="/playground/settings" title="Settings" className="p-2 rounded-full hover:bg-background-glass"><FiSettings size={24} /></Link>}

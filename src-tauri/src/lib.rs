@@ -7,9 +7,10 @@
 pub fn run() {
     // Start building our application.
     let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_videoplayer::init());
-        // We do NOT add libmpv here by default.
+    // We do NOT add libmpv here by default.
 
     // --- THIS IS THE SURGICAL STRIKE ---
     // This `#[cfg(windows)]` attribute is a direct command to the compiler.

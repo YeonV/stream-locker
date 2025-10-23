@@ -8,6 +8,7 @@ export type ReleaseType = {
   }[]
   tag_name: string
   prerelease: boolean
+  body: string
 }
 
 export const DownloadBinary = ({ asset, name, variant = "button" }: { asset: ReleaseType['assets'][number], name: string, variant?: 'button' | 'icon' }) => {
