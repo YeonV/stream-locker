@@ -47,11 +47,12 @@ export const GridModal = ({ title, streams, onClose, onPosterClick }: GridModalP
             focusTrapOptions={{
               // Set the initial focus to the first poster in the grid
               initialFocus: () => gridContainerRef.current?.querySelector('button') as HTMLElement,
+              returnFocusOnDeactivate: false
               // When the trap is deactivated (e.g., by the component unmounting),
               // it will try to return focus to whatever opened it.
-              onDeactivate: onClose,
-              // Allow clicking outside to close, useful for desktop testing
-              clickOutsideDeactivates: true,
+              // onDeactivate: onClose,
+              // // Allow clicking outside to close, useful for desktop testing
+              // clickOutsideDeactivates: true,
             }}
           >
             {/* We need a container div for the trap to attach to */}

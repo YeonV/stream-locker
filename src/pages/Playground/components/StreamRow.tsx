@@ -97,14 +97,15 @@ export const StreamRow = ({ title, streams, onPosterClick }: StreamRowProps) => 
       <FocusTrap
         active={!isFocusLocked && isFocusTrapActive}
         focusTrapOptions={{
-          onDeactivate: () => setIsFocusTrapActive(false),
+          // onDeactivate: () => setIsFocusTrapActive(false),
           initialFocus: () => {
             const container = document.querySelector(`[data-row-title="${title}"]`);
             return container?.querySelector('button') as HTMLElement;
           },
+          returnFocusOnDeactivate: false
           // Allow clicks outside to deactivate, useful for debugging with a mouse
-          clickOutsideDeactivates: true, 
-          returnFocusOnDeactivate: true,
+          // clickOutsideDeactivates: true, 
+          // returnFocusOnDeactivate: true,
         }}
       >
         <div data-row-title={title} onKeyDown={(e) => {

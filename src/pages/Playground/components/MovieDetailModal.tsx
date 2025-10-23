@@ -53,8 +53,9 @@ export const MovieDetailModal = ({ movie, onClose }: MovieDetailModalProps) => {
             active={!isFocusLocked} 
             focusTrapOptions={{
               initialFocus: () => actionsContainerRef.current?.querySelector('button') as HTMLElement,
-              onDeactivate: onClose,
-              clickOutsideDeactivates: true,
+              returnFocusOnDeactivate: false
+              // onDeactivate: onClose,
+              // clickOutsideDeactivates: true,
             }}
           >
             <div className="h-full w-full"> 
