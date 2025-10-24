@@ -78,9 +78,9 @@ export const PlaygroundLayout = () => {
   useHotkeys(['ctrl+alt+y', 'ctrl+alt+z'], () => setDevMode(!devMode));
 
   useHotkeys('ArrowDown', (e) => {
+      e.preventDefault();
     const isFocusInHeader = (document.activeElement?.closest('#main-nav') !== null);
     if (isFocusInHeader) {
-      e.preventDefault();
       const mainContent = document.querySelector('main');
 
       // First, try to find stream-row elements

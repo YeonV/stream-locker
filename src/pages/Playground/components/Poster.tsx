@@ -19,12 +19,13 @@ export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => 
     useEffect(() => {
         const isFocused = focusedCoordinate?.row === rowIndex && focusedCoordinate?.col === colIndex;
         if (isFocused) {
-            // setTimeout(() => {
-            //     postRef?.current?.focus();
-            // }, 100);
-            postRef?.current?.focus({ preventScroll: true });
+            if (document.activeElement !== postRef.current) {
+                postRef.current?.focus({ preventScroll: true });
+                postRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center',});
+            }
         }
-    }, [colIndex, focusedCoordinate, focusedCoordinate?.col, focusedCoordinate?.row, rowIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [focusedCoordinate?.col, focusedCoordinate?.row]);
 
     const content = (dummy?: boolean) => {
         return (
@@ -64,7 +65,15 @@ export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => 
             data-row={rowIndex}
             data-col={colIndex}
             ref={postRef}
-            onFocus={() => setFocusedCoordinate({ row: rowIndex!, col: colIndex! })}
+            onFocus={() => {
+                if (focusedCoordinate?.col !== colIndex) {
+                    setFocusedCoordinate({ row: focusedCoordinate!.row, col: colIndex! });
+                }
+            }}
+            // onKeyDownCapture={(e) => {
+            //     e.preventDefault()
+            //     setFocusedCoordinate({ row: focusedCoordinate!.row + 1, col: colIndex! });
+            // }}
             className="relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
                      hover:-translate-y-1 transition-transform duration-200 cursor-pointer shadow-lg 
                      focus:outline-none focus:ring-4 focus:ring-primary-focus focus:z-10"

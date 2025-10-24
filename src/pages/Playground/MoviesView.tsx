@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
-import { useVirtualizer } from '@tanstack/react-virtual';
+// import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
@@ -18,7 +18,7 @@ const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
 };
 
 const ROW_GAP_UNIT = 12;
-const ROW_GAP_PX = ROW_GAP_UNIT * 4;
+// const ROW_GAP_PX = ROW_GAP_UNIT * 4;
 const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
 
 
@@ -79,17 +79,17 @@ export const MoviesView = () => {
     const handleCloseModals = () => { setSelectedMovie(null);};
 
 
-    const rowVirtualizer = useVirtualizer({
-        count: moviesCategories.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
-        overscan: 3,
-    });
+    // const rowVirtualizer = useVirtualizer({
+    //     count: moviesCategories.length,
+    //     getScrollElement: () => parentRef.current,
+    //     estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
+    //     overscan: 3,
+    // });
 
-    const virtualRows = rowVirtualizer.getVirtualItems();
+    // const virtualRows = rowVirtualizer.getVirtualItems();
 
     const sizerCategory = moviesCategories[0];
-    const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
+    const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 1) : [];
 
     // console.log('current focused coordinate:', focusedCoordinate);
     // console.log('current focused element:', document.activeElement);
@@ -106,17 +106,17 @@ export const MoviesView = () => {
         
         if (currentRow === 0) {
             // Exit to header
-            setFocusedCoordinate(null);
-            const headerLink = document.querySelector('#main-nav a') as HTMLElement;
-            headerLink?.focus();
+            // setFocusedCoordinate(null);
+            // const headerLink = document.querySelector('#main-nav a') as HTMLElement;
+            // headerLink?.focus();
         } else {
             const newRow = currentRow - 1;
-            rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
+            // rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
             setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col });
         }
     }, { 
         // This is the key: only enable when a poster is focused.
-        enabled: focusedCoordinate !== null 
+        enabled: focusedCoordinate !== null,
     });
 
         useHotkeys('arrowdown', (e) => {
@@ -127,7 +127,7 @@ export const MoviesView = () => {
 
         if (currentRow < maxIndex) {
             const newRow = currentRow + 1;
-            rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
+            // rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
             const itemWidth = 160; // w-40 = 160px
             const itemGap = 16; // mx-2 = 8px margin on each side = 16px total
             const containerWidth = parentRef.current?.clientWidth || 0;
@@ -152,10 +152,10 @@ export const MoviesView = () => {
                 )}
             </div>
 
-            {isReady && (
-                <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                    {virtualRows.map((virtualRow, rowIndex) => {
-                        const category = moviesCategories[virtualRow.index];
+            {/* {isReady && (
+                <div className="relative w-full" style={{ height: `${sizerItems.length * (measuredRowHeight + ROW_GAP_PX)}px` }}>
+                    {sizerItems.map((virtualRow, rowIndex) => {
+                        const category = moviesCategories[rowIndex];
                         if (!category) return null;
                         
                         const sortedItems = sortedMoviesByCategory.get(category.category_id) || [];
@@ -166,8 +166,8 @@ export const MoviesView = () => {
                                 key={category.category_id}
                                 className="absolute top-0 left-0 w-full"
                                 style={{
-                                    height: `${virtualRow.size}px`,
-                                    transform: `translateY(${virtualRow.start}px)`,
+                                    height: `${measuredRowHeight + ROW_GAP_PX}px`,
+                                    transform: `translateY(${rowIndex * (measuredRowHeight + ROW_GAP_PX)}px)`,
                                 }}
                             >
                                 <StreamRow
@@ -180,6 +180,29 @@ export const MoviesView = () => {
                         )
                     })}
                 </div>
+            )} */}
+
+            {isReady && (
+                // We no longer need the absolutely positioned container with a fixed height.
+                // We simply map over our data and render the rows directly.
+                // The parent div's `overflow-auto` will handle the scrolling.
+                <>
+                    {moviesCategories.map((category, index) => {
+                        const sortedItems = sortedMoviesByCategory.get(category.category_id) || [];
+                        if (sortedItems.length === 0) return null;
+
+                        return (
+                            // No more absolute positioning wrapper div needed.
+                            <StreamRow
+                                key={category.category_id}
+                                title={category.category_name}
+                                streams={sortedItems}
+                                onPosterClick={handleMoviePosterClick}
+                                rowIndex={index}
+                            />
+                        );
+                    })}
+                </>
             )}
             
             {selectedMovie && <MovieDetailModal movie={selectedMovie} onClose={handleCloseModals} />}

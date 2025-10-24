@@ -55,8 +55,6 @@ const Footer = () => {
     const [isPlayActive, setIsPlayActive] = useState(false);
     const [isForwardActive, setIsForwardActive] = useState(false);
     const [currentFocusedElement, setCurrentFocusedElement] = useState<Element | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [currentFocus, setCurrentFocus] = useState<'main' | 'header' | null>(null);
 
     // const [showFullRemote, setShowFullRemote] = useState(false);
     // const sendMediaKeyEvent = (action: 'MediaRewind' | 'MediaPlayPause' | 'MediaFastForward') => {
@@ -96,15 +94,21 @@ const Footer = () => {
       const handleFocusChange = () => {
         if (document.activeElement !== null && (document.activeElement !== currentFocusedElement)) {
             setCurrentFocusedElement(document.activeElement);
+            
+            // Get data-row and data-col attributes if available
+            const dataRow = document.activeElement.getAttribute('data-row');
+            const dataCol = document.activeElement.getAttribute('data-col');
+            const dataInfo = (dataRow || dataCol) ? ` (row: ${dataRow || 'N/A'}, col: ${dataCol || 'N/A'})` : '';
+            
             if (document.activeElement.closest('main')) {
-                console.log('Focus is inside <main>', document.activeElement);
+                console.log('Focus is inside <main>', dataInfo);
                 setPlay('Focus Header');
             }
             else if (document.activeElement.closest('header')) {
-                console.log('Focus is inside <header>', document.activeElement);
+                console.log('Focus is inside <header>', document.activeElement, dataInfo);
                 setPlay('Focus Main');
             } else {
-                console.log('Focused Element Changed:', document.activeElement);
+                console.log('Focused Element Changed:', document.activeElement, dataInfo);
             }
         }
       };
@@ -113,7 +117,7 @@ const Footer = () => {
       return () => {
         window.removeEventListener('focusin', handleFocusChange);
       };
-    }, []);
+    }, [currentFocusedElement, setPlay]);
 
     return (
         <footer className={`flex flex-col`}>
@@ -132,8 +136,8 @@ const Footer = () => {
         sendMediaKeyEvent('MediaFastForward');
     }} />
                 </div>
-            </div> */}
-            {/* <div id="devbar" className="flex items-center justify-between">DEV || Focus:{currentFocus} | <TbDeviceRemoteFilled onClick={() => setShowFullRemote(!showFullRemote)} /></div> */}
+            </div>
+            <div id="devbar" className="flex items-center justify-between">DEV<TbDeviceRemoteFilled onClick={() => setShowFullRemote(!showFullRemote)} /></div> */}
             <div className={`w-full bg-black border-t border-border-primary py-1 px-4 flex ${items.length === 1 ? 'justify-center' : 'justify-between'} items-center text-text-primary text-sm`}>
                 {rewind && rewind !== '' && <Rewind label={rewind} active={isRewindActive} />}
                 {play && play !== '' && <PlayPause label={play} active={isPlayActive} />}

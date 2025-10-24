@@ -28,12 +28,11 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
   const device = useEnvStore(state => state.device);
 
   const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
+  const setFocusedCoordinate = useUiContextStore(state => state.setFocusedCoordinate);
   const itemWidth = sizerMetrics.width;
   const itemGap = sizerMetrics.marginLeft + sizerMetrics.marginRight;
   const setRewind = useFooterStore(state => state.setRewind);
   const setForward = useFooterStore(state => state.setForward);
-  const rewind = useFooterStore(state => state.rewind);
-  const forward = useFooterStore(state => state.forward);
 
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
@@ -78,6 +77,36 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
     columnVirtualizer.scrollToOffset(newScrollOffset, { align: 'start', behavior: 'smooth' });
   };
 
+
+
+  const handleScrollByPageWithFocus = (direction: 'next' | 'prev') => {
+    // const visibleItems = columnVirtualizer.getVirtualItems();
+    // if (visibleItems.length === 0) return;
+
+    const currentIndex = focusedCoordinate?.col ?? 0;
+    
+    const itemsPerPage = Math.floor((parentRef.current?.clientWidth || 0) / (itemWidth + itemGap));
+    const pageJumpSize = itemsPerPage > 1 ? itemsPerPage - 1 : 1;
+
+    let targetIndex;
+
+    if (direction === 'next') {
+        // Calculate the target based on the CURRENT state, not the visual state.
+        targetIndex = currentIndex + pageJumpSize;
+    } else { // 'prev'
+        // Calculate the target based on the CURRENT state.
+        targetIndex = currentIndex - pageJumpSize;
+    }
+    
+    // The rest of the function is already perfect.
+    const maxIndex = streams.length - 1;
+    const clampedTargetIndex = Math.max(0, Math.min(targetIndex, maxIndex));
+
+    if (rowIndex === undefined) return;
+    setFocusedCoordinate({ row: rowIndex, col: clampedTargetIndex });
+    columnVirtualizer.scrollToIndex(clampedTargetIndex, { align: 'start', behavior: 'smooth' });
+  }
+
   // CORRECTED: The height is now simply the measured height of the poster.
   // The py-2 on the parent div handles the vertical padding for the row.
   const innerContainerStyle = {
@@ -87,28 +116,26 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
 
   useHotkeys('MediaFastForward', (e) => {
     e.preventDefault();
-      handleScrollByPage('next');
+      handleScrollByPageWithFocus('next');
   }, { 
       enabled: focusedCoordinate?.row === rowIndex 
   });
   
   useHotkeys('MediaRewind', (e) => {
     e.preventDefault();
-      handleScrollByPage('prev');
+      handleScrollByPageWithFocus('prev');
   }, { 
       enabled: focusedCoordinate?.row === rowIndex 
   });
 
   useEffect(() => {
-    const lastRewind = rewind;;
-    const lastForward = forward;
     setRewind('Scroll Left');
     setForward('Scroll Right');
     return () => {
-      setRewind(lastRewind);
-      setForward(lastForward);
+      setRewind('');
+      setForward('');
     }
-  }, [setRewind, setForward, rewind, forward]);
+  }, [setRewind, setForward]);
 
   return (
     <div className="relative group/arrows group/fades">
