@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Poster } from './Poster';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import type { PosterItem } from '../../../types/playlist';
+import type { MovieInfo, PosterItem } from '../../../types/playlist';
 import { useElementSize } from '../../../hooks/useElementSize';
 import { useEnvStore } from '../../../store/envStore';
 import { useUiContextStore } from '../../../store/uiContextStore';
@@ -13,6 +13,7 @@ interface StreamCarouselProps {
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
   rowIndex?: number;
+  selectedMovie?: MovieInfo | null;
 }
 
 // === CONFIGURATION ===
@@ -22,7 +23,7 @@ const ITEM_CLASSES = "w-40 aspect-[2/3] mx-2";
 const widthMatch = ITEM_CLASSES.match(/w-(\d+)/);
 const INITIAL_WIDTH_GUESS = widthMatch ? parseInt(widthMatch[1], 10) * 4 : 160; // 160px is w-40
 
-export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarouselProps) => {
+export const StreamCarousel = ({ streams, rowIndex, onPosterClick, selectedMovie }: StreamCarouselProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const [sizerRef, sizerMetrics] = useElementSize();
   const device = useEnvStore(state => state.device);
@@ -118,14 +119,14 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
     e.preventDefault();
       handleScrollByPageWithFocus('next');
   }, { 
-      enabled: focusedCoordinate?.row === rowIndex 
+      enabled: (focusedCoordinate?.row === rowIndex) && selectedMovie === null 
   });
   
   useHotkeys('MediaRewind', (e) => {
     e.preventDefault();
       handleScrollByPageWithFocus('prev');
   }, { 
-      enabled: focusedCoordinate?.row === rowIndex 
+      enabled: (focusedCoordinate?.row === rowIndex) && selectedMovie === null 
   });
 
   useEffect(() => {

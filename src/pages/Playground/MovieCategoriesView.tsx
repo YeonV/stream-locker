@@ -5,6 +5,8 @@ import { CategoryView } from './components/CategoryView';
 import { useDataStore } from '../../store/dataStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useApiStore } from '../../store/apiStore';
+import { GridModal } from './components/GridModal';
+import { sortByImagePresence } from '../../utils/sortByImagePresence';
 
 export const MovieCategoriesView = () => {
     const moviesStreams: Movie[] = useDataStore(state => state.movies);
@@ -23,15 +25,16 @@ export const MovieCategoriesView = () => {
 
     const itemsForActiveCategory = useMemo((): PosterItem[] => {
         if (!activeCategory) return [];
+        let items: PosterItem[] = [];
         if (activeCategory.id === 'all') {
-            return movieItemsBase;
-        }
-        if (activeCategory.type === 'movie') {
-            return moviesStreams
+            items = movieItemsBase;
+        } else if (activeCategory.type === 'movie') {
+            items = moviesStreams
                 .filter(stream => stream.category_ids?.includes(Number(activeCategory.id)))
                 .map(movie => ({ id: movie.stream_id, name: movie.name, imageUrl: movie.stream_icon, rating: movie.rating_5based, added: movie.added }));
         }
-        return [];
+        // Sort items by image presence
+        return [...items].sort(sortByImagePresence);
     }, [activeCategory, moviesStreams, movieItemsBase]);
 
     const moviesCategoriesWithAll = useMemo(() => [{ category_id: 'all', category_name: 'ALL MOVIES', parent_id: 0 }, ...moviesCategories], [moviesCategories]);
@@ -41,6 +44,7 @@ export const MovieCategoriesView = () => {
 
     if (activeCategory) {
         return (
+            <>
             <CategoryView
                 categoryName={activeCategory.name}
                 items={itemsForActiveCategory}
@@ -51,7 +55,15 @@ export const MovieCategoriesView = () => {
                         {selectedMovie && <MovieDetailModal movie={selectedMovie} onClose={handleCloseModals} />}
                     </>
                 )}
-            />
+                />
+                <GridModal
+                    title={activeCategory.name}
+                    streams={itemsForActiveCategory}
+                    onClose={() => {setSelectedMovie(null); setActiveCategory(null); }}
+                    onPosterClick={handleMoviePosterClick}
+                />
+                {selectedMovie && <MovieDetailModal movie={selectedMovie} onClose={handleCloseModals} />}
+            </>
         );
     }
 

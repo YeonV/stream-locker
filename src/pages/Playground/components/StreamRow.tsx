@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { FiGrid, FiSearch, FiX } from 'react-icons/fi';
 import { StreamCarousel } from './StreamCarousel';
 import { GridModal } from './GridModal';
-import type { PosterItem } from '../../../types/playlist';
+import type { MovieInfo, PosterItem } from '../../../types/playlist';
 // import { FocusTrap } from 'focus-trap-react';
 // import { useUiContextStore } from '../../../store/uiContextStore';
 import { useEnvStore } from '../../../store/envStore';
@@ -12,9 +12,10 @@ interface StreamRowProps {
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
   rowIndex?: number;
+  selectedMovie?: MovieInfo | null
 }
 
-export const StreamRow = ({ title, streams, onPosterClick, rowIndex }: StreamRowProps) => {
+export const StreamRow = ({ title, streams, onPosterClick, rowIndex, selectedMovie }: StreamRowProps) => {
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,7 +89,7 @@ export const StreamRow = ({ title, streams, onPosterClick, rowIndex }: StreamRow
       </div>
 
 
-      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} rowIndex={rowIndex} />
+      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} rowIndex={rowIndex} selectedMovie={selectedMovie} />
 
       {isGridModalOpen && (
         <GridModal 

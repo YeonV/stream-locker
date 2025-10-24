@@ -8,14 +8,7 @@ import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlis
 import { useElementSize } from '../../hooks/useElementSize';
 import { useUiContextStore } from '../../store/uiContextStore';
 import { useHotkeys } from 'react-hotkeys-hook';
-
-const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
-    const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
-    const bHasValidImage = b.imageUrl && (b.imageUrl.endsWith('.jpg') || b.imageUrl.endsWith('.png')) && !b.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
-    if (aHasValidImage && !bHasValidImage) { return -1; }
-    if (!aHasValidImage && bHasValidImage) { return 1; }
-    return 0;
-};
+import { sortByImagePresence } from '../../utils/sortByImagePresence';
 
 const ROW_GAP_UNIT = 12;
 // const ROW_GAP_PX = ROW_GAP_UNIT * 4;
@@ -116,7 +109,7 @@ export const MoviesView = () => {
         }
     }, { 
         // This is the key: only enable when a poster is focused.
-        enabled: focusedCoordinate !== null,
+        enabled: (focusedCoordinate !== null) && (selectedMovie === null)
     });
 
         useHotkeys('arrowdown', (e) => {
@@ -135,7 +128,7 @@ export const MoviesView = () => {
             setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col > itemsPerPage - 1 ? 0 : focusedCoordinate!.col });
         }
     }, { 
-        enabled: focusedCoordinate !== null 
+        enabled: (focusedCoordinate !== null) && (selectedMovie === null)
     });
 
     return (
@@ -199,6 +192,7 @@ export const MoviesView = () => {
                                 streams={sortedItems}
                                 onPosterClick={handleMoviePosterClick}
                                 rowIndex={index}
+                                selectedMovie={selectedMovie}
                             />
                         );
                     })}
