@@ -7,6 +7,7 @@ import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
 import { useUiContextStore } from '../../store/uiContextStore';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -33,7 +34,6 @@ export const MoviesView = () => {
     const isReady = measuredRowHeight > 0;
     const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
     const setFocusedCoordinate = useUiContextStore(state => state.setFocusedCoordinate);
-
 
 
     // Data memoization logic is unchanged and correct
@@ -88,6 +88,39 @@ export const MoviesView = () => {
             setFocusedCoordinate({ row: 0, col: 0 });
         }
     }, []);
+
+    useHotkeys('arrowup', (e) => {
+        e.preventDefault();
+        const currentRow = focusedCoordinate!.row;
+        
+        if (currentRow === 0) {
+            // Exit to header
+            setFocusedCoordinate(null);
+            const headerLink = document.querySelector('#main-nav a') as HTMLElement;
+            headerLink?.focus();
+        } else {
+            const newRow = currentRow - 1;
+            rowVirtualizer.scrollToIndex(newRow, { align: 'center' });
+            setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col });
+        }
+    }, { 
+        // This is the key: only enable when a poster is focused.
+        enabled: focusedCoordinate !== null 
+    });
+
+        useHotkeys('arrowdown', (e) => {
+        e.preventDefault();
+        const maxIndex = moviesCategories.length - 1;
+        const currentRow = focusedCoordinate!.row;
+
+        if (currentRow < maxIndex) {
+            const newRow = currentRow + 1;
+            rowVirtualizer.scrollToIndex(newRow, { align: 'center' });
+            setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col });
+        }
+    }, { 
+        enabled: focusedCoordinate !== null 
+    });
 
     return (
         <div ref={parentRef}

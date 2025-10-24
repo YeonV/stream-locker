@@ -29,6 +29,7 @@ interface DataState {
   seriesCategories: Category[];
   liveCategories: Category[];
   lastUpdated: string | null;
+  syncProgress: Record<string, { isLoading: boolean; lastUpdated: string | null }>;
 }
 
 interface DataActions {
@@ -39,6 +40,8 @@ interface DataActions {
   setSeriesCategories: (categories: Category[]) => void;
   setLiveCategories: (categories: Category[]) => void;
   setLastUpdated: (timestamp: string | null) => void;
+  setSyncProgress: (progress: Record<string, { isLoading: boolean; lastUpdated: string | null }>) => void;
+  updateSyncItemProgress: (item: string, isLoading: boolean, lastUpdated?: string) => void;
 }
 
 // 3. Create the store
@@ -53,6 +56,14 @@ export const useDataStore = create<DataState & DataActions>()(
       seriesCategories: [],
       liveCategories: [],
       lastUpdated: null,
+      syncProgress: {
+        movies: { isLoading: false, lastUpdated: null },
+        series: { isLoading: false, lastUpdated: null },
+        liveStreams: { isLoading: false, lastUpdated: null },
+        moviesCategories: { isLoading: false, lastUpdated: null },
+        seriesCategories: { isLoading: false, lastUpdated: null },
+        liveCategories: { isLoading: false, lastUpdated: null },
+      },
       // --- Actions ---
       setMovies: (movies) => set({ movies }),
       setSeries: (series) => set({ series }),
@@ -61,6 +72,16 @@ export const useDataStore = create<DataState & DataActions>()(
       setSeriesCategories: (categories) => set({ seriesCategories: categories }),
       setLiveCategories: (categories) => set({ liveCategories: categories }),
       setLastUpdated: (timestamp) => set({ lastUpdated: timestamp }),
+      setSyncProgress: (progress) => set({ syncProgress: progress }),
+      updateSyncItemProgress: (item, isLoading, lastUpdated) => set((state) => ({
+        syncProgress: {
+          ...state.syncProgress,
+          [item]: {
+            isLoading,
+            lastUpdated: lastUpdated || state.syncProgress[item].lastUpdated
+          }
+        }
+      })),
     }),
     {
       name: 'stream-locker-data-storage', // A unique name for the IndexedDB store
