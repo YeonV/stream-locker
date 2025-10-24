@@ -64,6 +64,17 @@ export const MoviesView = () => {
         return map;
     }, [moviesCategories, movieItemsBase, moviesStreamsById]);
 
+    const sortedMoviesByCategory = useMemo(() => {
+        const sortedMap = new Map<string, PosterItem[]>();
+        // Iterate over the original, unsorted map
+        for (const [categoryId, items] of moviesByCategory.entries()) {
+            // Create a new sorted array and set it in the new map
+            const sortedItems = [...items].sort(sortByImagePresence);
+            sortedMap.set(categoryId, sortedItems);
+        }
+        return sortedMap;
+    }, [moviesByCategory]);
+
     const handleMoviePosterClick = async (vodId: number) => { const info = await xtreamApi?.getMovieInfo(vodId); setSelectedMovie(info as MovieInfo); };
     const handleCloseModals = () => { setSelectedMovie(null);};
 
@@ -80,8 +91,8 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
-    console.log('current focused coordinate:', focusedCoordinate);
-    console.log('current focused element:', document.activeElement);
+    // console.log('current focused coordinate:', focusedCoordinate);
+    // console.log('current focused element:', document.activeElement);
 
     useEffect(() => {
         if (focusedCoordinate === null) {
@@ -100,7 +111,7 @@ export const MoviesView = () => {
             headerLink?.focus();
         } else {
             const newRow = currentRow - 1;
-            rowVirtualizer.scrollToIndex(newRow, { align: 'center' });
+            rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
             setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col });
         }
     }, { 
@@ -110,13 +121,18 @@ export const MoviesView = () => {
 
         useHotkeys('arrowdown', (e) => {
         e.preventDefault();
+        e.stopImmediatePropagation()
         const maxIndex = moviesCategories.length - 1;
         const currentRow = focusedCoordinate!.row;
 
         if (currentRow < maxIndex) {
             const newRow = currentRow + 1;
-            rowVirtualizer.scrollToIndex(newRow, { align: 'center' });
-            setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col });
+            rowVirtualizer.scrollToIndex(newRow, { align: 'center', behavior: 'smooth' });
+            const itemWidth = 160; // w-40 = 160px
+            const itemGap = 16; // mx-2 = 8px margin on each side = 16px total
+            const containerWidth = parentRef.current?.clientWidth || 0;
+            const itemsPerPage = Math.floor(containerWidth / (itemWidth + itemGap));
+            setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col > itemsPerPage - 1 ? 0 : focusedCoordinate!.col });
         }
     }, { 
         enabled: focusedCoordinate !== null 
@@ -141,11 +157,9 @@ export const MoviesView = () => {
                     {virtualRows.map((virtualRow, rowIndex) => {
                         const category = moviesCategories[virtualRow.index];
                         if (!category) return null;
-
-                        const items = moviesByCategory.get(category.category_id) || [];
-                        if (items.length === 0) return null;
-
-                        const sortedItems = [...items].sort(sortByImagePresence);
+                        
+                        const sortedItems = sortedMoviesByCategory.get(category.category_id) || [];
+                        if (sortedItems.length === 0) return null;
 
                         return (
                             <div

@@ -14,23 +14,22 @@ interface PosterProps {
 export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => {
     const postRef = useRef<HTMLButtonElement>(null);
     const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
+    const setFocusedCoordinate = useUiContextStore(state => state.setFocusedCoordinate);
 
     useEffect(() => {
         const isFocused = focusedCoordinate?.row === rowIndex && focusedCoordinate?.col === colIndex;
-        console.log('WTF:', isFocused, focusedCoordinate, rowIndex, colIndex);
         if (isFocused) {
-            console.log('Focusing poster:', stream.name);
-            setTimeout(() => {
-                postRef?.current?.focus();
-            }, 100);
+            // setTimeout(() => {
+            //     postRef?.current?.focus();
+            // }, 100);
+            postRef?.current?.focus({ preventScroll: true });
         }
-    }, [colIndex, focusedCoordinate, focusedCoordinate?.col, focusedCoordinate?.row, rowIndex, stream.name]);
+    }, [colIndex, focusedCoordinate, focusedCoordinate?.col, focusedCoordinate?.row, rowIndex]);
 
     const content = (dummy?: boolean) => {
         return (
             <>
                 <p
-                    // THEME: Changed text-white to text-text-primary
                     className="text-base font-bold text-text-primary [text-shadow:_0_1px_4px_#000]"
                     style={{
                         display: '-webkit-box',
@@ -62,7 +61,10 @@ export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => 
     return (
         <button
             onClick={onClick}
+            data-row={rowIndex}
+            data-col={colIndex}
             ref={postRef}
+            onFocus={() => setFocusedCoordinate({ row: rowIndex!, col: colIndex! })}
             className="relative group/poster w-full h-full bg-background-secondary rounded-lg overflow-hidden transform 
                      hover:-translate-y-1 transition-transform duration-200 cursor-pointer shadow-lg 
                      focus:outline-none focus:ring-4 focus:ring-primary-focus focus:z-10"

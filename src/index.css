@@ -38,7 +38,9 @@
   scrollbar-color: var(--color-text-tertiary) var(--color-background-secondary);
   box-sizing: border-box;
 }
-
+html {
+  overflow-x: hidden;
+}
 html, body, #root {
   background: transparent;
 }

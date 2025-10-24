@@ -5,6 +5,9 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import type { PosterItem } from '../../../types/playlist';
 import { useElementSize } from '../../../hooks/useElementSize';
 import { useEnvStore } from '../../../store/envStore';
+import { useUiContextStore } from '../../../store/uiContextStore';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useFooterStore } from '../../../store/footerStore';
 
 interface StreamCarouselProps {
   streams: PosterItem[];
@@ -24,9 +27,14 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
   const [sizerRef, sizerMetrics] = useElementSize();
   const device = useEnvStore(state => state.device);
 
+  const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
   const itemWidth = sizerMetrics.width;
   const itemGap = sizerMetrics.marginLeft + sizerMetrics.marginRight;
-  
+  const setRewind = useFooterStore(state => state.setRewind);
+  const setForward = useFooterStore(state => state.setForward);
+  const rewind = useFooterStore(state => state.rewind);
+  const forward = useFooterStore(state => state.forward);
+
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
 
@@ -76,6 +84,31 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarou
     width: `${columnVirtualizer.getTotalSize()}px`,
     height: isReady ? `${sizerMetrics.height}px` : `${INITIAL_WIDTH_GUESS * 1.5}px`,
   };
+
+  useHotkeys('MediaFastForward', (e) => {
+    e.preventDefault();
+      handleScrollByPage('next');
+  }, { 
+      enabled: focusedCoordinate?.row === rowIndex 
+  });
+  
+  useHotkeys('MediaRewind', (e) => {
+    e.preventDefault();
+      handleScrollByPage('prev');
+  }, { 
+      enabled: focusedCoordinate?.row === rowIndex 
+  });
+
+  useEffect(() => {
+    const lastRewind = rewind;;
+    const lastForward = forward;
+    setRewind('Scroll Left');
+    setForward('Scroll Right');
+    return () => {
+      setRewind(lastRewind);
+      setForward(lastForward);
+    }
+  }, [setRewind, setForward, rewind, forward]);
 
   return (
     <div className="relative group/arrows group/fades">
