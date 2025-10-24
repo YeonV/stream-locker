@@ -38,6 +38,13 @@ const navItems: NavStructure[] = [
   { type: 'single', item: { path: '/playground/dev', label: 'Dev', Icon: FiCode }},
 ];
 
+const flatNavItems: NavItem[] = navItems.flatMap(nav => {
+  if (nav.type === 'group') {
+    return nav.items;
+  }
+  return [nav.item];
+});
+
 // Flattened list for the mobile nav, which doesn't have the toggle logic
 const mobileNavItems = [
   { path: '/playground/movies', label: 'Movies', Icon: FiFilm },
@@ -222,6 +229,7 @@ export const PlaygroundLayout = () => {
   const isSeriesSection = pathname.startsWith('/playground/series');
 
   const handleViewSwitch = () => {
+    if (device === 'firetv') return;
     if (isMoviesSection) {
       if (pathname === '/playground/movies') {
         navigate('/playground/movies-categories');
@@ -241,21 +249,36 @@ export const PlaygroundLayout = () => {
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <header className={`flex items-center justify-between ${device === 'android' ? 'pt-8' : 'pt-2'} pb-2 px-4 border-b border-border-primary bg-background-secondary/80 backdrop-blur-sm flex-shrink-0 z-10`}>
         <div className="flex items-center space-x-8 w-full">
-          <div id="main-nav" className="flex items-center space-x-1 w-full" onKeyDown={(e) => {
-             const isContentPage = pathname.startsWith('/playground/movies') || pathname.startsWith('/playground/series');
+          <div id="main-nav" className="flex items-center space-x-1 w-full" 
+          // onKeyDown={(e) => {
+          //    const isContentPage = pathname.startsWith('/playground/movies') || pathname.startsWith('/playground/series');
 
-              if (isContentPage) {
-                e.preventDefault();
-                // Use the exact same selector as MoviesView to find the target.
-                const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
-                if (firstRowTitleButton) {
-                  firstRowTitleButton.focus();
-                }
-              }
-          }}>
+          //     if (isContentPage) {
+          //       e.preventDefault();
+          //       // Use the exact same selector as MoviesView to find the target.
+          //       const firstRowTitleButton = document.querySelector('[data-testid^="trap-button-"]') as HTMLElement;
+          //       if (firstRowTitleButton) {
+          //         firstRowTitleButton.focus();
+          //       }
+          //     }
+          // }}
+          >
             {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
-            
-            {(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {
+            {!isSettings && device !== 'firetv' 
+              ? flatNavItems.map((nav, index) => <NavLink
+                    key={index}
+                    to={nav.path}
+                    className={({ isActive }) =>
+                      `max-md:portrait:hidden flex items-center space-x-2 pl-3 pr-4 py-2 rounded-md font-semibold text-sm transition-colors ${
+                        isActive ? 'text-text-primary border-b-1 border-primary rounded-none' : 'text-text-secondary hover:bg-background-glass hover:text-text-primary'
+                      }`
+                    }
+                  >
+                    <nav.Icon size={16} />
+                    <span>{nav.path === '/playground/movies-categories' ? 'M-Cat' : nav.path === '/playground/series-categories' ? 'S-Cat' : nav.label}</span>
+                </NavLink>)
+                :(isSettings || !(xtreamPlaylists.length > 0) ? [] : devMode ? navItems : navItems.filter(nav => nav.type !== 'single' || nav.item.path !== '/playground/dev')).map((nav, index) => {
+
 
               if (nav.type === 'group') {
                 const isMoviesGroup = nav.items[0].path.startsWith('/playground/movies');

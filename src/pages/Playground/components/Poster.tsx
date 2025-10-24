@@ -2,21 +2,29 @@ import { FiPlay } from 'react-icons/fi';
 import type { PosterItem } from '../../../types/playlist';
 import { FaStar } from 'react-icons/fa';
 import { useEffect, useRef } from 'react';
+import { useUiContextStore } from '../../../store/uiContextStore';
 
 interface PosterProps {
     stream: PosterItem;
     onClick: () => void;
-    isFocused?: boolean;
+    rowIndex?: number;
+    colIndex?: number;
 }
 
-export const Poster = ({ stream, onClick, isFocused }: PosterProps) => {
+export const Poster = ({ stream, onClick, rowIndex, colIndex }: PosterProps) => {
     const postRef = useRef<HTMLButtonElement>(null);
+    const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
 
     useEffect(() => {
+        const isFocused = focusedCoordinate?.row === rowIndex && focusedCoordinate?.col === colIndex;
+        console.log('WTF:', isFocused, focusedCoordinate, rowIndex, colIndex);
         if (isFocused) {
-            postRef?.current?.focus();
+            console.log('Focusing poster:', stream.name);
+            setTimeout(() => {
+                postRef?.current?.focus();
+            }, 100);
         }
-    }, [isFocused]);
+    }, [colIndex, focusedCoordinate, focusedCoordinate?.col, focusedCoordinate?.row, rowIndex, stream.name]);
 
     const content = (dummy?: boolean) => {
         return (

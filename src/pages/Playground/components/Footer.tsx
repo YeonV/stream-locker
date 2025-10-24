@@ -97,11 +97,11 @@ const Footer = () => {
         if (document.activeElement !== null && (document.activeElement !== currentFocusedElement)) {
             setCurrentFocusedElement(document.activeElement);
             if (document.activeElement.closest('main')) {
-                console.log('Focus is inside <main>');
+                console.log('Focus is inside <main>', document.activeElement);
                 setPlay('Focus Header');
             }
             else if (document.activeElement.closest('header')) {
-                console.log('Focus is inside <header>');
+                console.log('Focus is inside <header>', document.activeElement);
                 setPlay('Focus Main');
             } else {
                 console.log('Focused Element Changed:', document.activeElement);

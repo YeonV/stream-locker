@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { MovieDetailModal } from './components/MovieDetailModal';
 import { StreamRow } from './components/StreamRow';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -6,6 +6,7 @@ import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Movie, PosterItem, Category, MovieInfo } from '../../types/playlist';
 import { useElementSize } from '../../hooks/useElementSize';
+import { useUiContextStore } from '../../store/uiContextStore';
 
 const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
     const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
@@ -30,15 +31,10 @@ export const MoviesView = () => {
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
-    const [focusedCoordinate, setFocusedCoordinate] = useState<{ row: number; col: number } | null>(null);
+    const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
+    const setFocusedCoordinate = useUiContextStore(state => state.setFocusedCoordinate);
 
-    const handleContainerFocus = () => {
-        // When the container gets focus, if no poster is already selected,
-        // we activate the coordinate system by focusing the first poster.
-        if (focusedCoordinate === null) {
-            setFocusedCoordinate({ row: 0, col: 0 });
-        }
-    };
+
 
     // Data memoization logic is unchanged and correct
     const moviesStreamsById = useMemo(() => {
@@ -84,10 +80,17 @@ export const MoviesView = () => {
     const sizerCategory = moviesCategories[0];
     const sizerItems = sizerCategory ? (moviesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
 
+    console.log('current focused coordinate:', focusedCoordinate);
+    console.log('current focused element:', document.activeElement);
+
+    useEffect(() => {
+        if (focusedCoordinate === null) {
+            setFocusedCoordinate({ row: 0, col: 0 });
+        }
+    }, []);
+
     return (
         <div ref={parentRef}
-            tabIndex={-1} // Makes the div programmatically focusable
-            onFocus={handleContainerFocus}
             className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}
         >
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
@@ -96,7 +99,6 @@ export const MoviesView = () => {
                         title="Sizer"
                         streams={sizerItems}
                         onPosterClick={() => {}}
-                        focusedCoordinate={focusedCoordinate}
                     />
                 )}
             </div>

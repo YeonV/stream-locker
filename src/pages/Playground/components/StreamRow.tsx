@@ -12,10 +12,9 @@ interface StreamRowProps {
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
   rowIndex?: number;
-  focusedCoordinate?: { row: number; col: number } | null;
 }
 
-export const StreamRow = ({ title, streams, onPosterClick, rowIndex, focusedCoordinate }: StreamRowProps) => {
+export const StreamRow = ({ title, streams, onPosterClick, rowIndex }: StreamRowProps) => {
   const [isGridModalOpen, setIsGridModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,7 +76,8 @@ export const StreamRow = ({ title, streams, onPosterClick, rowIndex, focusedCoor
             )}
           </div>
 
-          <button 
+          <button
+            tabIndex={0}
             onClick={() => setIsGridModalOpen(true)}
             className="flex-shrink-0 p-2 rounded-md bg-background-secondary border border-border-primary text-text-tertiary hover:bg-background-glass hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-focus"
             title="Open Grid View"
@@ -88,7 +88,7 @@ export const StreamRow = ({ title, streams, onPosterClick, rowIndex, focusedCoor
       </div>
 
 
-      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} rowIndex={rowIndex} focusedCoordinate={focusedCoordinate} />
+      <StreamCarousel streams={filteredStreams} onPosterClick={onPosterClick} rowIndex={rowIndex} />
 
       {isGridModalOpen && (
         <GridModal 

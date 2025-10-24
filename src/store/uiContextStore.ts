@@ -15,6 +15,9 @@ interface UiContextState {
   context: PlaybackContext;
   setContext: (context: PlaybackContext) => void;
   clearContext: () => void;
+
+  focusedCoordinate: { row: number; col: number } | null;
+  setFocusedCoordinate: (coordinate: { row: number; col: number } | null) => void;
 }
 
 export const useUiContextStore = create<UiContextState>((set) => ({
@@ -24,5 +27,9 @@ export const useUiContextStore = create<UiContextState>((set) => ({
   },
   clearContext: () => {
     set({ context: null });
+  },
+  focusedCoordinate: null,
+  setFocusedCoordinate: (coordinate) => {
+    set({ focusedCoordinate: coordinate });
   },
 }));

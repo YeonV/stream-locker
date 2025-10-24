@@ -10,7 +10,6 @@ interface StreamCarouselProps {
   streams: PosterItem[];
   onPosterClick: (id: number) => void;
   rowIndex?: number;
-  focusedCoordinate?: { row: number; col: number } | null;
 }
 
 // === CONFIGURATION ===
@@ -20,7 +19,7 @@ const ITEM_CLASSES = "w-40 aspect-[2/3] mx-2";
 const widthMatch = ITEM_CLASSES.match(/w-(\d+)/);
 const INITIAL_WIDTH_GUESS = widthMatch ? parseInt(widthMatch[1], 10) * 4 : 160; // 160px is w-40
 
-export const StreamCarousel = ({ streams, rowIndex, onPosterClick, focusedCoordinate }: StreamCarouselProps) => {
+export const StreamCarousel = ({ streams, rowIndex, onPosterClick }: StreamCarouselProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const [sizerRef, sizerMetrics] = useElementSize();
   const device = useEnvStore(state => state.device);
@@ -93,9 +92,6 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick, focusedCoordi
             {virtualItems.map((virtualItem) => {
               const item = streams[virtualItem.index];
               if (!item) return null;
-              const isPosterFocused = 
-                  focusedCoordinate?.row === rowIndex && 
-                  focusedCoordinate?.col === virtualItem.index;
               return (
                 <div
                   key={virtualItem.key}
@@ -103,7 +99,7 @@ export const StreamCarousel = ({ streams, rowIndex, onPosterClick, focusedCoordi
                   style={{ transform: `translateX(${virtualItem.start}px)` }}
                 >
                   <div className={ITEM_CLASSES}>
-                    <Poster stream={item} onClick={() => onPosterClick(item.id)} isFocused={isPosterFocused} />
+                    <Poster stream={item} onClick={() => onPosterClick(item.id)} rowIndex={rowIndex} colIndex={virtualItem.index} />
                   </div>
                 </div>
               );
