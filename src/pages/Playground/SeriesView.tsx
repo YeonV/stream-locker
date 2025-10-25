@@ -1,37 +1,29 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { SeriesDetailModal } from './components/SeriesDetailModal';
 import { StreamRow } from './components/StreamRow';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { useDataStore } from '../../store/dataStore';
 import { useApiStore } from '../../store/apiStore';
 import type { Serie, PosterItem, Category, SeriesInfo } from '../../types/playlist';
-import { useElementSize } from '../../hooks/useElementSize'; // Import our measurement hook
+import { useElementSize } from '../../hooks/useElementSize';
+import { useUiContextStore } from '../../store/uiContextStore';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { sortByImagePresence } from '../../utils/sortByImagePresence';
 
-const sortByImagePresence = (a: PosterItem, b: PosterItem): number => {
-    const aHasValidImage = a.imageUrl && (a.imageUrl.endsWith('.jpg') || a.imageUrl.endsWith('.png')) && !a.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
-    const bHasValidImage = b.imageUrl && (b.imageUrl.endsWith('.jpg') || b.imageUrl.endsWith('.png')) && !b.imageUrl.startsWith('http://cover.diatunnel.link:80/images');
-    if (aHasValidImage && !bHasValidImage) { return -1; }
-    if (!aHasValidImage && bHasValidImage) { return 1; }
-    return 0;
-};
-
-// --- SINGLE SOURCE OF TRUTH FOR SPACING ---
-const ROW_GAP_UNIT = 12; // Corresponds to space-y-12 (48px)
-const ROW_GAP_PX = ROW_GAP_UNIT * 4;
+const ROW_GAP_UNIT = 12;
 const ROW_GAP_CLASS = `space-y-${ROW_GAP_UNIT}`;
 
 export const SeriesView = () => {
-    const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);
+    const parentRef = useRef<HTMLDivElement>(null);
     const series: Serie[] = useDataStore(state => state.series);
+    const seriesCategories: Category[] = useDataStore(state => state.seriesCategories);
     const [selectedSeries, setSelectedSeries] = useState<SeriesInfo | null>(null);
     const xtreamApi = useApiStore((state) => state.xtreamApi);
-
-    // --- Sizer Logic for Dynamic Row Height ---
     const [rowSizerRef, rowSizerMetrics] = useElementSize();
     const measuredRowHeight = rowSizerMetrics.height;
     const isReady = measuredRowHeight > 0;
+    const focusedCoordinate = useUiContextStore(state => state.focusedCoordinate);
+    const setFocusedCoordinate = useUiContextStore(state => state.setFocusedCoordinate);
 
-    // Data memoization logic is unchanged
     const seriesById = useMemo(() => {
         const map = new Map<number, Serie>();
         for (const s of series) {
@@ -39,10 +31,15 @@ export const SeriesView = () => {
         }
         return map;
     }, [series]);
+
     const seriesItemsBase: PosterItem[] = useMemo(() => series.map(s => ({
-        id: s.series_id, name: s.name, imageUrl: s.cover, rating: parseFloat(s.rating_5based) || 0, added: s.last_modified,
+        id: s.series_id,
+        name: s.name,
+        imageUrl: s.cover,
+        rating: parseFloat(s.rating_5based) || 0,
+        added: s.last_modified,
     })), [series]);
-    
+
     const seriesByCategory = useMemo(() => {
         const map = new Map<string, PosterItem[]>();
         for (const category of seriesCategories) {
@@ -58,67 +55,98 @@ export const SeriesView = () => {
         return map;
     }, [seriesCategories, seriesItemsBase, seriesById]);
 
-    const handleSeriesPosterClick = async (seriesId: number) => { const info = await xtreamApi?.getSeriesInfo(seriesId); setSelectedSeries(info as SeriesInfo); };
-    const handleCloseModals = () => { setSelectedSeries(null);};
+    const sortedSeriesByCategory = useMemo(() => {
+        const sortedMap = new Map<string, PosterItem[]>();
+        for (const [categoryId, items] of seriesByCategory.entries()) {
+            const sortedItems = [...items].sort(sortByImagePresence);
+            sortedMap.set(categoryId, sortedItems);
+        }
+        return sortedMap;
+    }, [seriesByCategory]);
 
-    const parentRef = useRef<HTMLDivElement>(null);
-    const rowVirtualizer = useVirtualizer({
-        count: seriesCategories.length,
-        getScrollElement: () => parentRef.current,
-        // Use the dynamically measured height
-        estimateSize: () => isReady ? measuredRowHeight + ROW_GAP_PX : 300 + ROW_GAP_PX,
-        overscan: 3,
-    });
-    const virtualRows = rowVirtualizer.getVirtualItems();
+    const handleSeriesPosterClick = async (seriesId: number) => {
+        const info = await xtreamApi?.getSeriesInfo(seriesId);
+        setSelectedSeries(info as SeriesInfo);
+    };
     
-    // Use a sample category for the sizer
+    const handleCloseModals = () => {
+        setSelectedSeries(null);
+    };
+
     const sizerCategory = seriesCategories[0];
-    const sizerItems = sizerCategory ? (seriesByCategory.get(sizerCategory.category_id) || []).slice(0, 5) : [];
+    const sizerItems = sizerCategory ? (seriesByCategory.get(sizerCategory.category_id) || []).slice(0, 1) : [];
+
+    useEffect(() => {
+        if (focusedCoordinate === null) {
+            setFocusedCoordinate({ row: 0, col: 0 });
+        }
+    }, []);
+
+    useHotkeys('arrowup', (e) => {
+        e.preventDefault();
+        const currentRow = focusedCoordinate!.row;
+
+        if (currentRow === 0) {
+            // Future: Could implement exit to header here if desired.
+            // For now, it respects the boundary.
+        } else {
+            const newRow = currentRow - 1;
+            setFocusedCoordinate({ row: newRow, col: 0 });
+        }
+    }, {
+        enabled: (focusedCoordinate !== null) && (selectedSeries === null)
+    });
+
+    useHotkeys('arrowdown', (e) => {
+        e.preventDefault();
+        const maxIndex = seriesCategories.length - 1;
+        const currentRow = focusedCoordinate!.row;
+
+        if (currentRow < maxIndex) {
+            const newRow = currentRow + 1;
+            // const itemWidth = 160;
+            // const itemGap = 16;
+            // const containerWidth = parentRef.current?.clientWidth || 0;
+            // const itemsPerPage = Math.floor(containerWidth / (itemWidth + itemGap));
+            setFocusedCoordinate({ row: newRow, col: 0 });
+            // setFocusedCoordinate({ row: newRow, col: focusedCoordinate!.col > itemsPerPage - 1 ? 0 : focusedCoordinate!.col });
+        }
+    }, {
+        enabled: (focusedCoordinate !== null) && (selectedSeries === null)
+    });
 
     return (
-        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto ${ROW_GAP_CLASS}`}>
-            {/* The Sizer Row for measurement */}
+        <div ref={parentRef} className={`h-full w-full px-4 overflow-auto focus:outline-none ${ROW_GAP_CLASS}`}>
             <div ref={rowSizerRef} className="invisible absolute -z-10 w-full">
                 {sizerItems.length > 0 && (
                     <StreamRow
                         title="Sizer"
                         streams={sizerItems}
-                        onPosterClick={() => {}}
+                        onPosterClick={() => { }}
                     />
                 )}
             </div>
 
             {isReady && (
-                <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                    {virtualRows.map(virtualRow => {
-                        const category = seriesCategories[virtualRow.index];
-                        if (!category) return null;
-
-                        const items = seriesByCategory.get(category.category_id) || [];
-                        if (items.length === 0) return null;
-
-                        const sortedItems = [...items].sort(sortByImagePresence);
+                <>
+                    {seriesCategories.map((category, index) => {
+                        const sortedItems = sortedSeriesByCategory.get(category.category_id) || [];
+                        if (sortedItems.length === 0) return null;
 
                         return (
-                            <div
+                            <StreamRow
                                 key={category.category_id}
-                                className="absolute top-0 left-0 w-full"
-                                style={{
-                                    height: `${virtualRow.size}px`,
-                                    transform: `translateY(${virtualRow.start}px)`,
-                                }}
-                            >
-                                <StreamRow
-                                    title={category.category_name}
-                                    streams={sortedItems}
-                                    onPosterClick={handleSeriesPosterClick}
-                                />
-                            </div>
+                                title={category.category_name}
+                                streams={sortedItems}
+                                onPosterClick={handleSeriesPosterClick}
+                                rowIndex={index}
+                                selected={selectedSeries}
+                            />
                         );
                     })}
-                </div>
+                </>
             )}
-            
+
             {selectedSeries && <SeriesDetailModal series={selectedSeries} onClose={handleCloseModals} />}
         </div>
     );

@@ -7,7 +7,7 @@ import { useEnvStore } from '../../../store/envStore';
 import type { M3uPlaylist } from '../../../types/playlist';
 import logo from '../../../assets/logo.png';
 import yz from '../../../assets/yz.png';
-import DownloadAndroid from '../../../components/Download/DownloadAndroid';
+import { DownloadAndroid } from '../../../components/Download/DownloadAndroid';
 
 interface DashboardHeaderProps {
   m3uPlaylists: M3uPlaylist[];

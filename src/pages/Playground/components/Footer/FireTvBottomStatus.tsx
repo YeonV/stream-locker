@@ -3,7 +3,7 @@ import { IoMdRewind } from "react-icons/io";
 import { IoMdFastforward } from "react-icons/io";
 import { IoPlaySharp } from "react-icons/io5";
 import { IoPauseSharp } from "react-icons/io5";
-import { useFooterStore } from "../../../store/footerStore";
+import { useFooterStore } from "../../../../store/footerStore";
 import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 // import { TbDeviceRemoteFilled } from "react-icons/tb";
@@ -41,7 +41,7 @@ const Forward = ({label, active} : {label: string, active: boolean}) => {
   )
 }
 
-const Footer = () => {
+export const FireTvBottomStatus = () => {
     const play = useFooterStore(state => state.play);
     const rewind = useFooterStore(state => state.rewind);
     const forward = useFooterStore(state => state.forward);
@@ -146,5 +146,3 @@ const Footer = () => {
         </footer>
     )
 }
-
-export default Footer

@@ -12,7 +12,7 @@ interface DownloadAndroidState {
   error: string | null
 }
 
-const DownloadAndroid = () => {
+export const DownloadAndroid = () => {
   const device = useEnvStore(state => state.device);
   const [state, setState] = useState<DownloadAndroidState>({
     releases: [],
@@ -150,5 +150,3 @@ const DownloadAndroid = () => {
   }
 
 }
-
-export default DownloadAndroid
