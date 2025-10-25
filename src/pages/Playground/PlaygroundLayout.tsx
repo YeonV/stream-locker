@@ -23,7 +23,7 @@ import { useEnvStore } from '../../store/envStore';
 import { useHotkeys } from 'react-hotkeys-hook'
 
 export const PlaygroundLayout = () => {
-  
+
   const { session } = useAuthStore();
   const { pathname } = useLocation();
 
@@ -146,25 +146,22 @@ export const PlaygroundLayout = () => {
   return (
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <HeaderContainer>
-        <>
-          {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
-          {!isSettings && device === 'firetv'
-            ? <FireTvNavigation />
-            : <TopNavigation xtreamPlaylists={xtreamPlaylists} devMode={devMode} />
-          }
-          {(isMoviesSection || isSeriesSection) && <CategorySwitch />}
+        {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
+        {!isSettings && device === 'firetv'
+          ? <FireTvNavigation />
+          : <><TopNavigation xtreamPlaylists={xtreamPlaylists} devMode={devMode} />{(isMoviesSection || isSeriesSection) && <CategorySwitch />}</>
+        }
 
-          <div className="ml-auto flex items-center space-x-4">
-            {!isSettings && <PlaylistSelector xtreamPlaylists={xtreamPlaylists} selectedPlaylistId={selectedPlaylistId} handlePlaylistChange={handlePlaylistChange} />}
-            {(device === 'android' || device === 'firetv' || device === 'androidtv') && <DownloadAndroid />}
-            {import.meta.env.PROD && <ConsoleButton />}
-            <SmartStopButton />
-            {!isSettings && <SettingsButton />}
-            {isSettings && <LogoutButton />}
-            {!isSettings && <ClosePlaygroundButton />}
-            {isSettings && <CloseSettingsButton />}
-          </div>
-        </>
+        <div className="ml-auto flex items-center space-x-4">
+          {!isSettings && <PlaylistSelector xtreamPlaylists={xtreamPlaylists} selectedPlaylistId={selectedPlaylistId} handlePlaylistChange={handlePlaylistChange} />}
+          {(device === 'android' || device === 'firetv' || device === 'androidtv') && <DownloadAndroid />}
+          {import.meta.env.PROD && <ConsoleButton />}
+          <SmartStopButton />
+          {!isSettings && <SettingsButton />}
+          {!isSettings && <ClosePlaygroundButton />}
+          {isSettings && <LogoutButton />}
+          {isSettings && <CloseSettingsButton />}
+        </div>
       </HeaderContainer>
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet />

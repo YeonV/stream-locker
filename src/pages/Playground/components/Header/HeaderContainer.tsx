@@ -1,7 +1,7 @@
-import type { JSX } from "react"
 import { useEnvStore } from "../../../../store/envStore";
 
-export const HeaderContainer = ({ children }: { children: JSX.Element }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const HeaderContainer = ({ children }: { children: any }) => {
     
     const device = useEnvStore(state => state.device);
 
