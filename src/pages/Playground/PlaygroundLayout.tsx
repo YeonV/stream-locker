@@ -21,6 +21,7 @@ import { LogoutButton } from './components/Header/LogoutButton';
 import { useApiStore } from '../../store/apiStore';
 import { useEnvStore } from '../../store/envStore';
 import { useHotkeys } from 'react-hotkeys-hook'
+import { version } from '../../../package.json';
 
 export const PlaygroundLayout = () => {
 
@@ -146,7 +147,7 @@ export const PlaygroundLayout = () => {
   return (
     <div className="h-screen w-screen bg-background-primary text-text-primary flex flex-col">
       <HeaderContainer>
-        {isSettings && <h1 className="text-xl font-bold">Settings</h1>}
+        {isSettings && <h1 className="text-xl font-bold">Settings | Stream Locker v{version}</h1>}
         {!isSettings && device === 'firetv'
           ? <FireTvNavigation />
           : <><TopNavigation xtreamPlaylists={xtreamPlaylists} devMode={devMode} />{(isMoviesSection || isSeriesSection) && <CategorySwitch />}</>
